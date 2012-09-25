@@ -265,6 +265,31 @@ class SeqGrapher(TranscriptAnalyzer):
         
         return ax
     
+    def histogram(self, data,
+                    subplot=111, bins=50,
+                    title='', xlabel=None, ylabel=None,
+                    show_plot=True, ax=None):
+        '''
+        Draw a histogram for passed data.
+        
+        Data should be a list of vals::
+            [1,2,3,4,1,2,3,4]
+        
+        '''
+        ax = self.set_up_plot(ax, subplot)
+        
+        bp = pyplot.hist(data, bins=bins)
+        
+        self.add_axis_labels(xlabel, ylabel)
+        self.add_title(title, ax)
+        #pyplot.ylim(0,100)
+        # Any other operations to tack on?
+        self.other_plot()
+        
+        if show_plot: self.show_plot()
+        
+        return ax
+    
     def timeseries(self, dates, data, subplot=111,
                    show_average=False, show_median=True, 
                    colors=None, labels=None,
