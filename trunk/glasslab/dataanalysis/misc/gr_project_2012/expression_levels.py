@@ -11,7 +11,7 @@ from glasslab.dataanalysis.motifs.motif_analyzer import MotifAnalyzer
 
 if __name__ == '__main__':
     grapher = SeqGrapher()
-    dirpath = 'karmel/Desktop/Projects/Classes/Rotations/Finland 2012/GR Project/'
+    dirpath = 'karmel/Desktop/Projects/Classes/Rotations/Finland_2012/GR_Project/'
     dirpath = grapher.get_path(dirpath)
     filename = grapher.get_filename(dirpath, 'transcript_vectors.txt')
     

@@ -9,7 +9,7 @@ from glasslab.dataanalysis.graphing.seq_grapher import SeqGrapher
 
 if __name__ == '__main__':
     grapher = SeqGrapher()
-    base_dirpath = 'karmel/Desktop/Projects/Classes/Rotations/Finland 2012/GR Project/'
+    base_dirpath = 'karmel/Desktop/Projects/Classes/Rotations/Finland_2012/GR_Project/'
     base_dirpath = grapher.get_path(base_dirpath)
     dirpath = grapher.get_filename(base_dirpath, 'motifs')
     filename = grapher.get_filename(dirpath, 'transcript_vectors.txt')

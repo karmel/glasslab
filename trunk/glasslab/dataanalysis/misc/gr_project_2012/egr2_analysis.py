@@ -8,7 +8,7 @@ from glasslab.dataanalysis.base.datatypes import TranscriptAnalyzer
 
 if __name__ == '__main__':
     yzer = TranscriptAnalyzer()
-    dirpath = 'karmel/Desktop/Projects/Classes/Rotations/Finland 2012/GR Project/'
+    dirpath = 'karmel/Desktop/Projects/Classes/Rotations/Finland_2012/GR_Project/'
     dirpath = yzer.get_path(dirpath)
     
     data = yzer.import_file(yzer.get_filename(dirpath, 'transcript_vectors.txt'))

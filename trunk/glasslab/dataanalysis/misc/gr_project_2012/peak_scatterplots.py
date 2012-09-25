@@ -8,7 +8,7 @@ from glasslab.dataanalysis.graphing.seq_grapher import SeqGrapher
 
 if __name__ == '__main__':
     yzer = SeqGrapher()
-    dirpath = 'karmel/Desktop/Projects/Classes/Rotations/Finland 2012/GR Project/'
+    dirpath = 'karmel/Desktop/Projects/Classes/Rotations/Finland_2012/GR_Project/'
     dirpath = yzer.get_path(dirpath)
     img_dirpath = yzer.get_and_create_path(dirpath,'GR Chip', 'peak_tag_count_comparisons')
     

@@ -42,7 +42,7 @@ class TransrepressionClassifier(LogisticClassifier):
         
 if __name__ == '__main__':
     learner = TransrepressionClassifier()
-    dirpath = 'karmel/Desktop/Projects/Classes/Rotations/Finland 2012/GR Project/classification/from_peaks'
+    dirpath = 'karmel/Desktop/Projects/Classes/Rotations/Finland_2012/GR_Project/classification/from_peaks'
     dirpath = learner.get_path(dirpath)
     
     transcripts = learner.import_file(learner.get_filename(dirpath, 'transcript_vectors_kla_1_dex_over_kla_-0_58.txt'))

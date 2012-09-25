@@ -1,3 +1,12 @@
+import subprocess
+def bam_to_sam(file_name, output_file=None):
+	'''
+	Use samtools to convert BAM to SAM first if necessary.
+	'''
+	output = output_file or (file_name[-4:] == '.bam' and file_name.replace('bam','sam')) or (file_name + '.sam')
+	subprocess.check_call('samtools -h -o {} {}'.format(output, file_name))
+	return output
+
 def sam_to_bowtie(file_name, unique=True, output_file=None):
 	'''
 	Sample bowtie::
@@ -63,13 +72,23 @@ def sam_to_bowtie(file_name, unique=True, output_file=None):
 def write_line(line_to_write, output):
 	if line_to_write: output.write('\t'.join(line_to_write) + '\n')
 	
+	
+def convert_to_bowtie(file_name, convert_bam=False, unique=True, output_file=None):
+	if convert_bam or file_name[-4:] == '.bam': file_name = bam_to_sam(file_name)
+	output_file = sam_to_bowtie(file_name, unique=unique)
+
+	return output_file
+
 if __name__ == '__main__':
 	import sys
 	if len(sys.argv) > 1: file_name = sys.argv[1]
 	else: file_name = '/Volumes/Unknowme/kallison/Sequencing/GroSeq/ThioMac/2011_03_08_Glass/wt_kla_rosi_2h/s_1_sequence.txt.CA.trimmed.mm9.41.align'
-	if len(sys.argv) > 2 and sys.argv[2] == 'not_unique': 
+	if len(sys.argv) > 2 and sys.argv[2] == 'convert_bam':
+		convert_bam = True
+	else:  convert_bam = False
+	if len(sys.argv) > 3 and sys.argv[3] == 'not_unique': 
 		# This flag indicates bowtie has already been configured to only return unique matches; no need to re-ensure
 		unique = False
 	else: unique = True
-	sam_to_bowtie(file_name, unique=unique)
-
+	
+	convert_to_bowtie(file_name, convert_bam, unique)

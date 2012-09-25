@@ -101,7 +101,7 @@ if __name__ == '__main__':
     # Decompose data into lists
     # We want basepairs -500 to 2000
     grapher = BasepairCounter()
-    dirpath = 'karmel/Desktop/Projects/Classes/Rotations/Finland 2012/GR Project/basepair_counts'
+    dirpath = 'karmel/Desktop/Projects/Classes/Rotations/Finland_2012/GR_Project/basepair_counts'
     dirpath = grapher.get_path(dirpath)
     
     if False:

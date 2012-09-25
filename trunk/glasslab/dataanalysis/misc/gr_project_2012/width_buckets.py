@@ -150,7 +150,7 @@ def get_tag_proportions(data, label):
 if __name__ == '__main__':
     
     grapher = BasepairCounter()
-    dirpath = 'karmel/Desktop/Projects/Classes/Rotations/Finland 2012/GR Project/buckets_per_row'
+    dirpath = 'karmel/Desktop/Projects/Classes/Rotations/Finland_2012/GR_Project/buckets_per_row'
     dirpath = grapher.get_path(dirpath)
     
     if True: 

@@ -17,7 +17,7 @@ from sklearn.metrics.metrics import confusion_matrix
 
 if __name__ == '__main__':
     learner = LogisticClassifier()
-    dirpath = 'karmel/Desktop/Projects/Classes/Rotations/Finland 2012/GR Project/classification'
+    dirpath = 'karmel/Desktop/Projects/Classes/Rotations/Finland_2012/GR_Project/classification'
     dirpath = learner.get_path(dirpath)
     
     '''

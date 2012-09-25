@@ -15,7 +15,7 @@ import pandas
 if __name__ == '__main__':
     yzer = MotifAnalyzer()
     
-    dirpath = 'karmel/Desktop/Projects/Classes/Rotations/Finland 2012/GR Project/motifs'
+    dirpath = 'karmel/Desktop/Projects/Classes/Rotations/Finland_2012/GR_Project/motifs'
     dirpath = yzer.get_path(dirpath)
     
     if False:

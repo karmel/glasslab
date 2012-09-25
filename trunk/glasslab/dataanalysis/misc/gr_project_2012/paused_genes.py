@@ -14,7 +14,7 @@ from glasslab.dataanalysis.motifs.motif_analyzer import MotifAnalyzer
 
 if __name__ == '__main__':
     yzer = MotifAnalyzer()
-    dirpath = 'karmel/Desktop/Projects/Classes/Rotations/Finland 2012/GR Project/motifs'
+    dirpath = 'karmel/Desktop/Projects/Classes/Rotations/Finland_2012/GR_Project/motifs'
     dirpath = yzer.get_path(dirpath)
     
     grouped = yzer.import_file(yzer.get_filename(dirpath, 'feature_vectors.txt'))

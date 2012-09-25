@@ -27,6 +27,7 @@ from glasslab.sequencing.pipeline.annotate_base import check_input, _print,\
     call_bowtie, create_schema, trim_sequences, clean_bowtie_file
 from glasslab.utils.database import execute_query_without_transaction,\
     restart_server
+from glasslab.utils.misc.sam_to_bowtie import convert_to_bowtie
 
 class FastqOptionParser(GlassOptionParser):
     options = [
@@ -48,6 +49,8 @@ class FastqOptionParser(GlassOptionParser):
                            
                make_option('--skip_bowtie',action='store_true', dest='skip_bowtie', default=False, 
                            help='Skip bowtie; presume MACS uses input file directly.'),
+               make_option('--convert_to_bowtie',action='store_true', dest='convert_to_bowtie', default=False, 
+                           help='Convert from SAM or BAM to four column bowtie.'),
                make_option('--bowtie_table',action='store', dest='bowtie_table',
                            help='Skip transferring bowtie tags to table; bowtie tag table will be used directly.'),
                make_option('--skip_tag_table',action='store_true', dest='skip_tag_table',
@@ -169,6 +172,8 @@ if __name__ == '__main__':
             bowtie_file_path = options.file_path
             options.bowtie_stats_file = os.path.join(options.output_dir,'%s_bowtie_stats_summary.txt' % file_name)
         
+        if options.convert_to_bowtie:
+            bowtie_file_path = convert_to_bowtie(options.file_path)
         
         if not options.bowtie_table:
             _print('Creating schema if necessary.')
