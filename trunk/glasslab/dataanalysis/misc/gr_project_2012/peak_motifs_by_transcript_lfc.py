@@ -67,7 +67,7 @@ if __name__ == '__main__':
                               #'with_other_kla_or_dex',
                               #'no_other_kla_or_dex',
                               'with_pu_1_kla_dex',
-                              #'no_pu_1_kla_dex',
+                              'no_pu_1_kla_dex',
                               'gt_partner', 
                               #'lt_partner', 
                               #'with_partner',
