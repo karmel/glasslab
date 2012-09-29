@@ -66,19 +66,19 @@ if __name__ == '__main__':
                               #'no_other_kla_dex',
                               #'with_other_kla_or_dex',
                               #'no_other_kla_or_dex',
-                              'with_pu_1_kla_dex',
-                              'no_pu_1_kla_dex',
-                              'gt_partner', 
+                              #'with_pu_1_kla_dex',
+                              #'no_pu_1_kla_dex',
+                              #'gt_partner', 
                               #'lt_partner', 
                               #'with_partner',
-                              'no_partner', 
+                              #'no_partner', 
                               #'down_in_dex',
                               #'down_in_kla_dex',
                               #'down_in_kla', 
-                              'up_in_dex',
+                              #'up_in_dex',
                               #'up_in_kla_dex', 
-                              'up_in_kla', 
-                              #'transrepressed', 
+                              #'up_in_kla', 
+                              'transrepressed', 
                               #'up_in_dex_down_in_kla_dex', 
                               ):
                     # We have multiple copies of peaks if they align to different transcripts
@@ -87,7 +87,7 @@ if __name__ == '__main__':
                                                          peak_type, super_name)
                     curr_path = yzer.get_filename(parent_path, name)
                     # Group them after selecting those that we want
-                    if name != 'all': bg = yzer.get_filename(parent_path, 'all','all','all_regions_for_homer.txt')
+                    if name != 'all': bg = yzer.get_filename(parent_path, 'up_in_kla','up_in_kla','up_in_kla_regions_for_homer.txt')
                     else: bg = None
                     yzer.run_homer(None, name, curr_path, 
                                   center=True, reverse=False, preceding=False, size=size,
