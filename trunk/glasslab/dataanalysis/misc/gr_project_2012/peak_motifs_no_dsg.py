@@ -21,9 +21,7 @@ if __name__ == '__main__':
             all_data = all_data.fillna(0)
             
             for super_name, data in (('all', all_data,),
-                                  ('refseq', all_data[(all_data['score'] > 10) & (all_data['has_refseq'] == 1) 
-                                                  & (all_data['touches'] == 't') | (all_data['relationship'] == 'is downstream of')],),
-                                  ('distal', all_data[(all_data['distal'] == 't')],)):
+                                  ):
                 for name, dataset in (('all', data,),
                                       ):
                     # We have multiple copies of peaks if they align to different transcripts
