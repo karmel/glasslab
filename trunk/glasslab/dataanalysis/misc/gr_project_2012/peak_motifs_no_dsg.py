@@ -29,8 +29,7 @@ if __name__ == '__main__':
                                                          peak_type, super_name, name)
                     # Group them after selecting those that we want
                     dataset = dataset.groupby(['id','chr_name'],as_index=False).mean()
-                    yzer.run_homer(None, name, curr_path, 
+                    yzer.run_homer(dataset, name, curr_path, 
                                   center=True, reverse=False, preceding=False, size=size,
-                                  cpus=6, bg=None,
-                                  files_already_prepped=True)
+                                  cpus=6)
                 
