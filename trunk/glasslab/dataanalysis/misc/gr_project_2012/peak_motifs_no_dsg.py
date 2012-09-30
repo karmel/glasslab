@@ -12,7 +12,8 @@ if __name__ == '__main__':
     dirpath = 'karmel/Desktop/Projects/Classes/Rotations/Finland_2012/GR_Project/motifs/from_peaks/vs_non_dsg'
     dirpath = yzer.get_path(dirpath)
     
-    for peak_type in ('gr_dex_fa', 'gr_kla_dex_fa','gr_dex_dsg', 'gr_kla_dex_dsg',):
+    for peak_type in (#'gr_dex_fa', 'gr_kla_dex_fa',
+                      'gr_dex_dsg', 'gr_kla_dex_dsg',):
         size = 200
         if True:
             all_data = yzer.import_file(yzer.get_filename(dirpath,
