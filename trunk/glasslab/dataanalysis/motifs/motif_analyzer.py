@@ -50,6 +50,10 @@ class MotifAnalyzer(TranscriptAnalyzer):
         
         if not files_already_prepped:
             if not size: size = self.default_size
+            
+            try: data['strand'] = data['strand'].apply(int)
+            except KeyError: data['strand'] = 0
+            
             if not center:
                 first_strand, second_strand = 0, 1
                 if reverse:
@@ -69,8 +73,8 @@ class MotifAnalyzer(TranscriptAnalyzer):
                 data['transcription_end'] = data['transcription_end_alt'].fillna(data['transcription_end'])
             data['transcription_start'] = data['transcription_start'].apply(int)
             data['transcription_end'] = data['transcription_end'].apply(int)
-            data['strand'] = data['strand'].apply(int)
-                
+            
+             
             data.to_csv(region_filename,
                         cols=['id', 'chr_name', 'transcription_start', 'transcription_end', 'strand'],
                         header=False, index=False, sep='\t')
