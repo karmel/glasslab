@@ -20,6 +20,7 @@ class SeqGrapher(TranscriptAnalyzer):
                     master_dataset=None,
                     title='', xlabel=None, ylabel=None,
                     label=None, add_noise=False,
+                    show_points=True, set_limits=False,
                     show_2x_range=True, plot_regression=False,
                     show_count = True, show_correlation=True,
                     text_shift=0, text_color='black', 
@@ -51,16 +52,21 @@ class SeqGrapher(TranscriptAnalyzer):
         master_dataset = master_dataset or data
         
         ax = self.set_up_plot(ax, subplot)
+        
+        if set_limits:
+            self.xlim(ax, min(data[xcolname]), max(data[xcolname]))
+            self.ylim(ax, min(data[ycolname]), max(data[ycolname]))
         # Add some noise to prevent overlap?
         if add_noise:
-            xcol = normalvariate(data[xcolname], .01*data[xcolname])
-            ycol = normalvariate(data[ycolname], .01*data[ycolname])
+            xcol = data[xcolname]*(1 + .01*numpy.random.randn(len(data[xcolname])))
+            ycol = data[ycolname]*(1 + .01*numpy.random.randn(len(data[ycolname])))
         else: xcol, ycol = data[xcolname], data[ycolname]
         
-        # Plot points
-        pyplot.plot(xcol, ycol,
-                    'o', markerfacecolor='None',
-                    markeredgecolor=color, label=label)
+        if show_points:
+            # Plot points
+            pyplot.plot(xcol, ycol,
+                        'o', markerfacecolor='None',
+                        markeredgecolor=color, label=label)
         
         # Log scaled?
         if log:
@@ -78,6 +84,17 @@ class SeqGrapher(TranscriptAnalyzer):
         
         self.add_title(title, ax)
         
+        # Plot a least squares linear regression?
+        if plot_regression:
+            x, y = data[xcolname].copy(), data[ycolname].copy()
+            # Reduce Pandas Series to Numpy arrays to avoid indexing problems, if necessary
+            try: x, y = x.values, y.values
+            except AttributeError: pass
+            x.sort()
+            y = y[data[xcolname].argsort()]
+            m, c = numpy.polyfit(x, y, 1)
+            pyplot.plot(x, x*m + c, color=color, label=label + ' (Linear fit)')
+        
         # Show lines at two-fold change?
         if show_2x_range:
             if show_2x_range is True:  fold_change= 2.0
@@ -88,14 +105,6 @@ class SeqGrapher(TranscriptAnalyzer):
             pyplot.plot([1, max(master_dataset[xcolname])], [(1/fold_change), (1/fold_change)*max(master_dataset[xcolname])], 
                         '--', color='black')
         
-        # Plot a least squares linear regression?
-        if plot_regression:
-            x, y = data[xcolname].copy(), data[ycolname].copy()
-            x.sort()
-            y = y[data[xcolname].argsort()]
-            m, c = numpy.polyfit(x, y, 1)
-            pyplot.plot(x, x*m + c, color=color, label='Linear fit')
-            
         # Show Pearson correlation and count?
         if text_shift is True: text_shift = .1
         elif text_shift is False: text_shift = 0
@@ -142,6 +151,12 @@ class SeqGrapher(TranscriptAnalyzer):
         pyplot.xlabel(xlabel, labelpad=10)
         pyplot.ylabel(ylabel, labelpad=10)
         
+    def xlim(self, ax, min_x, max_x):
+        ax.set_xlim([min_x, max_x])
+
+    def ylim(self, ax, min_y, max_y):
+        ax.set_ylim([min_y, max_y])
+    
     def other_plot(self):
         return True
     
