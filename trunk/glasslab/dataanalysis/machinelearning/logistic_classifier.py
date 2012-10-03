@@ -149,7 +149,7 @@ class LogisticClassifier(Learner):
             self.draw_roc(for_roc, 
                   title = 'ROC for {1} features, c = {2}: {0}'.format(title_suffix, num_features, best_c), 
                   save_path = save_path_prefix + '_{0}_features_roc.png'.format(num_features))
-        return mean_metric, best_c
+        return mean_metric, best_c, mod
 
     def get_model(self, classifier_type='logistic', C=1.0, gamma=.001):
         if classifier_type == 'logistic':
@@ -194,7 +194,7 @@ class LogisticClassifier(Learner):
         if show_plot: pyplot.show()
         
     def draw_decision_boundaries(self, model, columns, training_data, training_labels,
-                                 title='', save_path='', show_plot=False):
+                                 title='', force_lim=None, save_path='', show_plot=False):
         '''
         From
         http://scikit-learn.org/stable/auto_examples/linear_model/plot_iris_logistic.html#example-linear-model-plot-iris-logistic-py
@@ -204,8 +204,11 @@ class LogisticClassifier(Learner):
         # Plot the decision boundary. For that, we will asign a color to each
         # point in the mesh [x_min, m_max]x[y_min, y_max].
         # Note that we're only taking the first two features here.
-        x_min, x_max = training_data[:, 0].min() - .5, training_data[:, 0].max() + .5
-        y_min, y_max = training_data[:, 1].min() - .5, training_data[:, 1].max() + .5
+        if force_lim:
+            x_min, x_max, y_min, y_max = force_lim
+        else:
+            x_min, x_max = training_data[:, 0].min() - .5, training_data[:, 0].max() + .5
+            y_min, y_max = training_data[:, 1].min() - .5, training_data[:, 1].max() + .5
         xx, yy = numpy.meshgrid(numpy.arange(x_min, x_max, h), numpy.arange(y_min, y_max, h))
         filler = numpy.array([numpy.zeros(len(xx.ravel())) for _ in xrange(0,training_data.shape[1] - 2)])
         if filler.any(): Z = model.predict(numpy.c_[xx.ravel(), yy.ravel(), filler.T])
@@ -238,8 +241,12 @@ class LogisticClassifier(Learner):
                 plot_max.append(training_data[:, i].max() + .1*abs(training_data[:, i].max()))
                 plot_min.append(training_data[:, i].min() - .1*abs(training_data[:, i].max()))
 
-        pyplot.xlim(plot_min[0], plot_max[0])
-        pyplot.ylim(plot_min[1], plot_max[1])
+        if force_lim:
+            pyplot.xlim(force_lim[0], force_lim[1])
+            pyplot.ylim(force_lim[2], force_lim[3])
+        else:
+            pyplot.xlim(plot_min[0], plot_max[0])
+            pyplot.ylim(plot_min[1], plot_max[1])
         pyplot.title(title)
         
         pyplot.savefig(save_path)

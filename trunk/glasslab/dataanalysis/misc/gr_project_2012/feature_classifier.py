@@ -7,13 +7,16 @@ The goal here is to see if we can tease out which features are
 predictive of characteristics of interest, such as pausing ratio
 or transrepression. Worth a stab.
 '''
+from __future__ import division
 from glasslab.dataanalysis.misc.gr_project_2012.width_buckets import get_data_with_bucket_score
 from glasslab.dataanalysis.machinelearning.logistic_classifier import LogisticClassifier
-from glasslab.dataanalysis.misc.gr_project_2012.elongation import get_rep_string
+from glasslab.dataanalysis.misc.gr_project_2012.elongation import get_rep_string,\
+    total_tags_per_run
 import os
 import sys
 import math
 from sklearn.metrics.metrics import confusion_matrix
+from random import shuffle
 
 if __name__ == '__main__':
     learner = LogisticClassifier()
@@ -43,14 +46,14 @@ if __name__ == '__main__':
     '''
     grouped = learner.import_file(learner.get_filename(dirpath, 'feature_vectors.txt'))
     
-    if False:
+    if True:
         # Can we predict pausing ratio?
         
         # Minimal ratio in KLA+Dex vs. KLA pausing
         try: min_ratio= float(sys.argv[1])
-        except IndexError: min_ratio = 2 
+        except IndexError: min_ratio = 3
         try: force_choice = sys.argv[2].lower() == 'force'
-        except IndexError: force_choice = False
+        except IndexError: force_choice = True
         try: extra_dir = sys.argv[3]
         except IndexError: extra_dir = ''
         
@@ -60,7 +63,7 @@ if __name__ == '__main__':
         
         if not os.path.exists(subdir): os.makedirs(subdir)
         
-            
+        totals = total_tags_per_run()   
         for replicate_id in ('', 1, 2, 3, 4):
             rep_str = get_rep_string(replicate_id)
             
@@ -93,16 +96,47 @@ if __name__ == '__main__':
             
             labels = map(lambda x: int(x[0] and x[1]), zip(labels, mask))
             '''
-            print 'Total positive examples: ', sum(labels)
             # Nulls should be zeroes. Fill those first.
             dataset = dataset.fillna(0)
             dataset = learner.normalize_data(dataset)
+            
+            if force_choice:
+                # Skip if not force_choice because it takes too long on my laptop.
+                
+                # Now check reliability on non-trivial examples,
+                # where Dex+KLA start tags are not equal to KLA start tags
+                # (since that would make the kla_dex_gene_body_lfc
+                # perfectly predictive.
+                
+                norm_factor = totals['kla_dex'][replicate_id or 0]/totals['kla'][replicate_id or 0]
+                kla_dex_starts = grouped['kla_dex_{0}gene_start_tags'.format(rep_str)]
+                kla_starts = grouped['kla_{0}gene_start_tags'.format(rep_str)]
+                kla_dex_starts = kla_dex_starts.apply(lambda x: max(x, 1))
+                kla_starts = kla_starts.apply(lambda x: max(x, 1))
+                start_ratio = kla_dex_starts/(kla_starts*norm_factor)
+                mask = start_ratio.apply(lambda x: abs(math.log(x,2))) > .25 # Approx 20% up or down
+                print sum(mask)
+                
+                # We want a random subset of the non-trivial cases as our tests
+                test_indices = dataset.ix[mask].index.values
+                shuffle(test_indices)
+                test_indices = test_indices[:int(len(test_indices)/3)]
+                # Now test_indices is a list of indices we want. 
+                test_vectors = dataset.ix[test_indices]
+                test_labels = labels.ix[test_indices]
+                print sum(test_labels)
+                
+                dataset = dataset[~dataset.index.isin(test_indices)].reset_index()
+                labels = labels[~dataset.index.isin(test_indices)].reset_index()[0]
+                
+            print 'Total positive examples: ', sum(labels)
             
             classifier_type='logistic'
             best_err = 1.0
             best_c = 0
             best_chosen = []
             possible_k = [20, 10, 5, 2]
+            mods = []
             for k in possible_k:
                 if force_choice:
                     chosen = ['kla_{0}gene_body_lfc'.format(rep_str), 'dex_over_kla_{0}gene_body_lfc'.format(rep_str)]
@@ -112,7 +146,7 @@ if __name__ == '__main__':
                     
                 num_features = len(chosen)
                 
-                err, c = learner.run_nested_cross_validation(dataset, labels, columns=chosen,
+                err, c, mod = learner.run_nested_cross_validation(dataset, labels, columns=chosen,
                             classifier_type=classifier_type,
                             draw_roc=True, draw_decision_boundaries=force_choice,
                             title_suffix=replicate_id and 'Group {0}'.format(replicate_id) or 'Overall',
@@ -123,7 +157,7 @@ if __name__ == '__main__':
                     best_err = err
                     best_c = c
                     best_chosen = chosen
-                    
+                    best_mod = mod
                 if force_choice: break
         
             print "Best number of features: ", len(best_chosen)
@@ -131,33 +165,27 @@ if __name__ == '__main__':
             print "Best C, MSE: ", best_c, best_err
             
             if force_choice:
-                # Skip if not force_choice because it takes too long on my laptop.
-                
-                # Now check reliability on non-trivial examples,
-                # where Dex+KLA start tags are not equal to KLA start tags
-                # (since that would make the kla_dex_gene_body_lfc
-                # perfectly predictive.
-                mask = (grouped['kla_dex_{0}gene_start_tags'.format(rep_str)]\
-                            /grouped['kla_{0}gene_start_tags'.format(rep_str)])
-                mask = mask.fillna(0)
-                mask = mask.apply(lambda x: bool(x and abs(math.log(x,2)) > .25))
-                print sum(mask)
-                
-                test_vectors = dataset.ix[mask]
-                test_labels = labels.ix[mask]
-                print sum(test_labels)
-                
-                mod = learner.get_model(classifier_type=classifier_type, C=best_c)
-                fitted = mod.fit(dataset[best_chosen],labels)
-                predicted_probs = fitted.predict_proba(test_vectors)
+                #mod = learner.get_model(classifier_type=classifier_type, C=best_c)
+                #fitted = mod.fit(training_data, training_labels)
+                test_vectors = test_vectors[best_chosen]
+                predicted_probs = best_mod.predict_proba(test_vectors)
                 err = learner.mse(predicted_probs, test_labels.values)
-                
+                print err
                 print confusion_matrix(test_labels.values, predicted_probs[:,1] > .5)
                  
                 learner.draw_roc(label_sets=[(test_labels.values, predicted_probs)], 
                                  save_path=learner.get_filename(subdir,'check_nontrivial_{0}group'.format(rep_str)))
                 
-    if True:
+                
+                learner.draw_decision_boundaries(best_mod, best_chosen, 
+                  test_vectors.as_matrix(), 
+                  test_labels.values,
+                  title = 'Decision Boundaries: ' + (replicate_id and 'Group {0}'.format(replicate_id) or 'Overall'), 
+                  force_lim = [-3,3,-3,3],
+                  save_path = learner.get_filename(subdir,'plot_{0}group'.format(rep_str))\
+                                         + '_check_non_trivial_decision_boundaries.png'
+                  )
+    if False:
         # How about transrepression or derepression?
         try: force_choice = sys.argv[1].lower() == 'force'
         except IndexError: force_choice = False
@@ -170,7 +198,7 @@ if __name__ == '__main__':
         
         if not os.path.exists(subdir): os.makedirs(subdir)
         
-            
+          
         for replicate_id in ('', 1, 2, 3, 4):
             rep_str = get_rep_string(replicate_id)
             
@@ -211,7 +239,7 @@ if __name__ == '__main__':
                     
                 num_features = len(chosen)
                 
-                err, c = learner.run_nested_cross_validation(dataset, labels, columns=chosen,
+                err, c, mod = learner.run_nested_cross_validation(dataset, labels, columns=chosen,
                             draw_roc=True, draw_decision_boundaries=force_choice,
                             title_suffix=replicate_id and 'Group {0}'.format(replicate_id) or 'Overall',
                             save_path_prefix=learner.get_filename(subdir,'plot_{0}group'.format(rep_str)),

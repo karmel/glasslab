@@ -117,7 +117,7 @@ if __name__ == '__main__':
                 
             num_features = len(chosen)
             
-            err, c = learner.run_nested_cross_validation(dataset, labels, columns=chosen,
+            err, c, mod = learner.run_nested_cross_validation(dataset, labels, columns=chosen,
                         draw_roc=True, draw_decision_boundaries=force_choice,
                         title_suffix='Transrepressed (KLA/notx LFC >= 1, KLA+Dex/KLA <= -0.58)',
                         save_path_prefix=learner.get_filename(subdir,'plot_kla_1_dex_over_kla_-0_58'),
