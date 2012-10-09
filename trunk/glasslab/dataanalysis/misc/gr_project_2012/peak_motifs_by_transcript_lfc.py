@@ -29,7 +29,7 @@ if __name__ == '__main__':
                                   #('refseq', all_data[(all_data['score'] > 10) & (all_data['has_refseq'] == 1) 
                                   #                & (all_data['touches'] == 't') | (all_data['relationship'] == 'is downstream of')],),
                                   #('distal', all_data[(all_data['distal'] == 't')],),
-                                  ('enhancer_like', all_data[(all_data['has_refseq'] == 0) & (all_data['length'] < 10000)],)
+                                  ('enhancer_like', all_data[(all_data['has_refseq'] == 0) & (all_data['length'] < 10000)],),
                                   
                                   ):
                 for name, dataset in (('all', data,),
@@ -56,12 +56,12 @@ if __name__ == '__main__':
                     parent_path = yzer.get_and_create_path(motif_dirpath,  
                                                          'peak_motifs_by_transcript_lfc',
                                                          peak_type, super_name)
-                    curr_path = yzer.get_filename(parent_path, name)
+                    curr_path = yzer.get_and_create_path(parent_path, name)
                     
                     # Group them after selecting those that we want
                     dataset = dataset.groupby(['id','chr_name'],as_index=False).mean()
                     
-                    if name != 'all': bg = yzer.get_filename(parent_path, 'up_in_kla','up_in_kla','up_in_kla_regions_for_homer.txt')
+                    if name != 'all': bg = yzer.get_filename(parent_path, 'all','all','all_regions_for_homer.txt')
                     else: bg = None
                     
                     yzer.run_homer(dataset, name, curr_path, 
