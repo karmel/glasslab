@@ -29,7 +29,8 @@ if __name__ == '__main__':
                                   #('refseq', all_data[(all_data['score'] > 10) & (all_data['has_refseq'] == 1) 
                                   #                & (all_data['touches'] == 't') | (all_data['relationship'] == 'is downstream of')],),
                                   #('distal', all_data[(all_data['distal'] == 't')],),
-                                  ('enhancer_like', all_data[(all_data['has_refseq'] == 0) & (all_data['length'] < 10000)],),
+                                  ('enhancer_like', all_data[(all_data['has_refseq'] == 0) & (all_data['has_infrastructure'] == 0) 
+                                                             & (all_data['length'] < 10000)],),
                                   
                                   ):
                 for name, dataset in (('all', data,),

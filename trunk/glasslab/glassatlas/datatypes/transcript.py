@@ -232,30 +232,7 @@ class TranscriptionRegionBase(TranscriptModelBase):
                                                                     cls.cell_base.glass_transcript_prep._meta.db_table, 
                                                                     chr_id))
 
-    @classmethod
-    def toggle_autovacuum(cls, on=True):
-        '''
-        Toggle per-table autovacuum enabled state.
-        '''
-        for model in cls.cell_base.get_transcript_models():
-            execute_query('ALTER TABLE "%s" SET (autovacuum_enabled=%s);' \
-                    % (model._meta.db_table, on and 'true' or 'false'))
             
-    @classmethod
-    def turn_on_autovacuum(cls):
-        '''
-        Return autovacuum to normal, enabled state once all processing is done.
-        '''
-        cls.toggle_autovacuum(on=True)
-    
-    @classmethod
-    def turn_off_autovacuum(cls):
-        '''
-        We want to be able to turn off autovacuuming on a table-by-table basis
-        when we are doing large-scale imports of data to prevent the autovacuum
-        daemon from spinning up and using up resources before we're ready.
-        '''
-        cls.toggle_autovacuum(on=False)
             
 class TranscriptBase(TranscriptionRegionBase):
     '''
