@@ -18,82 +18,50 @@ class GlassAtlasTableGenerator(object):
         self.cell_type = cell_type or current_settings.CELL_TYPE
         self.staging = staging or current_settings.STAGING
         self.user = user or django_settings.DATABASES['default']['USER']
-        
-    def schemas(self, final=False):
-        s= """
-        CREATE SCHEMA "glass_atlas_{0}_{1}{staging}" AUTHORIZATION "{user}";"""
     
-        if not final:
-            s += """
-        CREATE SCHEMA "glass_atlas_{0}_{1}_prep" AUTHORIZATION "{user}";""" 
-        return s.format(self.genome, self.cell_type, 
-                        staging=self.staging, user=self.user)
+    def all_sql(self):
+        return self.prep_set() + self.final_set()
+    
+    def prep_set(self):
+        prep_suffix = '_prep'
+        s = self.schema(prep_suffix)
+        s += self.prep_table_main_transcript()
+        s += self.table_main_source(prep_suffix)
         
-    def other_tables(self):
+        for chr_id in current_settings.GENOME_CHROMOSOMES:
+            s += self.prep_table_chrom_transcript(chr_id)
+            s += self.table_chrom_source(chr_id, prep_suffix)
+        
+        s += self.prep_table_trigger_transcript()
+        s += self.table_trigger_source(prep_suffix)
+        
+        return s
+            
+    def final_set(self):
+        s = self.schema(self.staging)
+        s += self.table_main_transcript()
+        s += self.table_main_source(self.staging)
+        for chr_id in current_settings.GENOME_CHROMOSOMES:
+            s += self.table_chrom_transcript(chr_id)
+            s += self.table_chrom_source(chr_id, self.staging)
+        
+        s += self.table_trigger_transcript()
+        s += self.table_trigger_source(self.staging)
+        
+        s += self.region_relationship_types()
+        s += self.table_region_association('sequence')
+        s += self.table_region_association('non_coding')
+        s += self.table_region_association('infrastructure')
+        
+        s += self.peak_features()
+        s += self.table_norm_sum()
+        
+        return s
+        
+    def schema(self, suffix=''):
         return """
-        CREATE TYPE "glass_atlas_{0}"."sequencing_run_type" AS ENUM('Gro-Seq','RNA-Seq','ChIP-Seq');
-        CREATE TABLE "glass_atlas_{0}"."sequencing_run" (
-            "id" int4 NOT NULL,
-            "type" glass_atlas_{0}.sequencing_run_type DEFAULT NULL,
-            "cell_type" varchar(50) DEFAULT NULL,
-            "name" varchar(100) DEFAULT NULL,
-            "source_table" varchar(100) DEFAULT NULL,
-            "description" varchar(255) DEFAULT NULL,
-            "total_tags" int8 DEFAULT NULL,
-            "percent_mapped" numeric(5,2) DEFAULT NULL,
-            "peak_type_id" int4 DEFAULT NULL,
-            "standard" boolean DEFAULT false,
-            "requires_reload" boolean DEFAULT false,
-            "modified" timestamp(6) NULL DEFAULT NULL,
-            "created" timestamp(6) NULL DEFAULT NULL
-        );
-        GRANT ALL ON TABLE "glass_atlas_{0}"."sequencing_run" TO  "{user}";
-        CREATE SEQUENCE "glass_atlas_{0}"."sequencing_run_id_seq"
-            START WITH 1
-            INCREMENT BY 1
-            NO MINVALUE
-            NO MAXVALUE
-            CACHE 1;
-        ALTER SEQUENCE "glass_atlas_{0}"."sequencing_run_id_seq" OWNED BY "glass_atlas_{0}"."sequencing_run".id;
-        ALTER TABLE "glass_atlas_{0}"."sequencing_run" ALTER COLUMN id SET DEFAULT nextval('"glass_atlas_{0}"."sequencing_run_id_seq"'::regclass);
-        ALTER TABLE ONLY "glass_atlas_{0}"."sequencing_run" ADD CONSTRAINT sequencing_run_pkey PRIMARY KEY (id);
-        CREATE UNIQUE INDEX sequencing_run_source_table_idx ON "glass_atlas_{0}"."sequencing_run" USING btree (source_table);
-        
-        CREATE TABLE "glass_atlas_{0}"."sequencing_run_annotation" (
-            "id" int4 NOT NULL,
-            "sequencing_run_id" int4 DEFAULT NULL,
-            "note" varchar(100) DEFAULT NULL
-        );
-        GRANT ALL ON TABLE "glass_atlas_{0}"."sequencing_run_annotation" TO  "{user}";
-        CREATE SEQUENCE "glass_atlas_{0}"."sequencing_run_annotation_id_seq"
-            START WITH 1
-            INCREMENT BY 1
-            NO MINVALUE
-            NO MAXVALUE
-            CACHE 1;
-        ALTER SEQUENCE "glass_atlas_{0}"."sequencing_run_annotation_id_seq" OWNED BY "glass_atlas_{0}"."sequencing_run_annotation".id;
-        ALTER TABLE "glass_atlas_{0}"."sequencing_run_annotation" ALTER COLUMN id SET DEFAULT nextval('"glass_atlas_{0}"."sequencing_run_annotation_id_seq"'::regclass);
-        ALTER TABLE ONLY "glass_atlas_{0}"."sequencing_run_annotation" ADD CONSTRAINT sequencing_run_annotation_pkey PRIMARY KEY (id);
-        CREATE INDEX sequencing_run_annotation_run_idx ON "glass_atlas_{0}"."sequencing_run_annotation" USING btree (sequencing_run_id);
-        
-        CREATE TABLE "glass_atlas_{0}"."peak_type" (
-            "id" int4 NOT NULL,
-            "type" varchar(50) DEFAULT NULL,
-            "diffuse" boolean DEFAULT NULL
-        );
-        GRANT ALL ON TABLE "glass_atlas_{0}"."peak_type" TO  "{user}";
-        CREATE SEQUENCE "glass_atlas_{0}"."peak_type_id_seq"
-            START WITH 1
-            INCREMENT BY 1
-            NO MINVALUE
-            NO MAXVALUE
-            CACHE 1;
-        ALTER SEQUENCE "glass_atlas_{0}"."peak_type_id_seq" OWNED BY "glass_atlas_{0}"."peak_type".id;
-        ALTER TABLE "glass_atlas_{0}"."peak_type" ALTER COLUMN id SET DEFAULT nextval('"glass_atlas_{0}"."peak_type_id_seq"'::regclass);
-        ALTER TABLE ONLY "glass_atlas_{0}"."peak_type" ADD CONSTRAINT peak_type_pkey PRIMARY KEY (id);
-
-        """.format(self.genome, user=self.user)
-        
+        CREATE SCHEMA "glass_atlas_{0}_{1}{staging}" AUTHORIZATION "{user}";
+        """.format(self.genome, self.cell_type, suffix=suffix, user=self.user)
         
     def prep_table_main_transcript(self):
         return """
@@ -325,71 +293,137 @@ class GlassAtlasTableGenerator(object):
         """.format(self.genome, self.cell_type, type=region_type, user=self.user, suffix=self.staging)
         
         
-        def table_norm_sum(self):
-            return """
-            CREATE TABLE "glass_atlas_{0}_{1}{suffix}"."norm_sum" (
-                "id" int4 NOT NULL,
-                "name_1" varchar(100) DEFAULT NULL,
-                "name_2" varchar(100) DEFAULT NULL,
-                "total_runs_1" int4 DEFAULT NULL,
-                "total_runs_2" int4 DEFAULT NULL,
-                "total_tags_1" int4 DEFAULT NULL,
-                "total_tags_2" int4 DEFAULT NULL,
-                "transcript_count" int4 DEFAULT NULL,
-                "norm_tags_1" int4 DEFAULT NULL,
-                "norm_tags_2" int4 DEFAULT NULL,
-                "total_norm_factor" decimal(10,6) DEFAULT NULL,
-                "norm_factor" decimal(10,6) DEFAULT NULL,
-                "modified" timestamp(6) DEFAULT NULL
-            );
-            GRANT ALL ON TABLE "glass_atlas_{0}_{1}{suffix}"."norm_sum" TO  "{user}";
-            CREATE SEQUENCE "glass_atlas_{0}_{1}{suffix}"."norm_sum_id_seq"
-                START WITH 1
-                INCREMENT BY 1
-                NO MINVALUE
-                NO MAXVALUE
-                CACHE 1;
-            ALTER SEQUENCE "glass_atlas_{0}_{1}{suffix}"."norm_sum_id_seq" OWNED BY "glass_atlas_{0}_{1}{suffix}"."norm_sum".id;
-            ALTER TABLE "glass_atlas_{0}_{1}{suffix}"."norm_sum" ALTER COLUMN id SET DEFAULT nextval('"glass_atlas_{0}_{1}{suffix}"."norm_sum_id_seq"'::regclass);
-            ALTER TABLE ONLY "glass_atlas_{0}_{1}{suffix}"."norm_sum" ADD CONSTRAINT norm_sum_pkey PRIMARY KEY (id);
-            CREATE UNIQUE INDEX "norm_sum_name_idx" ON "glass_atlas_{0}_{1}{suffix}"."norm_sum" USING btree(name_1,name_2 ASC NULLS LAST);
-            """.format(self.genome, self.cell_type, user=self.user, suffix=self.staging)
-        
-        def peak_features(self):
-            return """
-            CREATE TYPE "glass_atlas_{0}_{1}{suffix}"."glass_transcript_feature_relationship" 
-                AS ENUM('contains','is contained by','overlaps with','is equal to','is upstream of','is downstream of');
-                
-            CREATE TABLE "glass_atlas_{0}_{1}{suffix}"."peak_feature" (
-                "id" int4 NOT NULL,
-                "glass_transcript_id" int4 DEFAULT NULL,
-                "glass_peak_id" int4 DEFAULT NULL,
-                "sequencing_run_id" int4 DEFAULT NULL,
-                "peak_type_id" int4 DEFAULT NULL,
-                relationship "glass_atlas_{0}_{1}{suffix}"."glass_transcript_feature_relationship",
-                "touches" boolean DEFAULT NULL,
-                "length" int4 DEFAULT NULL,
-                "tag_count" decimal(8,2) DEFAULT NULL,
-                "score" decimal(8,2) DEFAULT NULL,
-                "distance_to_tss" int4 DEFAULT NULL
-            );
-            GRANT ALL ON TABLE "glass_atlas_{0}_{1}{suffix}"."peak_feature" TO  "{user}";
-            CREATE SEQUENCE "glass_atlas_{0}_{1}{suffix}"."peak_feature_id_seq"
-                START WITH 1
-                INCREMENT BY 1
-                NO MINVALUE
-                NO MAXVALUE
-                CACHE 1;
-            ALTER SEQUENCE "glass_atlas_{0}_{1}{suffix}"."peak_feature_id_seq" OWNED BY "glass_atlas_{0}_{1}{suffix}"."peak_feature".id;
-            ALTER TABLE "glass_atlas_{0}_{1}{suffix}"."peak_feature" ALTER COLUMN id SET DEFAULT nextval('"glass_atlas_{0}_{1}{suffix}"."peak_feature_id_seq"'::regclass);
-            ALTER TABLE ONLY "glass_atlas_{0}_{1}{suffix}"."peak_feature" ADD CONSTRAINT peak_feature_pkey PRIMARY KEY (id);
-            CREATE INDEX peak_feature_glass_transcript_idx ON "glass_atlas_{0}_{1}{suffix}"."peak_feature" USING btree (glass_transcript_id);
-            CREATE INDEX peak_feature_peak_type_idx ON "glass_atlas_{0}_{1}{suffix}"."peak_feature" USING btree (peak_type_id);
-            CREATE INDEX peak_feature_relationship_idx ON "glass_atlas_{0}_{1}{suffix}"."peak_feature" USING btree (relationship);
-            CREATE INDEX peak_feature_touches_idx ON "glass_atlas_{0}_{1}{suffix}"."peak_feature" USING btree (touches);
-            """.format(self.genome, self.cell_type, user=self.user, suffix=self.staging)
+    def table_norm_sum(self):
+        return """
+        CREATE TABLE "glass_atlas_{0}_{1}{suffix}"."norm_sum" (
+            "id" int4 NOT NULL,
+            "name_1" varchar(100) DEFAULT NULL,
+            "name_2" varchar(100) DEFAULT NULL,
+            "total_runs_1" int4 DEFAULT NULL,
+            "total_runs_2" int4 DEFAULT NULL,
+            "total_tags_1" int4 DEFAULT NULL,
+            "total_tags_2" int4 DEFAULT NULL,
+            "transcript_count" int4 DEFAULT NULL,
+            "norm_tags_1" int4 DEFAULT NULL,
+            "norm_tags_2" int4 DEFAULT NULL,
+            "total_norm_factor" decimal(10,6) DEFAULT NULL,
+            "norm_factor" decimal(10,6) DEFAULT NULL,
+            "modified" timestamp(6) DEFAULT NULL
+        );
+        GRANT ALL ON TABLE "glass_atlas_{0}_{1}{suffix}"."norm_sum" TO  "{user}";
+        CREATE SEQUENCE "glass_atlas_{0}_{1}{suffix}"."norm_sum_id_seq"
+            START WITH 1
+            INCREMENT BY 1
+            NO MINVALUE
+            NO MAXVALUE
+            CACHE 1;
+        ALTER SEQUENCE "glass_atlas_{0}_{1}{suffix}"."norm_sum_id_seq" OWNED BY "glass_atlas_{0}_{1}{suffix}"."norm_sum".id;
+        ALTER TABLE "glass_atlas_{0}_{1}{suffix}"."norm_sum" ALTER COLUMN id SET DEFAULT nextval('"glass_atlas_{0}_{1}{suffix}"."norm_sum_id_seq"'::regclass);
+        ALTER TABLE ONLY "glass_atlas_{0}_{1}{suffix}"."norm_sum" ADD CONSTRAINT norm_sum_pkey PRIMARY KEY (id);
+        CREATE UNIQUE INDEX "norm_sum_name_idx" ON "glass_atlas_{0}_{1}{suffix}"."norm_sum" USING btree(name_1,name_2 ASC NULLS LAST);
+        """.format(self.genome, self.cell_type, user=self.user, suffix=self.staging)
+    
+    def peak_features(self):
+        return """
+        CREATE TYPE "glass_atlas_{0}_{1}{suffix}"."glass_transcript_feature_relationship" 
+            AS ENUM('contains','is contained by','overlaps with','is equal to','is upstream of','is downstream of');
             
-        def convenience_functions(self):
+        CREATE TABLE "glass_atlas_{0}_{1}{suffix}"."peak_feature" (
+            "id" int4 NOT NULL,
+            "glass_transcript_id" int4 DEFAULT NULL,
+            "glass_peak_id" int4 DEFAULT NULL,
+            "sequencing_run_id" int4 DEFAULT NULL,
+            "peak_type_id" int4 DEFAULT NULL,
+            relationship "glass_atlas_{0}_{1}{suffix}"."glass_transcript_feature_relationship",
+            "touches" boolean DEFAULT NULL,
+            "length" int4 DEFAULT NULL,
+            "tag_count" decimal(8,2) DEFAULT NULL,
+            "score" decimal(8,2) DEFAULT NULL,
+            "distance_to_tss" int4 DEFAULT NULL
+        );
+        GRANT ALL ON TABLE "glass_atlas_{0}_{1}{suffix}"."peak_feature" TO  "{user}";
+        CREATE SEQUENCE "glass_atlas_{0}_{1}{suffix}"."peak_feature_id_seq"
+            START WITH 1
+            INCREMENT BY 1
+            NO MINVALUE
+            NO MAXVALUE
+            CACHE 1;
+        ALTER SEQUENCE "glass_atlas_{0}_{1}{suffix}"."peak_feature_id_seq" OWNED BY "glass_atlas_{0}_{1}{suffix}"."peak_feature".id;
+        ALTER TABLE "glass_atlas_{0}_{1}{suffix}"."peak_feature" ALTER COLUMN id SET DEFAULT nextval('"glass_atlas_{0}_{1}{suffix}"."peak_feature_id_seq"'::regclass);
+        ALTER TABLE ONLY "glass_atlas_{0}_{1}{suffix}"."peak_feature" ADD CONSTRAINT peak_feature_pkey PRIMARY KEY (id);
+        CREATE INDEX peak_feature_glass_transcript_idx ON "glass_atlas_{0}_{1}{suffix}"."peak_feature" USING btree (glass_transcript_id);
+        CREATE INDEX peak_feature_peak_type_idx ON "glass_atlas_{0}_{1}{suffix}"."peak_feature" USING btree (peak_type_id);
+        CREATE INDEX peak_feature_relationship_idx ON "glass_atlas_{0}_{1}{suffix}"."peak_feature" USING btree (relationship);
+        CREATE INDEX peak_feature_touches_idx ON "glass_atlas_{0}_{1}{suffix}"."peak_feature" USING btree (touches);
+        """.format(self.genome, self.cell_type, user=self.user, suffix=self.staging)
+            
+    def other_tables(self):
+        return """
+        CREATE TYPE "glass_atlas_{0}"."sequencing_run_type" AS ENUM('Gro-Seq','RNA-Seq','ChIP-Seq');
+        CREATE TABLE "glass_atlas_{0}"."sequencing_run" (
+            "id" int4 NOT NULL,
+            "type" glass_atlas_{0}.sequencing_run_type DEFAULT NULL,
+            "cell_type" varchar(50) DEFAULT NULL,
+            "name" varchar(100) DEFAULT NULL,
+            "source_table" varchar(100) DEFAULT NULL,
+            "description" varchar(255) DEFAULT NULL,
+            "total_tags" int8 DEFAULT NULL,
+            "percent_mapped" numeric(5,2) DEFAULT NULL,
+            "peak_type_id" int4 DEFAULT NULL,
+            "standard" boolean DEFAULT false,
+            "requires_reload" boolean DEFAULT false,
+            "modified" timestamp(6) NULL DEFAULT NULL,
+            "created" timestamp(6) NULL DEFAULT NULL
+        );
+        GRANT ALL ON TABLE "glass_atlas_{0}"."sequencing_run" TO  "{user}";
+        CREATE SEQUENCE "glass_atlas_{0}"."sequencing_run_id_seq"
+            START WITH 1
+            INCREMENT BY 1
+            NO MINVALUE
+            NO MAXVALUE
+            CACHE 1;
+        ALTER SEQUENCE "glass_atlas_{0}"."sequencing_run_id_seq" OWNED BY "glass_atlas_{0}"."sequencing_run".id;
+        ALTER TABLE "glass_atlas_{0}"."sequencing_run" ALTER COLUMN id SET DEFAULT nextval('"glass_atlas_{0}"."sequencing_run_id_seq"'::regclass);
+        ALTER TABLE ONLY "glass_atlas_{0}"."sequencing_run" ADD CONSTRAINT sequencing_run_pkey PRIMARY KEY (id);
+        CREATE UNIQUE INDEX sequencing_run_source_table_idx ON "glass_atlas_{0}"."sequencing_run" USING btree (source_table);
+        
+        CREATE TABLE "glass_atlas_{0}"."sequencing_run_annotation" (
+            "id" int4 NOT NULL,
+            "sequencing_run_id" int4 DEFAULT NULL,
+            "note" varchar(100) DEFAULT NULL
+        );
+        GRANT ALL ON TABLE "glass_atlas_{0}"."sequencing_run_annotation" TO  "{user}";
+        CREATE SEQUENCE "glass_atlas_{0}"."sequencing_run_annotation_id_seq"
+            START WITH 1
+            INCREMENT BY 1
+            NO MINVALUE
+            NO MAXVALUE
+            CACHE 1;
+        ALTER SEQUENCE "glass_atlas_{0}"."sequencing_run_annotation_id_seq" OWNED BY "glass_atlas_{0}"."sequencing_run_annotation".id;
+        ALTER TABLE "glass_atlas_{0}"."sequencing_run_annotation" ALTER COLUMN id SET DEFAULT nextval('"glass_atlas_{0}"."sequencing_run_annotation_id_seq"'::regclass);
+        ALTER TABLE ONLY "glass_atlas_{0}"."sequencing_run_annotation" ADD CONSTRAINT sequencing_run_annotation_pkey PRIMARY KEY (id);
+        CREATE INDEX sequencing_run_annotation_run_idx ON "glass_atlas_{0}"."sequencing_run_annotation" USING btree (sequencing_run_id);
+        
+        CREATE TABLE "glass_atlas_{0}"."peak_type" (
+            "id" int4 NOT NULL,
+            "type" varchar(50) DEFAULT NULL,
+            "diffuse" boolean DEFAULT NULL
+        );
+        GRANT ALL ON TABLE "glass_atlas_{0}"."peak_type" TO  "{user}";
+        CREATE SEQUENCE "glass_atlas_{0}"."peak_type_id_seq"
+            START WITH 1
+            INCREMENT BY 1
+            NO MINVALUE
+            NO MAXVALUE
+            CACHE 1;
+        ALTER SEQUENCE "glass_atlas_{0}"."peak_type_id_seq" OWNED BY "glass_atlas_{0}"."peak_type".id;
+        ALTER TABLE "glass_atlas_{0}"."peak_type" ALTER COLUMN id SET DEFAULT nextval('"glass_atlas_{0}"."peak_type_id_seq"'::regclass);
+        ALTER TABLE ONLY "glass_atlas_{0}"."peak_type" ADD CONSTRAINT peak_type_pkey PRIMARY KEY (id);
+
+        """.format(self.genome, user=self.user)
+        
+        
+    def convenience_functions(self):
             return """
             CREATE OR REPLACE FUNCTION public.box_equality(left_hand box, right_hand box)
             RETURNS integer AS $$
