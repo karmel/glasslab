@@ -8,11 +8,12 @@ from glasslab.glassatlas.sql.transcripts_from_tags_functions import sql as trans
 from glasslab.glassatlas.sql.transcripts_from_prep_functions import sql as transcript_from_prep_function_sql
 from glasslab.glassatlas.sql.features_functions import sql as features_function_sql
 from glasslab.glassatlas.sql.glassatlas_table_generator import GlassAtlasTableGenerator
+from glasslab.config import current_settings
 
 
 if __name__ == '__main__':
-    genome = len(sys.argv) > 1 and sys.argv[1] or 'gap3_100_10'
-    cell_type = len(sys.argv) > 2 and sys.argv[2] or 'thiomac'
+    genome = len(sys.argv) > 1 and sys.argv[1] or current_settings.GENOME
+    cell_type = len(sys.argv) > 2 and sys.argv[2] or current_settings.CELL_TYPE
     subset = len(sys.argv) > 3 and sys.argv[3] or False
     
     generator = GlassAtlasTableGenerator(genome=genome, cell_type=cell_type)
