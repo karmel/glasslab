@@ -313,25 +313,6 @@ class GlassTranscript(TranscriptBase):
                        sequencing_run.source_table.strip(), 
                        MAX_GAP, TAG_EXTENSION, 
                        MAX_EDGE, EDGE_SCALING_FACTOR, DENSITY_MULTIPLIER)
-            query = '''
-            INSERT INTO gr_project_2012.tag_count_per_basepair
-            (glass_transcript_id, sequencing_run_id, 
-                basepair, tag_count, tag_start) 
-            SELECT glass_transcript_id, {0}, basepair, sum(tag_count), true
-            FROM (SELECT t.glass_transcript_id, 
-                (CASE WHEN t.strand = 1 THEN t.transcription_end - tag."end"
-                    ELSE tag.start - t.transcription_start END) as basepair, 
-                count(tag.id) as tag_count
-                FROM gr_project_2012.glass_transcript_start t
-                JOIN "{1}_{2}" tag
-                ON  t.start_end && tag.start_end
-                AND t.strand = tag.strand
-                WHERE t.chromosome_id = {2}
-            group by t.id, t.strand, t.transcription_start, tag.start, t.transcription_end, tag."end"
-            ) der
-            group by glass_transcript_id, basepair;
-            '''.format(sequencing_run.id, sequencing_run.source_table, chr_id)
-
             execute_query(query)
             
 
