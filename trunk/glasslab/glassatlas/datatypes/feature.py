@@ -34,9 +34,9 @@ class PeakFeature(GlassModel):
         abstract    = True
           
     def __unicode__(self):
-        return '%s %s %s (Dist to TSS: %d)' % (str(self.glass_transcript), 
+        return '{0} {1} {2} (Dist to TSS: {3})'.format(str(self.glass_transcript), 
                              self.relationship.strip(),
-                             str(self.peak_type),
+                             str(self.peak_type_id),
                              self.distance_to_tss)
     
     

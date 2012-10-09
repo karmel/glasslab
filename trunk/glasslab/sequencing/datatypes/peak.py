@@ -199,10 +199,11 @@ class GlassPeak(GlassSequencingOutput):
         if cls._peak_type: return cls._peak_type
         name = (name or cls.name).lower()
         peak_types = PeakType.objects.iterator()
-        for type in peak_types: 
-            if name.find(type.type.strip().lower()) >= 0:
-                cls._peak_type = type
+        for p_type in peak_types: 
+            if name.find(p_type.strip().lower().replace('.','_')) >= 0:
+                cls._peak_type = p_type
                 break
+        if not cls._peak_type: raise Exception('Peak type not found for {0}'.format(name))
         return cls._peak_type
     
     @classmethod 

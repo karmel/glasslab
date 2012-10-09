@@ -6,8 +6,7 @@ Created on Nov 8, 2010
 from django.contrib import admin
 from glasslab.utils.datatypes.genome_reference import SequenceIdentifier,\
     SequenceDetail, SequenceTranscriptionRegion, SequenceExon,\
-    SequenceKeggPathway, PatternedTranscriptionRegion,\
-    ConservedTranscriptionRegion, NonCodingTranscriptionRegion, NonCodingRna
+    SequenceKeggPathway, NonCodingTranscriptionRegion, NonCodingRna
 from glasslab.config import current_settings
 from glasslab.atlasviewer.shared.admin import ReadOnlyInline,\
     make_all_fields_readonly, ReadOnlyAdmin
@@ -96,19 +95,8 @@ class SequenceTranscriptionRegionAdmin(GlassTranscriptionRegionAdmin):
 class NonCodingTranscriptionRegionAdmin(GlassTranscriptionRegionAdmin):
     list_display    = ['non_coding_rna'] + GlassTranscriptionRegionAdmin.list_display
     search_fields   = ['non_coding_rna__description'] + GlassTranscriptionRegionAdmin.search_fields
-    
-class ConservedTranscriptionRegionAdmin(GlassTranscriptionRegionAdmin):
-    list_display    = ['chromosome', 'transcription_start', 'transcription_end', 'score']
-    list_filter     = ['chromosome', ]
-    
-class PatternedTranscriptionRegionAdmin(GlassTranscriptionRegionAdmin):
-    list_display    = ['type', 'name'] + GlassTranscriptionRegionAdmin.list_display
-    list_filter     = ['type'] + GlassTranscriptionRegionAdmin.list_filter
-    search_fields   = ['name'] + GlassTranscriptionRegionAdmin.search_fields
-    
+        
 admin.site.register(SequenceIdentifier, SequenceIdentifierAdmin)
 admin.site.register(NonCodingRna, NonCodingRnaAdmin)
 admin.site.register(SequenceTranscriptionRegion, SequenceTranscriptionRegionAdmin)
 admin.site.register(NonCodingTranscriptionRegion, NonCodingTranscriptionRegionAdmin)
-admin.site.register(ConservedTranscriptionRegion, ConservedTranscriptionRegionAdmin)
-admin.site.register(PatternedTranscriptionRegion, PatternedTranscriptionRegionAdmin)
