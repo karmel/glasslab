@@ -4,20 +4,16 @@ Created on Dec 22, 2010
 @author: karmel
 '''
 from glasslab.atlasviewer.transcript.admin.base import GlassTranscriptAdmin,\
-    GlassTranscribedRnaAdmin, GlassTranscriptSequenceInline,\
+    GlassTranscriptSequenceInline,\
     GlassTranscriptNonCodingInline, GlassTranscriptSourceInline,\
-    GlassTranscribedRnaInline, GlassTranscriptNucleotidesInline,\
     PeakFeatureInline, PeakFeatureAdmin,\
     GlassTranscriptPrepAdmin, GlassTranscriptSourcePrepInline,\
-    GlassTranscriptDupedInline, GlassTranscriptLabelInline,\
-    GlassTranscriptInfrastructureInline
+    GlassTranscriptDupedInline, GlassTranscriptInfrastructureInline
 from glasslab.glassatlas.datatypes.celltypes.thiomac import FilteredGlassTranscriptThioMac,\
-    GlassTranscriptThioMac, GlassTranscribedRnaThioMac,\
+    GlassTranscriptThioMac, GlassTranscriptDupedThioMac, \
     GlassTranscriptSequenceThioMac, GlassTranscriptSourceThioMac,\
-    GlassTranscriptNonCodingThioMac, GlassTranscriptNucleotidesThioMac,\
-    GlassTranscribedRnaSourceThioMac, PeakFeatureThioMac,\
+    GlassTranscriptNonCodingThioMac, PeakFeatureThioMac,\
     GlassTranscriptSourcePrepThioMac, GlassTranscriptPrepThioMac,\
-    GlassTranscriptDupedThioMac, GlassTranscriptLabelThioMac,\
     GlassTranscriptInfrastructureThioMac
 from django.contrib import admin
 
@@ -36,37 +32,21 @@ class GlassTranscriptSourceThioMacInline(GlassTranscriptSourceInline):
 class GlassTranscriptSourcePrepThioMacInline(GlassTranscriptSourcePrepInline):
     model = GlassTranscriptSourcePrepThioMac
 
-class GlassTranscribedRnaSourceThioMacInline(GlassTranscriptSourceInline):
-    model = GlassTranscribedRnaSourceThioMac
-class GlassTranscribedRnaThioMacInline(GlassTranscribedRnaInline):
-    model = GlassTranscribedRnaThioMac
-    
-class GlassTranscriptNucleotidesThioMacInline(GlassTranscriptNucleotidesInline):
-    model = GlassTranscriptNucleotidesThioMac
-
 class PeakFeatureThioMacInline(PeakFeatureInline):
     model = PeakFeatureThioMac
 
-class GlassTranscriptLabelThioMacInline(GlassTranscriptLabelInline):
-    model = GlassTranscriptLabelThioMac
-    
 class GlassTranscriptThioMacAdmin(GlassTranscriptAdmin):
     search_fields   = ['glasstranscriptlabelthiomac__transcript_class__label','transcription_start','transcription_end']
-    inlines         = [GlassTranscriptLabelThioMacInline, 
-                       GlassTranscriptSequenceThioMacInline,
+    inlines         = [GlassTranscriptSequenceThioMacInline,
                        GlassTranscriptNonCodingThioMacInline,
                        GlassTranscriptInfrastructureThioMacInline,
                        GlassTranscriptSourceThioMacInline, 
-                       #GlassTranscribedRnaThioMacInline,
                        PeakFeatureThioMacInline, 
                        ]
     
 class GlassTranscriptPrepThioMacAdmin(GlassTranscriptPrepAdmin):
     inlines         = [GlassTranscriptSourcePrepThioMacInline, 
                        ]
-    
-class GlassTranscribedRnaThioMacAdmin(GlassTranscribedRnaAdmin):
-    inlines         = [GlassTranscribedRnaSourceThioMacInline,]
 
 class PeakFeatureThioMacAdmin(PeakFeatureAdmin):
     pass
@@ -74,6 +54,5 @@ class PeakFeatureThioMacAdmin(PeakFeatureAdmin):
 admin.site.register(FilteredGlassTranscriptThioMac, GlassTranscriptThioMacAdmin)
 admin.site.register(GlassTranscriptThioMac, GlassTranscriptThioMacAdmin)
 admin.site.register(GlassTranscriptPrepThioMac, GlassTranscriptPrepThioMacAdmin)
-#admin.site.register(GlassTranscribedRnaThioMac, GlassTranscribedRnaThioMacAdmin)
 admin.site.register(PeakFeatureThioMac, PeakFeatureThioMacAdmin)
 

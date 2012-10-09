@@ -5,7 +5,7 @@ Created on Jan 6, 2011
 '''
 from django.contrib import admin
 from glasslab.glassatlas.datatypes.metadata import SequencingRun,\
-    SequencingRunAnnotation, PeakType, TranscriptClass
+    SequencingRunAnnotation, PeakType
 
 class SequencingRunAnnotationInline(admin.TabularInline):
     extra       = 1
@@ -24,10 +24,6 @@ class PeakTypeAdmin(admin.ModelAdmin):
     list_filter     = ('diffuse',)
     ordering        = ('-type',)
 
-class TranscriptClassAdmin(admin.ModelAdmin):
-    list_display    = ('id', 'label','description')
-    ordering        = ('label',)
     
 admin.site.register(SequencingRun, SequencingRunAdmin)
 admin.site.register(PeakType, PeakTypeAdmin)
-admin.site.register(TranscriptClass, TranscriptClassAdmin)
