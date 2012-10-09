@@ -13,7 +13,7 @@ class PeakType(GlassModel):
     diffuse = models.BooleanField(default=False)
     
     class Meta:
-        db_table    = 'glass_atlas_%s"."peak_type' % current_settings.REFERENCE_GENOME
+        db_table    = 'glass_atlas_%s"."peak_type' % current_settings.GENOME
         app_label   = 'Transcription' 
           
     def __unicode__(self):
@@ -52,7 +52,7 @@ class SequencingRun(GlassModel):
     created         = models.DateTimeField(auto_now_add=True)
     
     class Meta:
-        db_table    = 'glass_atlas_%s"."sequencing_run' % current_settings.REFERENCE_GENOME
+        db_table    = 'glass_atlas_%s"."sequencing_run' % current_settings.GENOME
         app_label   = 'Transcription'
         
     def __unicode__(self):
@@ -74,45 +74,9 @@ class SequencingRunAnnotation(GlassModel):
     note            = models.CharField(max_length=100)
      
     class Meta:
-        db_table    = 'glass_atlas_%s"."sequencing_run_annotation' % current_settings.REFERENCE_GENOME
+        db_table    = 'glass_atlas_%s"."sequencing_run_annotation' % current_settings.GENOME
         app_label   = 'Transcription'
         
     def __unicode__(self):
         return '"%s" note: %s' % (self.sequencing_run.source_table.strip(), self.note)
         
-class ExpectedTagCount(GlassModel):
-    '''
-    Per chromosome, per strand expected tag counts based on random sampling of 
-    standard Gro-Seq runs.
-    '''
-    chromosome      = models.ForeignKey(Chromosome)
-    strand          = models.IntegerField(max_length=1, help_text='0 for +, 1 for -')
-    sample_count    = models.IntegerField(max_length=10)
-    sample_size     = models.IntegerField(max_length=5)
-    tag_count       = models.FloatField()
-    
-    modified        = models.DateTimeField(auto_now=True)
-    created         = models.DateTimeField(auto_now_add=True)
-   
-    class Meta:
-        db_table    = 'glass_atlas_%s"."expected_tag_count' % current_settings.REFERENCE_GENOME
-        app_label   = 'Transcription'
-        
-    def __unicode__(self):
-        return '"%s" note: %s' % (self.sequencing_run.source_table.strip(), self.note)
-    
-
-class TranscriptClass(models.Model):
-    '''
-    Ideally, we want to be able to assign labels (classes) manually and automatically
-    to the transcripts. These labels are the total set assignable to transcripts.
-    '''
-    label = models.CharField(max_length=100)
-    description = models.CharField(max_length=255)
-    
-    class Meta:
-        db_table    = 'glass_atlas_%s"."transcript_class' % current_settings.REFERENCE_GENOME
-        app_label   = 'Transcription'
-        
-    def __unicode__(self):
-        return self.label

@@ -93,15 +93,10 @@ def wrap_errors(func, *args):
         raise
    
 def wrap_add_transcripts_from_groseq(cls, chr_list, *args): wrap_errors(cls._add_transcripts_from_groseq, chr_list, *args)
-def wrap_remove_rogue_run(cls, chr_list): wrap_errors(cls._remove_rogue_run, chr_list)
-
 def wrap_stitch_together_transcripts(cls, chr_list, *args): wrap_errors(cls._stitch_together_transcripts, chr_list, *args)
 def wrap_set_density(cls, chr_list, *args): wrap_errors(cls._set_density, chr_list, *args)
 def wrap_draw_transcript_edges(cls, chr_list): wrap_errors(cls._draw_transcript_edges, chr_list)
-def wrap_set_score_thresholds(cls, chr_list, *args): wrap_errors(cls._set_score_thresholds, chr_list, *args)
 def wrap_set_scores(cls, chr_list): wrap_errors(cls._set_scores, chr_list)
-def wrap_mark_as_spliced(cls, chr_list): wrap_errors(cls._mark_as_spliced, chr_list)
-def wrap_associate_nucleotides(cls, chr_list): wrap_errors(cls._associate_nucleotides, chr_list)
 def wrap_force_vacuum(cls, chr_list): wrap_errors(cls._force_vacuum, chr_list)
 
 class CellTypeBase(object):
@@ -124,8 +119,6 @@ class CellTypeBase(object):
     @property
     def glass_transcript_source_prep(self): return GlassTranscriptSourcePrep
     @property
-    def glass_transcript_nucleotides(self): return GlassTranscriptNucleotides
-    @property
     def glass_transcript_sequence(self): return GlassTranscriptSequence
     @property
     def glass_transcript_non_coding(self): return GlassTranscriptNonCoding
@@ -141,7 +134,6 @@ class CellTypeBase(object):
     def get_transcript_models(self):
         return [self.glass_transcript, self.glass_transcript_prep, 
                 self.glass_transcript_source, self.glass_transcript_source_prep, 
-                self.glass_transcript_nucleotides,
                 self.glass_transcript_sequence, self.glass_transcript_non_coding,
                 self.glass_transcript_patterned, self.glass_transcript_conserved,
                 self.peak_feature]
@@ -166,7 +158,7 @@ class TranscriptionRegionBase(TranscriptModelBase):
                         + ''' || 'glasstranscribedrna') + '_' '''\
                         + ''' + (django.jQuery('#id_strand').val()=='0' && 'sense' || 'antisense') + '_strands.txt'''
     ucsc_browser_sess_2 = '''all_tracks.txt'''
-    ucsc_browser_link_3 = '''&db=''' + current_settings.REFERENCE_GENOME + '''&amp;position=' + '''\
+    ucsc_browser_link_3 = '''&db=''' + current_settings.GENOME + '''&amp;position=' + '''\
                         + ''' django.jQuery('#id_chromosome').attr('title') '''\
                         + ''' + '%3A+' + django.jQuery('#id_transcription_start').val() '''\
                         + ''' + '-' + django.jQuery('#id_transcription_end').val(),'Glass Atlas UCSC View ' + '''\
@@ -197,7 +189,7 @@ class TranscriptionRegionBase(TranscriptModelBase):
         switching between test DBs.
         '''
         cls._meta.db_table = 'glass_atlas_%s_%s%s"."glass_transcript' % (
-                                genome or current_settings.TRANSCRIPT_GENOME, 
+                                genome or current_settings.GENOME, 
                                 cls.cell_base.cell_type.lower(),
                                 current_settings.STAGING)
         
@@ -209,8 +201,6 @@ class TranscriptionRegionBase(TranscriptModelBase):
             raise Exception('This is not a table marked as "standard," and will not be added to the transcript set.')
         if sequencing_run.type.strip() == 'Gro-Seq':
             cls.add_transcripts_from_groseq(tag_table, sequencing_run)
-        elif sequencing_run.type.strip() == 'RNA-Seq':
-            cls.add_transcribed_rna_from_rnaseq(tag_table, sequencing_run)
             
     ################################################
     # Maintenance
@@ -307,7 +297,7 @@ class GlassTranscript(TranscriptBase):
             print 'Adding transcripts for chromosome %d' % chr_id
             query = """
                 SELECT glass_atlas_%s_%s_prep.save_transcripts_from_sequencing_run(%d, %d,'%s', %d, %d, %d, %d, %d, NULL, NULL);
-                """ % (current_settings.TRANSCRIPT_GENOME,
+                """ % (current_settings.GENOME,
                        current_settings.CURRENT_CELL_TYPE.lower(),
                        sequencing_run.id, chr_id, 
                        sequencing_run.source_table.strip(), 
@@ -334,7 +324,7 @@ class GlassTranscript(TranscriptBase):
             print 'Stitching together transcripts for chromosome %d' % chr_id
             query = """
                 SELECT glass_atlas_%s_%s_prep.save_transcripts_from_existing(%d, %d);
-                """ % (current_settings.TRANSCRIPT_GENOME, 
+                """ % (current_settings.GENOME, 
                        current_settings.CURRENT_CELL_TYPE.lower(),
                        chr_id, MAX_STITCHING_GAP)
             execute_query(query)
@@ -342,7 +332,7 @@ class GlassTranscript(TranscriptBase):
                 print 'Setting average tags for preparatory transcripts for chromosome %d' % chr_id
                 query = """
                     SELECT glass_atlas_{0}_{1}_prep.set_density({2},{3},{4},{5},{6},{7});
-                    """.format(current_settings.TRANSCRIPT_GENOME, 
+                    """.format(current_settings.GENOME, 
                                current_settings.CURRENT_CELL_TYPE.lower(),
                                chr_id, MAX_EDGE, EDGE_SCALING_FACTOR, 
                                DENSITY_MULTIPLIER, 
@@ -363,7 +353,7 @@ class GlassTranscript(TranscriptBase):
             print 'Setting average tags for preparatory transcripts for chromosome %d' % chr_id
             query = """
                 SELECT glass_atlas_{0}_{1}_prep.set_density({2},{3},{4},{5},{6},{7});
-                """.format(current_settings.TRANSCRIPT_GENOME, 
+                """.format(current_settings.GENOME, 
                            current_settings.CURRENT_CELL_TYPE.lower(),
                            chr_id, MAX_EDGE, EDGE_SCALING_FACTOR, 
                            DENSITY_MULTIPLIER, 
@@ -381,7 +371,7 @@ class GlassTranscript(TranscriptBase):
             print 'Drawing edges for transcripts for chromosome %d' % chr_id
             query = """
                 SELECT glass_atlas_%s_%s%s.draw_transcript_edges(%d);
-                """ % (current_settings.TRANSCRIPT_GENOME, 
+                """ % (current_settings.GENOME, 
                        current_settings.CURRENT_CELL_TYPE.lower(),
                        current_settings.STAGING,
                        chr_id)
@@ -390,7 +380,6 @@ class GlassTranscript(TranscriptBase):
     @classmethod
     def set_scores(cls):
         multiprocess_all_chromosomes(wrap_set_scores, cls)
-        #wrap_set_scores(cls,[21, 22])
     
     @classmethod
     def _set_scores(cls, chr_list):
@@ -399,77 +388,13 @@ class GlassTranscript(TranscriptBase):
             query = """
                 SELECT glass_atlas_%s_%s%s.calculate_scores(%d);
                 SELECT glass_atlas_%s_%s%s.calculate_standard_error(%d);
-                """ % (current_settings.TRANSCRIPT_GENOME,
+                """ % (current_settings.GENOME,
                        current_settings.CURRENT_CELL_TYPE.lower(),
                        current_settings.STAGING, chr_id,
-                       current_settings.TRANSCRIPT_GENOME,
+                       current_settings.GENOME,
                        current_settings.CURRENT_CELL_TYPE.lower(),
                        current_settings.STAGING, chr_id)
             execute_query(query) 
-    @classmethod
-    def mark_as_spliced(cls):
-        multiprocess_all_chromosomes(wrap_mark_as_spliced, cls)
-        #wrap_set_scores(cls,[21, 22])
-    
-    @classmethod
-    def _mark_as_spliced(cls, chr_list):
-        from glasslab.glassatlas.datatypes.transcribed_rna import MIN_SCORE_RNA
-        for chr_id in chr_list:
-            print 'Marking transcripts as spliced for chromosome %d' % chr_id
-            query = """
-                SELECT glass_atlas_%s_%s%s.mark_transcripts_spliced(%d, %d);
-                """ % (current_settings.TRANSCRIPT_GENOME,
-                       current_settings.CURRENT_CELL_TYPE.lower(),
-                       current_settings.STAGING, chr_id, 
-                       MIN_SCORE_RNA)
-            execute_query(query) 
-    
-    @classmethod
-    def associate_nucleotides(cls):
-        multiprocess_all_chromosomes(wrap_associate_nucleotides, cls)
-        #wrap_associate_nucleotides(cls,[1])
-        
-    @classmethod
-    def _associate_nucleotides(cls, chr_list):
-        '''
-        Pull and store sequence strings for transcripts for only those transcripts
-        that have been updated (score is null).
-        
-        Sequences information is stored in the local filesystem.
-        '''
-        for chr_id in chr_list:
-            connection.close()
-            
-            print 'Obtaining coding sequence for transcripts in chromosome %d' % chr_id
-            path = current_settings.GENOME_ASSEMBLY_PATHS[current_settings.REFERENCE_GENOME]
-            path = os.path.join(path, '%s.fa' % Chromosome.objects.get(id=chr_id).name.strip())
-            
-            fasta = map(lambda x: x[:-1], file(path).readlines()) # Read file and ditch '\n'
-            fasta = fasta[1:] # Ditch the first line, which is the chromosome identifier
-            length = len(fasta[0])
-            
-            nucleotides_model = cls.cell_base.glass_transcript_nucleotides
-            for transcript in cls.objects.filter(chromosome__id=chr_id, score__isnull=True):
-                start = transcript.transcription_start
-                stop = transcript.transcription_end
-                beginning = fasta[start//length][start % length - 1:]
-                end = fasta[stop//length][:stop % length]
-                middle = fasta[(start//length + 1):(stop//length)]
-                seq = (beginning + ''.join(middle) + end).upper()
-                try: sequence = nucleotides_model.objects.get(glass_transcript=transcript)
-                except nucleotides_model.DoesNotExist:
-                    sequence = nucleotides_model(glass_transcript=transcript)
-                sequence.sequence = seq
-                sequence.save()
-            connection.close()
-            
-    @classmethod
-    def mark_all_reloaded(cls):
-        '''
-        Mark all transcripts as reloaded. Called by external processes that have reloaded runs appropriately.
-        '''
-        connection.close()
-        cls.objects.all().update(requires_reload=False)
     
 class FilteredGlassTranscriptManager(models.Manager):
     def get_query_set(self):
@@ -542,18 +467,7 @@ class FilteredGlassTranscript(object):
         f.write(output)
         f.close()
         
-            
           
-class GlassTranscriptNucleotides(TranscriptModelBase):
-    sequence          = models.TextField()
-    
-    class Meta:
-        abstract = True
-        
-    def __unicode__(self):
-        return 'GlassTranscriptNucleotides for transcript %d' % (self.glass_transcript.id)
-       
-
 class TranscriptSourceBase(TranscriptModelBase):
     sequencing_run          = models.ForeignKey(SequencingRun)
     tag_count               = models.IntegerField(max_length=12)
