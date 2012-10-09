@@ -39,3 +39,17 @@ CHR_LISTS = None # Dynamically set during processing
 # Used to log in as postgres user. Note that authorized keys must be set up!
 PG_ACCESS_CMD = 'ssh postgres@glass.bioinforma.tc' 
 PG_HOME = '/Library/PostgreSQL/9.1'
+
+#####################################
+# Compute resources
+#####################################
+# Used to log in as postgres user. Note that authorized keys must be set up!
+PG_ACCESS_CMD = 'ssh postgres@glass.bioinforma.tc' 
+PG_HOME = '/Library/PostgreSQL/9.1'
+
+#####################################
+# Compute resources
+#####################################
+# Used to log in as postgres user. Note that authorized keys must be set up!
+PG_ACCESS_CMD = 'ssh postgres@glass.bioinforma.tc' 
+PG_HOME = '/Library/PostgreSQL/9.1'
