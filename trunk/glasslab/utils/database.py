@@ -78,4 +78,9 @@ def restart_server():
                 server_is_starting = False
                 raise Exception('Could not run query on server after {0} seconds. Please investigate.'.format(time_to_wait))
             
+def discard_temp_tables(using='default'):
+    '''
+    Drops all temporary tables created in the current session.
+    '''
+    execute_query_without_transaction('DISCARD TEMP;', using=using)
     
