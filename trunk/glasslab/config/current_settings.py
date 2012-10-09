@@ -9,11 +9,9 @@ should be set on a run-wide basis.
 #####################################
 # Genomes
 #####################################
-GENOME_CHOICES = ['test','mm9']
+GENOME_CHOICES = ['mm9']
 
-REFERENCE_GENOME = 'mm9'
-TRANSCRIPT_GENOME = 'mm9' # Separated for easy use of the 'test' DB while keeping reference DB
-GENOME = REFERENCE_GENOME
+GENOME = 'mm9'
 GENOME_CHROMOSOMES = range(1,23)
 
 STAGING = '' # Set to the appropriate suffix during DB staging.
