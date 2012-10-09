@@ -504,37 +504,6 @@ CREATE TRIGGER glass_transcript_source_trigger
     BEFORE INSERT ON "glass_atlas_{0}_{1}_prep"."glass_transcript_source"
     FOR EACH ROW EXECUTE PROCEDURE glass_atlas_{0}_{1}_prep.glass_transcript_source_insert_trigger();
 
-
-
-
-
-CREATE TABLE "glass_atlas_{0}_{1}_prep"."glass_transcript_label" (
-    "id" int4 NOT NULL,
-    "glass_transcript_id" int4 DEFAULT NULL,
-    "transcript_class_id" int4 DEFAULT NULL,
-    "chromosome_id" int4 DEFAULT NULL,
-    "strand" int2 DEFAULT NULL,
-    "start_end" box DEFAULT NULL,
-    "manual" boolean DEFAULT false,
-    "probability" float4 DEFAULT NULL,
-    "modified" timestamp(6) NULL DEFAULT NULL,
-    "created" timestamp(6) NULL DEFAULT NULL
-);
-GRANT ALL ON TABLE "glass_atlas_{0}_{1}_prep"."glass_transcript_label" TO  "glass";
-CREATE SEQUENCE "glass_atlas_{0}_{1}_prep"."glass_transcript_label_id_seq"
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-ALTER SEQUENCE "glass_atlas_{0}_{1}_prep"."glass_transcript_label_id_seq" OWNED BY "glass_atlas_{0}_{1}_prep"."glass_transcript_label".id;
-ALTER TABLE "glass_atlas_{0}_{1}_prep"."glass_transcript_label" ALTER COLUMN id SET DEFAULT nextval('"glass_atlas_{0}_{1}_prep"."glass_transcript_label_id_seq"'::regclass);
-ALTER TABLE ONLY "glass_atlas_{0}_{1}_prep"."glass_transcript_label" ADD CONSTRAINT glass_transcript_label_pkey PRIMARY KEY (id);
-
-CREATE INDEX glass_transcript_label_glass_transcript_idx ON "glass_atlas_{0}_{1}_prep"."glass_transcript_label" USING btree (glass_transcript_id);
-CREATE INDEX glass_transcript_label_transcript_class_id_idx ON "glass_atlas_{0}_{1}_prep"."glass_transcript_label" USING btree (transcript_class_id);
-CREATE INDEX glass_transcript_label_manual_idx ON "glass_atlas_{0}_{1}_prep"."glass_transcript_label" USING btree (manual);
-
 """.format(genome, cell_type)
 
 if __name__ == '__main__':
