@@ -9,8 +9,6 @@ genome = 'mm9'
 cell_type='thiomac'
 def sql(genome, cell_type):
     return """
--- Not run from within the codebase, but kept here in case functions need to be recreated.
-
 CREATE OR REPLACE FUNCTION glass_atlas_{0}_{1}.insert_associated_peak_features_from_run(run_id integer, chr_id integer)
 RETURNS VOID AS $$
 DECLARE

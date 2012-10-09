@@ -5,8 +5,10 @@ Created on Oct 9, 2012
 
 '''
 from glasslab.config import current_settings, django_settings
+from glasslab.glassatlas.sql import transcripts_from_tags_functions,\
+    transcripts_from_prep_functions
 
-class GlassAtlasTableGenerator(object):
+class GlassAtlasSqlGenerator(object):
     ''' Generates the SQL queries for building DB schema. '''
     genome = None
     cell_type = None
@@ -35,6 +37,8 @@ class GlassAtlasTableGenerator(object):
         s += self.prep_table_trigger_transcript()
         s += self.table_trigger_source(prep_suffix)
         
+        s += self.from_tags_functions()
+
         return s
             
     def final_set(self):
@@ -56,7 +60,17 @@ class GlassAtlasTableGenerator(object):
         s += self.peak_features()
         s += self.table_norm_sum()
         
+        s += self.from_prep_functions()
+        
         return s
+    
+    # Functions
+    def from_tags_functions(self):
+        return transcripts_from_tags_functions.sql(self.genome, self.cell_type)
+    
+    def from_prep_functions(self):
+        return transcripts_from_prep_functions.sql(self.genome, self.cell_type, self.staging)
+    
         
     def schema(self, suffix=''):
         return """
