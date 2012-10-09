@@ -4,7 +4,7 @@ Created on Sep 27, 2010
 @author: karmel
 '''
 from __future__ import division
-from django.db import models
+from django.db import models, connection
 from glasslab.utils.datatypes.genome_reference import Chromosome
 from glasslab.config import current_settings
 from glasslab.utils.datatypes.basic_model import DynamicTable, BoxField
@@ -12,8 +12,7 @@ from glasslab.utils.database import execute_query
 from glasslab.glassatlas.datatypes.transcript import multiprocess_all_chromosomes,\
     wrap_errors
 from glasslab.glassatlas.datatypes.metadata import SequencingRun
-from Bio.DocSQL import connection
-
+import re
     
 def wrap_partition_tables(cls, chr_list): wrap_errors(cls._create_partition_tables, chr_list)
 def wrap_translate_from_prep(cls, chr_list): wrap_errors(cls._translate_from_prep, chr_list)
@@ -22,7 +21,58 @@ def wrap_set_refseq(cls, chr_list): wrap_errors(cls._set_refseq, chr_list)
 def wrap_insert_matching_tags(cls, chr_list): wrap_errors(cls._insert_matching_tags, chr_list)
 def wrap_add_indices(cls, chr_list): wrap_errors(cls._add_indices, chr_list)        
     
-class GlassTag(DynamicTable):
+class GlassSequencingOutput(DynamicTable):
+    '''
+    Parent class for tags and peaks.
+    '''    
+    class Meta: abstract = True
+    
+    @classmethod
+    def get_bowtie_stats(cls, stats_file=None):
+        # If possible, retrieve bowtie stats
+        total_tags, percent_mapped = None, None
+        try:
+            f = file(stats_file)
+            for i,line in enumerate(f.readlines()):
+                if i > 4: raise Exception # Something is wrong with this file
+                if line.find('reads with at least one reported alignment') >= 0:
+                    pieces = line.split()
+                    total_tags = int(re.search('([\d]+)',pieces[-2:][0]).group(0))
+                    percent_mapped = str(float(re.search('([\d\.]+)',pieces[-1:][0]).group(0)))
+                    break
+        except Exception: 
+            total_tags, percent_mapped = cls.objects.count(), None
+        return total_tags, percent_mapped
+    
+    @classmethod
+    def parse_attributes_from_name(cls):
+        '''
+        If possible, parse run attributes from name::
+            
+            wt_kla_1h_dex_2h_05_11 ==> wt, kla, 2h, other_conditions
+        
+        '''
+        wt, notx, kla, other_conditions = True, True, True, False 
+        timepoint = ''
+        pieces = filter(lambda x: not x.isdigit(), cls.name.split('_'))
+        try: pieces.remove('wt') 
+        except ValueError: wt = False
+        try: pieces.remove('notx') 
+        except ValueError: notx = False
+        try: pieces.remove('kla') 
+        except ValueError: kla = False
+        try:
+            time = re.search('\d+[hms]',pieces[-1:][0]).group(0)
+            if time == pieces[-1:][0]: 
+                timepoint = time
+                pieces = pieces[:-1]
+        except (IndexError, AttributeError): pass
+        # Still details left over?
+        if len(pieces): other_conditions = True
+        
+        return wt, notx, kla, other_conditions, timepoint
+    
+class GlassTag(GlassSequencingOutput):
     '''
     Denormalized version of tag input::
         
