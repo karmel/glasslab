@@ -219,7 +219,7 @@ class GlassPeak(GlassSequencingOutput):
                                         defaults={'name': cls.name, 
                                                   'total_tags': total_tags,
                                                   'description': description,
-                                                  'cell_type': current_settings.CURRENT_CELL_TYPE,
+                                                  'cell_type': current_settings.CELL_TYPE,
                                                   'type': type,
                                                   'peak_type': peak_type or cls.peak_type(),
                                                   'percent_mapped': percent_mapped,

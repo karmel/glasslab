@@ -15,7 +15,7 @@ from matplotlib import pyplot
 from django.db import connection
 
 class DensityAnalyzer(object):
-    cell_base = CellTypeBase().get_cell_type_base(current_settings.CURRENT_CELL_TYPE)()
+    cell_base = CellTypeBase().get_cell_type_base(current_settings.CELL_TYPE)()
     
     def get_transcripts_for_chromosome(self, chr_id, strand=0, limit=None):
         '''

@@ -47,7 +47,7 @@ class ParameterPerformance(models.Model):
                    )
     db_choices = db_choices_2
     
-    cell_base = CellTypeBase().get_cell_type_base(current_settings.CURRENT_CELL_TYPE)()
+    cell_base = CellTypeBase().get_cell_type_base(current_settings.CELL_TYPE)()
     
     db_version              = models.CharField(max_length=50, choices=[(x,x) for x in db_choices])
     refseq_transcript_id    = models.IntegerField(max_length=10)
@@ -59,7 +59,7 @@ class ParameterPerformance(models.Model):
     score                   = models.FloatField()
     
     class Meta:
-        db_table    = 'glass_atlas_%s"."parameter_performance' % current_settings.REFERENCE_GENOME
+        db_table    = 'glass_atlas_%s"."parameter_performance' % current_settings.GENOME
 
     @classmethod
     def analyze_all_transcripts(cls):

@@ -61,7 +61,7 @@ class PeakFeature(GlassModel):
             query = """
                 SELECT glass_atlas_%s_%s%s.insert_associated_peak_features_from_run(%d, %d);
                 """ % (current_settings.GENOME,
-                       current_settings.CURRENT_CELL_TYPE.lower(),
+                       current_settings.CELL_TYPE.lower(),
                        current_settings.STAGING,
                        sequencing_run.id, chr_id)
             execute_query(query)

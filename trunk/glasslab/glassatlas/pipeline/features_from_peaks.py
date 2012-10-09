@@ -28,8 +28,8 @@ if __name__ == '__main__':
         options.schema_name = 'thiomac_groseq_nathan_2010_10'
         options.peak_table = 'peak_ncor_ko_kla_1h'
     
-    if options.cell_type: current_settings.CURRENT_CELL_TYPE = options.cell_type
-    cell_base = CellTypeBase().get_cell_type_base(current_settings.CURRENT_CELL_TYPE)()
+    if options.cell_type: current_settings.CELL_TYPE = options.cell_type
+    cell_base = CellTypeBase().get_cell_type_base(current_settings.CELL_TYPE)()
     
     GlassPeak._meta.db_table = options.schema_name and '%s"."%s' % (options.schema_name, options.peak_table) \
                                 or options.peak_table

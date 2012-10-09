@@ -336,7 +336,7 @@ class GlassTag(GlassSequencingOutput):
                                         defaults={'name': cls.name, 
                                                   'total_tags': cls.objects.count(),
                                                   'description': description,
-                                                  'cell_type': current_settings.CURRENT_CELL_TYPE,
+                                                  'cell_type': current_settings.CELL_TYPE,
                                                   'type': type,
                                                   'standard': standard,
                                                   'percent_mapped': percent_mapped,

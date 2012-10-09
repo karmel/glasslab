@@ -26,7 +26,6 @@ GENOME_ASSEMBLY_PATHS = {'mm9': '/Volumes/Unknowme/kallison/Genomes/mm9/fasta',}
 # Databases
 #####################################
 CURRENT_SCHEMA = 'current_projects'
-CURRENT_CELL_TYPE = 'ThioMac'
 
 #####################################
 # Compute power

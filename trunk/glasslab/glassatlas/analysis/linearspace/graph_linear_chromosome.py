@@ -70,7 +70,7 @@ class LinearGrapher(object):
                 (17, 19668636, 20821215),
                 (10, 56004461, 58264167),]
     
-    cell_base = CellTypeBase().get_cell_type_base(current_settings.CURRENT_CELL_TYPE)()
+    cell_base = CellTypeBase().get_cell_type_base(current_settings.CELL_TYPE)()
     transcript_model = cell_base.glass_transcript
     
     # Specific parameters
