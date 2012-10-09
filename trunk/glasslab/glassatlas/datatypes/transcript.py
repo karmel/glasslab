@@ -7,9 +7,8 @@ from __future__ import division
 from glasslab.config import current_settings
 from django.db import models, connection, utils
 from glasslab.utils.datatypes.genome_reference import Chromosome,\
-    SequenceTranscriptionRegion, PatternedTranscriptionRegion,\
-    ConservedTranscriptionRegion, NonCodingTranscriptionRegion,\
-    DupedTranscriptionRegion
+    SequenceTranscriptionRegion, InfrastructureTranscriptionRegion,\
+    NonCodingTranscriptionRegion
 from glasslab.glassatlas.datatypes.metadata import SequencingRun
 from glasslab.utils.datatypes.basic_model import BoxField, GlassModel
 from multiprocessing import Pool
@@ -512,47 +511,11 @@ class GlassTranscriptInfrastructure(GlassTranscriptTranscriptionRegionTable):
     '''
     Relationship between GlassTranscript and the infrastructural ncRNA it maps to.
     '''
-    infrastructure_transcription_region  = models.ForeignKey(PatternedTranscriptionRegion)
+    infrastructure_transcription_region  = models.ForeignKey(InfrastructureTranscriptionRegion)
     
     table_type      = 'infrastructure'
-    related_class   = PatternedTranscriptionRegion
+    related_class   = InfrastructureTranscriptionRegion
     
     class Meta: 
         abstract = True
         
-class GlassTranscriptPatterned(GlassTranscriptTranscriptionRegionTable):
-    '''
-    Relationship between GlassTranscript and the patterned region it maps to.
-    '''
-    patterned_transcription_region  = models.ForeignKey(PatternedTranscriptionRegion)
-    
-    table_type      = 'patterned'
-    related_class   = PatternedTranscriptionRegion
-    
-    class Meta: 
-        abstract = True
-        
-class GlassTranscriptDuped(GlassTranscriptTranscriptionRegionTable):
-    '''
-    Relationship between GlassTranscript and the segmental dupes region it maps to.
-    '''
-    duped_transcription_region  = models.ForeignKey(DupedTranscriptionRegion)
-    
-    table_type      = 'duped'
-    related_class   = DupedTranscriptionRegion
-    
-    class Meta: 
-        abstract = True
-        
-class GlassTranscriptConserved(GlassTranscriptTranscriptionRegionTable):
-    '''
-    Relationship between GlassTranscript and the conservation region it maps to.
-    '''
-    conserved_transcription_region  = models.ForeignKey(ConservedTranscriptionRegion)
-    
-    table_type      = 'conserved'
-    related_class   = ConservedTranscriptionRegion
-
-    class Meta: 
-        abstract = True
-    

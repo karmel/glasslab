@@ -8,13 +8,12 @@ from glasslab.atlasviewer.transcript.admin.base import GlassTranscriptAdmin,\
     GlassTranscriptNonCodingInline, GlassTranscriptSourceInline,\
     PeakFeatureInline, PeakFeatureAdmin,\
     GlassTranscriptPrepAdmin, GlassTranscriptSourcePrepInline,\
-    GlassTranscriptDupedInline, GlassTranscriptInfrastructureInline
+    GlassTranscriptInfrastructureInline
 from glasslab.glassatlas.datatypes.celltypes.thiomac import FilteredGlassTranscriptThioMac,\
-    GlassTranscriptThioMac, GlassTranscriptDupedThioMac, \
+    GlassTranscriptThioMac, GlassTranscriptInfrastructureThioMac,\
     GlassTranscriptSequenceThioMac, GlassTranscriptSourceThioMac,\
     GlassTranscriptNonCodingThioMac, PeakFeatureThioMac,\
-    GlassTranscriptSourcePrepThioMac, GlassTranscriptPrepThioMac,\
-    GlassTranscriptInfrastructureThioMac
+    GlassTranscriptSourcePrepThioMac, GlassTranscriptPrepThioMac
 from django.contrib import admin
 
 
@@ -22,8 +21,6 @@ class GlassTranscriptSequenceThioMacInline(GlassTranscriptSequenceInline):
     model = GlassTranscriptSequenceThioMac
 class GlassTranscriptNonCodingThioMacInline(GlassTranscriptNonCodingInline):
     model = GlassTranscriptNonCodingThioMac
-class GlassTranscriptDupedThioMacInline(GlassTranscriptDupedInline):
-    model = GlassTranscriptDupedThioMac
 class GlassTranscriptInfrastructureThioMacInline(GlassTranscriptInfrastructureInline):
     model = GlassTranscriptInfrastructureThioMac
 class GlassTranscriptSourceThioMacInline(GlassTranscriptSourceInline):

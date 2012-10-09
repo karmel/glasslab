@@ -5,9 +5,9 @@ Created on Dec 22, 2010
 '''
 from glasslab.glassatlas.datatypes.transcript import GlassTranscript,\
     FilteredGlassTranscript, GlassTranscriptSource,\
-    GlassTranscriptSequence, GlassTranscriptConserved, GlassTranscriptPatterned,\
-    GlassTranscriptNonCoding, CellTypeBase, GlassTranscriptSourcePrep,\
-    GlassTranscriptPrep, GlassTranscriptInfrastructure, GlassTranscriptDuped,\
+    GlassTranscriptSequence, GlassTranscriptNonCoding, \
+    CellTypeBase, GlassTranscriptSourcePrep,\
+    GlassTranscriptPrep, GlassTranscriptInfrastructure, \
     FilteredGlassTranscriptManager
 from glasslab.config import current_settings
 from django.db import models
@@ -34,12 +34,6 @@ class BMDCBase(CellTypeBase):
     def glass_transcript_non_coding(self): return GlassTranscriptNonCodingBMDC
     @property
     def glass_transcript_infrastructure(self): return GlassTranscriptInfrastructureBMDC
-    @property
-    def glass_transcript_patterned(self): return GlassTranscriptPatternedBMDC
-    @property
-    def glass_transcript_duped(self): return GlassTranscriptDupedBMDC
-    @property
-    def glass_transcript_conserved(self): return GlassTranscriptConservedBMDC
     @property
     def peak_feature(self): return PeakFeatureBMDC
     
@@ -116,33 +110,6 @@ class GlassTranscriptInfrastructureBMDC(GlassTranscriptInfrastructure):
         verbose_name = 'Glass transcript infrastructure ncRNA region (%s)' % CELL_TYPE
         verbose_name_plural = 'Glass transcript infrastructure ncRNA regions (%s)' % CELL_TYPE
         
-class GlassTranscriptPatternedBMDC(GlassTranscriptPatterned):
-    glass_transcript = models.ForeignKey(GlassTranscriptBMDC)
-    cell_base = BMDCBase()
-    class Meta: 
-        db_table    = 'glass_atlas_%s_%s%s"."glass_transcript_patterned' % (current_settings.GENOME, CELL_TYPE.lower(), current_settings.STAGING)
-        app_label   = 'Transcription_%s' % CELL_TYPE
-        verbose_name = 'Glass transcript patterned region (%s)' % CELL_TYPE
-        verbose_name_plural = 'Glass transcript patterned regions (%s)' % CELL_TYPE
-
-class GlassTranscriptDupedBMDC(GlassTranscriptDuped):
-    glass_transcript = models.ForeignKey(GlassTranscriptBMDC)
-    cell_base = BMDCBase()
-    class Meta: 
-        db_table    = 'glass_atlas_%s_%s%s"."glass_transcript_duped' % (current_settings.GENOME, CELL_TYPE.lower(), current_settings.STAGING)
-        app_label   = 'Transcription_%s' % CELL_TYPE
-        verbose_name = 'Glass transcript duped region (%s)' % CELL_TYPE
-        verbose_name_plural = 'Glass transcript duped regions (%s)' % CELL_TYPE
-        
-class GlassTranscriptConservedBMDC(GlassTranscriptConserved):
-    glass_transcript = models.ForeignKey(GlassTranscriptBMDC)
-    cell_base = BMDCBase()
-    class Meta: 
-        db_table    = 'glass_atlas_%s_%s%s"."glass_transcript_conserved' % (current_settings.GENOME, CELL_TYPE.lower(), current_settings.STAGING)
-        app_label   = 'Transcription_%s' % CELL_TYPE
-        verbose_name = 'Glass transcript conserved region (%s)' % CELL_TYPE
-        verbose_name_plural = 'Glass transcript conserved regions (%s)' % CELL_TYPE
-
 ##################################################
 # Features
 ##################################################       
