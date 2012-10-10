@@ -40,8 +40,6 @@ class BMDCBase(CellTypeBase):
 class GlassTranscriptBMDC(GlassTranscript):
     cell_base = BMDCBase()
     
-    #labels = models.ManyToManyField(TranscriptClass, through='GlassTranscriptLabelBMDC')
-    
     class Meta:
         db_table    = 'glass_atlas_%s_%s%s"."glass_transcript' % (current_settings.GENOME, CELL_TYPE.lower(), current_settings.STAGING)
         app_label   = 'Transcription_%s' % CELL_TYPE

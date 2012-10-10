@@ -61,27 +61,33 @@ if __name__ == '__main__':
         '''
         
         # Group data, take non-refseq transcripts preferably, and transrepressed preferably.
+        '''
         data = data.sort(columns='dex_over_kla_1_lfc', axis=0)
         grouped = data.groupby(['id','chr_name'])
 
+        
         def get_enhancer(group):
-            enhancer = group[group['has_refseq'] == 1][:1]
+            enhancer = group[(group['refseq'] == 'f') & (group['length'] < 6000)][:1]
             if not enhancer: enhancer = group[:1]
             return enhancer
         
         regrouped = grouped.apply(get_enhancer)
         regrouped = regrouped.reset_index(drop=True)
+        '''
         
-        
+        regrouped = data
+        regrouped = regrouped[regrouped['touches'] == 't']
         regrouped = regrouped[regrouped['kla_1_lfc'] >=1]
-        regrouped = regrouped[regrouped['has_refseq'] == 1]
-        transcripts = transcripts[transcripts['has_refseq'] == 1]
+        regrouped = regrouped[(regrouped['refseq'] == 'f') & (regrouped['length'] < 6000)]
+        regrouped = regrouped.groupby(['id','chr_name'], as_index=False).mean()
+        
+        transcripts = transcripts[(transcripts['refseq'] == 'f') & (transcripts['length'] < 6000)]
         transcripts = transcripts[transcripts['kla_1_lfc'] >= 1]
         
         all_trans = transcripts['dex_over_kla_1_lfc']
         with_p65 = transcripts[transcripts['p65_kla_tag_count'] > 0]['dex_over_kla_1_lfc']
         with_pair = regrouped['dex_over_kla_1_lfc']
-        title = 'Transcript log fold change at redistribution pairs:\nRefseq, up in KLA alone'
+        title = 'Transcript log fold change at redistribution pairs:\nEnhancer-like, up in KLA alone'
         names = ['All transcripts', 'Transcripts with p65', 
                  'Transcripts with\na redistribution pair']
         ax = yzer.boxplot([all_trans, with_p65, with_pair], 
@@ -91,5 +97,5 @@ if __name__ == '__main__':
                      ylabel='log2(KLA+Dex / KLA)', 
                      show_outliers=False, show_plot=False)
         yzer.save_plot(yzer.get_filename(dirpath, 'redistribution', 'boxplots', 
-                                         'dex_over_kla_lfc_boxplot_1_limited_refseq_up_in_kla.png'))
+                                         'dex_over_kla_lfc_boxplot_1_mean_enhancer_like_up_in_kla.png'))
         yzer.show_plot()

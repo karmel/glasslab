@@ -33,7 +33,7 @@ class PeakFeatureThioMacInline(PeakFeatureInline):
     model = PeakFeatureThioMac
 
 class GlassTranscriptThioMacAdmin(GlassTranscriptAdmin):
-    search_fields   = ['glasstranscriptlabelthiomac__transcript_class__label','transcription_start','transcription_end']
+    search_fields   = ['transcription_start','transcription_end']
     inlines         = [GlassTranscriptSequenceThioMacInline,
                        GlassTranscriptNonCodingThioMacInline,
                        GlassTranscriptInfrastructureThioMacInline,

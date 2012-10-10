@@ -17,7 +17,7 @@ if __name__ == '__main__':
     transcripts['glass_transcript_id'] = transcripts['id']
     
     for peak_type in ('gr_dex', 'gr_kla_dex', 'p65_kla_dex','p65_kla'):
-        size = 200
+        size = 100
         if True:
             all_data = yzer.import_file(yzer.get_filename(motif_dirpath,
                                                    '{0}_vectors.txt'.format(peak_type)))
@@ -29,29 +29,28 @@ if __name__ == '__main__':
                                   #('refseq', all_data[(all_data['score'] > 10) & (all_data['has_refseq'] == 1) 
                                   #                & (all_data['touches'] == 't') | (all_data['relationship'] == 'is downstream of')],),
                                   #('distal', all_data[(all_data['distal'] == 't')],),
-                                  ('enhancer_like', all_data[(all_data['has_refseq'] == 0) & (all_data['has_infrastructure'] == 0) 
-                                                             & (all_data['length'] < 10000)],),
-                                  
+                                  ('enhancer_like_v2', all_data[(all_data['refseq'] == 'f') & (all_data['has_infrastructure'] == 0) 
+                                                             & (all_data['length'] < 6000)],),
                                   ):
                 for name, dataset in (('all', data,),
-                                      ('with_other_kla_dex', data[data['tag_count_3'] >= 10]),
-                                      ('no_other_kla_dex', data[data['tag_count_3'] < 10]),
-                                      ('with_other_kla_or_dex', data[data['tag_count_4'] >= 10]),
+                                      #('with_other_kla_dex', data[data['tag_count_3'] >= 10]),
+                                      #('no_other_kla_dex', data[data['tag_count_3'] < 10]),
+                                      #('with_other_kla_or_dex', data[data['tag_count_4'] >= 10]),
                                       ('no_other_kla_or_dex', data[data['tag_count_4'] < 10]),
-                                      ('with_pu_1_kla_dex', data[data['tag_count_5'] >= 10]),
+                                      #('with_pu_1_kla_dex', data[data['tag_count_5'] >= 10]),
                                       ('no_pu_1_kla_dex', data[data['tag_count_5'] < 10]),
                                       ('gt_partner', data[data['tag_count'] > 1.2*data['tag_count_2']]),
-                                      ('lt_partner', data[data['tag_count']*1.2 < data['tag_count_2']]),
+                                      #('lt_partner', data[data['tag_count']*1.2 < data['tag_count_2']]),
                                       ('with_partner', data[data['tag_count_2'] >= 10]),
                                       ('no_partner', data[data['tag_count_2'] < 10]),
-                                      ('down_in_dex', data[data['dex_1_lfc'] <= -1]),
-                                      ('down_in_kla_dex', data[data['kla_dex_1_lfc'] <= -1]),
-                                      ('down_in_kla', data[data['kla_1_lfc'] <= -1]),
-                                      ('up_in_dex', data[data['dex_1_lfc'] >= 1]),
-                                      ('up_in_kla_dex', data[data['kla_dex_1_lfc'] >= 1]),
-                                      ('up_in_kla', data[data['kla_1_lfc'] >= 1]),
-                                      ('transrepressed', data[(data['kla_1_lfc'] >= 1) & (data['dex_over_kla_1_lfc'] <= -.58)]),
-                                      ('up_in_dex_down_in_kla_dex', data[(data['dex_1_lfc'] >= 1) & (data['kla_dex_1_lfc'] - data['dex_1_lfc'] <= -.58)]),
+                                      #('down_in_dex', data[data['dex_1_lfc'] <= -1]),
+                                      #('down_in_kla_dex', data[data['kla_dex_1_lfc'] <= -1]),
+                                      #('down_in_kla', data[data['kla_1_lfc'] <= -1]),
+                                      #('up_in_dex', data[data['dex_1_lfc'] >= 1]),
+                                      #('up_in_kla_dex', data[data['kla_dex_1_lfc'] >= 1]),
+                                      #('up_in_kla', data[data['kla_1_lfc'] >= 1]),
+                                      #('transrepressed', data[(data['kla_1_lfc'] >= 1) & (data['dex_over_kla_1_lfc'] <= -.58)]),
+                                      #('up_in_dex_down_in_kla_dex', data[(data['dex_1_lfc'] >= 1) & (data['kla_dex_1_lfc'] - data['dex_1_lfc'] <= -.58)]),
                                       ):
                     # We have multiple copies of peaks if they align to different transcripts
                     parent_path = yzer.get_and_create_path(motif_dirpath,  
