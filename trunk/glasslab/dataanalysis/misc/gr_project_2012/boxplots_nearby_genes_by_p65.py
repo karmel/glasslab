@@ -5,6 +5,7 @@ Created on Oct 1, 2012
 '''
 from __future__ import division
 from glasslab.dataanalysis.graphing.seq_grapher import SeqGrapher
+import random
 
 if __name__ == '__main__':
     yzer = SeqGrapher()
@@ -33,22 +34,29 @@ if __name__ == '__main__':
             & (data['p65_kla_tag_count'] < ratio*data['p65_kla_dex_tag_count'])
         
         
-        #data[kla_gt].to_csv(yzer.get_filename(img_dirpath, 'enhancer_like_lose_p65.txt'), 
-        #                              sep='\t', header=True, index=False)
-        
-        title = 'LFC in KLA + Dex over KLA by change in p65:\nRefSeq'
         names = [s.format('p65') for s in ['No {0}','Loses {0}\nin KLA+Dex','No change in {0}', 'Gains {0}\nin KLA+Dex',
                                            'Near Enhancer\nthat loses {0}']]
         
-        groups = [data[none][colname], data[kla_gt][colname], 
-                           data[nc][colname], data[kla_dex_gt][colname],
-                           nearby[colname]]
-        for g in groups: print len(g)
-        ax = yzer.boxplot(groups, 
+        groups = [data[none], data[kla_gt], data[nc], data[kla_dex_gt]]
+        
+        # We want to randomly sample to get equi-sized groups
+        desired = len(nearby)
+        for i, g in enumerate(groups):
+            rows = random.sample(g.index, desired) 
+            groups[i] = g.ix[rows]
+            
+        to_plot = [g[colname] for g in (groups + [nearby])]
+        
+        
+        title = 'LFC in KLA + Dex over KLA by change in p65:' \
+                    + '\nRefSeq, randomly sampled to {0} transcripts'.format(desired)
+        
+        ax = yzer.boxplot(to_plot, 
                      names,
                      title=title, 
                      xlabel='Transcript Status', 
                      ylabel='log2(KLA+Dex GRO-seq/KLA GRO-seq)', 
                      show_outliers=False, show_plot=False)
-        yzer.save_plot(yzer.get_filename(img_dirpath, 'dex_over_kla_1_lfc_with_nearby_unique_3x_change.png'))
+        yzer.save_plot(yzer.get_filename(img_dirpath, 
+                'dex_over_kla_1_lfc_with_nearby_unique_3x_change_sampled_{0}.png'.format(random.randint(0,9999))))
         yzer.show_plot()
