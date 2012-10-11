@@ -10,21 +10,19 @@ if __name__ == '__main__':
     yzer = SeqGrapher()
     dirpath = 'karmel/Desktop/Projects/Classes/Rotations/Finland_2012/GR_Project/'
     dirpath = yzer.get_path(dirpath)
-    img_dirpath = yzer.get_and_create_path(dirpath, 'boxplots_non_refseq_by_p65')
+    img_dirpath = yzer.get_and_create_path(dirpath, 'boxplots_nearby_genes_by_p65')
     
-    transcripts = yzer.import_file(yzer.get_filename(dirpath, 'motifs', 'transcript_vectors.txt'))
+    data = yzer.import_file(yzer.get_filename(dirpath, 'motifs', 'transcript_vectors.txt'))
+    nearby = yzer.import_file(yzer.get_filename(img_dirpath, 'nearest_genes_to_enhancer_like_less_p65.txt'))
     
     if True:
-        data = transcripts[transcripts['refseq'] == 'f']
-        data = data[data['has_infrastructure'] == 0]
-        data = data[data['length'] < 6000]
-        data = data[data['dex_1_lfc'] < 1]
-        data = data[data['kla_1_lfc'] >= 1]
-        data = data[data['gr_kla_dex_tag_count'] > 0]
-        
-        
         data = data.fillna(0)
+        nearby = nearby.fillna(0)
         
+        data = data[data['has_refseq'] == 1]
+        data = data[~data['id'].isin(nearby['id'])]
+        
+        nearby = nearby.groupby(['id'],as_index=False).mean()
         ratio = 3
         colname = 'dex_over_kla_1_lfc'
         none = (data['p65_kla_tag_count'] + data['p65_kla_dex_tag_count'] == 0)
@@ -38,13 +36,19 @@ if __name__ == '__main__':
         #data[kla_gt].to_csv(yzer.get_filename(img_dirpath, 'enhancer_like_lose_p65.txt'), 
         #                              sep='\t', header=True, index=False)
         
-        title = 'LFC in KLA + Dex over KLA by change in p65:\nEnhancer-Like, Has GR in KLA+Dex'
-        names = [s.format('p65') for s in ['No {0}','Loses {0} in KLA+Dex','No change in {0}', 'Gains {0} in KLA+Dex']]
-        ax = yzer.boxplot([data[none][colname], data[kla_gt][colname], data[nc][colname], data[kla_dex_gt][colname]], 
+        title = 'LFC in KLA + Dex over KLA by change in p65:\nRefSeq'
+        names = [s.format('p65') for s in ['No {0}','Loses {0}\nin KLA+Dex','No change in {0}', 'Gains {0}\nin KLA+Dex',
+                                           'Near Enhancer\nthat loses {0}']]
+        
+        groups = [data[none][colname], data[kla_gt][colname], 
+                           data[nc][colname], data[kla_dex_gt][colname],
+                           nearby[colname]]
+        for g in groups: print len(g)
+        ax = yzer.boxplot(groups, 
                      names,
                      title=title, 
-                     xlabel='p65 Status', 
+                     xlabel='Transcript Status', 
                      ylabel='log2(KLA+Dex GRO-seq/KLA GRO-seq)', 
                      show_outliers=False, show_plot=False)
-        yzer.save_plot(yzer.get_filename(img_dirpath, 'dex_over_kla_1_lfc_by_p65_sums_3x_change.png'))
+        yzer.save_plot(yzer.get_filename(img_dirpath, 'dex_over_kla_1_lfc_with_nearby_unique_3x_change.png'))
         yzer.show_plot()
