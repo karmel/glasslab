@@ -42,7 +42,7 @@ class MotifAnalyzer(TranscriptAnalyzer):
         Create tab-delimited files with Windows carriage returns for Homer.
         '''
         fullpath = self.get_filename(dirpath, project_name)
-        self.make_directory(fullpath, files_already_prepped=files_already_prepped)
+        self.make_directory(fullpath, check_exists=False)
         
         # Create HOMER-compatible file.
         region_filename = self.get_filename(fullpath, project_name + '_regions.txt')
@@ -115,14 +115,16 @@ class MotifAnalyzer(TranscriptAnalyzer):
         
         print 'Successfully executed command %s' % command
         
-    def make_directory(self, fullpath, files_already_prepped=False):
-        if os.path.exists(fullpath): 
-            if not files_already_prepped:
-                raise Exception('Directory %s already exists!' % fullpath)
-            #print 'Directory %s already exists!' % fullpath 
-        else:
-            os.mkdir(fullpath)
-            
+    def make_directory(self, fullpath, check_exists=True):
+        if check_exists: self.check_exists(fullpath)
+        
+        try: os.mkdir(fullpath)
+        except OSError, e: 
+            if check_exists: raise e
+    
+    def check_exists(self, fullpath):
+        if os.path.exists(fullpath): raise Exception('Directory {0} already exists!'.format(fullpath))
+        
     def sanitize_filename(self, filename):
         return filename.replace(' ', '\ ')
     

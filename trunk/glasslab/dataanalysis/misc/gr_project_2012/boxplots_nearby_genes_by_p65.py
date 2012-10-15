@@ -14,7 +14,7 @@ if __name__ == '__main__':
     img_dirpath = yzer.get_and_create_path(dirpath, 'boxplots_nearby_genes_by_p65')
     
     data = yzer.import_file(yzer.get_filename(dirpath, 'motifs', 'transcript_vectors.txt'))
-    nearby = yzer.import_file(yzer.get_filename(img_dirpath, 'nearest_genes_to_enhancer_like_less_p65.txt'))
+    nearby = yzer.import_file(yzer.get_filename(img_dirpath, 'nearest_genes_to_enhancer_like_less_p65_superset.txt'))
     
     if True:
         data = data.fillna(0)
@@ -24,7 +24,7 @@ if __name__ == '__main__':
         data = data[~data['id'].isin(nearby['id'])]
         
         nearby = nearby.groupby(['id'],as_index=False).mean()
-        ratio = 3
+        ratio = 1.5
         colname = 'dex_over_kla_1_lfc'
         none = (data['p65_kla_tag_count'] + data['p65_kla_dex_tag_count'] == 0)
         kla_gt = (data['p65_kla_tag_count'] > ratio*data['p65_kla_dex_tag_count'])
@@ -35,7 +35,7 @@ if __name__ == '__main__':
         
         
         names = [s.format('p65') for s in ['No {0}','Loses {0}\nin KLA+Dex','No change in {0}', 'Gains {0}\nin KLA+Dex',
-                                           'Near Enhancer\nthat loses {0}']]
+                                           'Near Enhancer\nthat loses {{0}} ({0}-fold)'.format(ratio)]]
         
         groups = [data[none], data[kla_gt], data[nc], data[kla_dex_gt]]
         
@@ -58,5 +58,5 @@ if __name__ == '__main__':
                      ylabel='log2(KLA+Dex GRO-seq/KLA GRO-seq)', 
                      show_outliers=False, show_plot=False)
         yzer.save_plot(yzer.get_filename(img_dirpath, 
-                'dex_over_kla_1_lfc_with_nearby_unique_3x_change_sampled_{0}.png'.format(random.randint(0,9999))))
+                'dex_over_kla_1_lfc_with_nearby_unique_{0}x_change_sampled_{1}.png'.format(ratio, random.randint(0,9999))))
         yzer.show_plot()
