@@ -6,7 +6,6 @@ Created on Oct 1, 2012
 from __future__ import division
 from glasslab.dataanalysis.graphing.seq_grapher import SeqGrapher
 from glasslab.utils.functions import nonzero
-import numpy
 
 if __name__ == '__main__':
     yzer = SeqGrapher()
