@@ -21,7 +21,7 @@ if __name__ == '__main__':
     yzer = SeqGrapher()
     dirpath = 'karmel/Desktop/Projects/Classes/Rotations/Finland_2012/GR_Project/'
     dirpath = yzer.get_path(dirpath)
-    save_dirpath = yzer.get_and_create_path(dirpath,'subgroups_for_supershift')
+    save_dirpath = yzer.get_and_create_path(dirpath,'subgroups_for_supershift','have_pu_1')
     
     transcripts = yzer.import_file(yzer.get_filename(dirpath, 'motifs', 'transcript_vectors.txt'))
     
@@ -33,6 +33,10 @@ if __name__ == '__main__':
         data = data[data['kla_1_lfc'] >= 1]
         
         data = data.fillna(0)
+        
+        # Redo our links to be more useful for display
+        data['ucsc_link_nod'] = data['ucsc_link_nod'].map(lambda x: '<a href={0} target="_blank">UCSC</a>'.format(
+                                                x.replace('nod_balbc','gr_project_2012')))
         
         # First get sets for Negative controls
         tfs = ['p65','pu_1','gr','gr_fa']
@@ -53,6 +57,7 @@ if __name__ == '__main__':
         data = data[data['gr_kla_dex_tag_count'] > 0]
         #data = data[data['pu_1_kla_dex_tag_count'] + data['pu_1_kla_tag_count'] > 0]
         data = data[data['p65_kla_dex_tag_count'] + data['p65_kla_tag_count'] > 0]
+        data = data[data['pu_1_kla_dex_tag_count'] + data['pu_1_kla_tag_count'] > 0]
         data = data[data['gr_fa_kla_dex_tag_count'] == 0]
         
         # Split up by change in p65
