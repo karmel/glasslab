@@ -18,7 +18,7 @@ if __name__ == '__main__':
     if True:
         for ratio in (3,2,1.5):
             enhancers = yzer.import_file(yzer.get_filename(dirpath, 'boxplots_non_refseq_by_p65',
-                                                   'enhancer_like_lose_p65_{0}x_change.txt'.format(ratio)))
+                                                   'enhancer_like_lose_p65_{0}x_change_dsg_only.txt'.format(ratio)))
             enhancers['glass_transcript_id'] = enhancers['id']
             
             # Limit to peaks and touching transcripts, then pull out peaks that intersect our enhancer set

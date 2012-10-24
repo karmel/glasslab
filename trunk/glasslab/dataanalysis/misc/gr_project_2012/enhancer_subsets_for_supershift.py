@@ -17,45 +17,53 @@ from __future__ import division
 from glasslab.dataanalysis.graphing.seq_grapher import SeqGrapher
 from glasslab.utils.functions import nonzero
 
+def ucsc_link_cleanup(data):
+    data['ucsc_link_nod'] = data['ucsc_link_nod'].map(lambda x: '<a href={0} target="_blank">UCSC</a>'.format(
+                                                x.replace('nod_balbc','gr_project_2012')))
+    
+    return data
+
 if __name__ == '__main__':
     yzer = SeqGrapher()
     dirpath = 'karmel/Desktop/Projects/Classes/Rotations/Finland_2012/GR_Project/'
     dirpath = yzer.get_path(dirpath)
-    save_dirpath = yzer.get_and_create_path(dirpath,'subgroups_for_supershift','have_pu_1')
+    save_dirpath = yzer.get_and_create_path(dirpath,'subgroups_for_supershift')
     
     transcripts = yzer.import_file(yzer.get_filename(dirpath, 'motifs', 'transcript_vectors.txt'))
     
-    if True:
-        data = transcripts[transcripts['refseq'] == 'f']
-        data = data[data['has_infrastructure'] == 0]
-        data = data[data['length'] < 6000]
-        data = data[data['dex_1_lfc'] < 1]
-        data = data[data['kla_1_lfc'] >= 1]
-        
-        data = data.fillna(0)
-        
-        # Redo our links to be more useful for display
-        data['ucsc_link_nod'] = data['ucsc_link_nod'].map(lambda x: '<a href={0} target="_blank">UCSC</a>'.format(
-                                                x.replace('nod_balbc','gr_project_2012')))
-        
+    data = transcripts[transcripts['refseq'] == 'f']
+    data = data[data['has_infrastructure'] == 0]
+    data = data[data['length'] < 6000]
+    data = data[data['dex_1_lfc'] < 1]
+    data = data[data['kla_1_lfc'] >= 1]
+    
+    data = data.fillna(0)
+    
+    data = ucsc_link_cleanup(data)
+    
+    
+    if False:
         # First get sets for Negative controls
         tfs = ['p65','pu_1','gr','gr_fa']
         for tf in tfs:
             other_tfs = tfs[:]
             other_tfs.remove(tf)
-        
+            
             # Get only TF of interest
             only = data[data['{0}_kla_dex_tag_count'.format(tf)] > 0]
             for other in other_tfs:
                 only = only[only['{0}_kla_dex_tag_count'.format(other)] == 0]
+                try: only = only[only['{0}_kla_tag_count'.format(other)] == 0]
+                except KeyError: pass
+                try: only = only[only['{0}_dex_tag_count'.format(other)] == 0]
+                except KeyError: pass
         
             only.to_csv(yzer.get_filename(save_dirpath, 'enhancer_like_{0}_only.txt'.format(tf)), 
                                       sep='\t', header=True, index=False)
             
-        
+    if True:
         # Next look only at sites where we have all three binding, but not GR directly.
         data = data[data['gr_kla_dex_tag_count'] > 0]
-        #data = data[data['pu_1_kla_dex_tag_count'] + data['pu_1_kla_tag_count'] > 0]
         data = data[data['p65_kla_dex_tag_count'] + data['p65_kla_tag_count'] > 0]
         data = data[data['pu_1_kla_dex_tag_count'] + data['pu_1_kla_tag_count'] > 0]
         data = data[data['gr_fa_kla_dex_tag_count'] == 0]
@@ -63,7 +71,7 @@ if __name__ == '__main__':
         # Split up by change in p65
         peak_type = 'p65'
         peak_type_2 = 'pu_1'
-        ratio = 3
+        ratio = 1.5
         ratio_2 = 1.2
         kla_gt = (data['{0}_kla_tag_count'.format(peak_type)] > ratio*data['{0}_kla_dex_tag_count'.format(peak_type)])
         kla_gt_both = kla_gt & (data['{0}_kla_tag_count'.format(peak_type_2)] > ratio_2*data['{0}_kla_dex_tag_count'.format(peak_type_2)])
