@@ -305,10 +305,12 @@ class GlassAtlasSqlGenerator(SqlGenerator):
         CREATE TABLE "{schema_name_prefix}{suffix}"."{table_name}" (
             "id" int4 NOT NULL,
             "glass_transcript_id" int4 DEFAULT NULL,
-            "nearest_refseq_transcript_id" int4 DEFAULT NULL
+            "nearest_refseq_transcript_id" int4 DEFAULT NULL,
+            "distance" int4 DEFAULT NULL
         );
         CREATE INDEX "{table_name}_transcript_idx" ON "{schema_name_prefix}{suffix}"."{table_name}" USING btree(glass_transcript_id);
         CREATE INDEX "{table_name}_refseq_idx" ON "{schema_name_prefix}{suffix}"."{table_name}" USING btree(nearest_refseq_transcript_id);
+        CREATE INDEX "{table_name}_distance_idx" ON "{schema_name_prefix}{suffix}"."{table_name}" USING btree(distance);
         """.format(schema_name_prefix=self.schema_name_prefix, table_name=table_name, suffix=self.staging) \
         + self.pkey_sequence_sql(self.schema_name_prefix + self.staging, table_name)
     
