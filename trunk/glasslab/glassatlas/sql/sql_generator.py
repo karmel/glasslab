@@ -4,22 +4,24 @@ Created on Oct 9, 2012
 @author: karmel
 
 '''
-from glasslab.config import current_settings, django_settings
-from glasslab.glassatlas.sql import transcripts_from_tags_functions,\
-    transcripts_from_prep_functions
+from glasslab.config import current_settings
+from glasslab.glassatlas.sql import transcripts_from_prep_functions,\
+    transcripts_from_tags_functions
+from glasslab.utils.database import SqlGenerator
 
-class GlassAtlasSqlGenerator(object):
+class GlassAtlasSqlGenerator(SqlGenerator):
     ''' Generates the SQL queries for building DB schema. '''
     genome = None
     cell_type = None
     staging = None
-    user = None
     
     def __init__(self, genome=None, cell_type=None, staging=None, user=None):
-        self.genome = genome or current_settings.GENOME.lower()
-        self.cell_type = cell_type or current_settings.CELL_TYPE.lower()
-        self.staging = staging or current_settings.STAGING
-        self.user = user or django_settings.DATABASES['default']['USER']
+        self.genome = genome.lower() or current_settings.GENOME.lower()
+        self.cell_type = cell_type.lower() or current_settings.CELL_TYPE.lower()
+        self.staging = staging.lower() or current_settings.STAGING
+        
+        self.schema_name_prefix = 'glass_atlas_{0}_{1}'.format(self.genome, self.cell_type)
+        super(GlassAtlasSqlGenerator, self).__init__()
     
     def all_sql(self):
         return self.prep_set() + self.final_set()
@@ -71,15 +73,16 @@ class GlassAtlasSqlGenerator(object):
     def from_prep_functions(self):
         return transcripts_from_prep_functions.sql(self.genome, self.cell_type, self.staging)
     
-        
+    # Tables
     def schema(self, suffix=''):
         return """
-        CREATE SCHEMA "glass_atlas_{0}_{1}{staging}" AUTHORIZATION "{user}";
-        """.format(self.genome, self.cell_type, suffix=suffix, user=self.user)
+        CREATE SCHEMA "{schema_name_prefix}{suffix}" AUTHORIZATION "{user}";
+        """.format(schema_name_prefix=self.schema_name_prefix, suffix=suffix, user=self.user)
         
     def prep_table_main_transcript(self):
+        table_name = 'glass_transcript'
         return """
-        CREATE TABLE "glass_atlas_{0}_{1}_prep"."glass_transcript" (
+        CREATE TABLE "{schema_name_prefix}_prep"."{table_name}" (
             "id" int4 NOT NULL,
             "chromosome_id" int4 DEFAULT NULL,
             "strand" int2 DEFAULT NULL,
@@ -92,37 +95,28 @@ class GlassAtlasSqlGenerator(object):
             "density_circle" circle DEFAULT NULL,
             "refseq" boolean DEFAULT NULL
         );
-        GRANT ALL ON TABLE "glass_atlas_{0}_{1}_prep"."glass_transcript" TO  "{user}";
-        CREATE SEQUENCE "glass_atlas_{0}_{1}_prep"."glass_transcript_id_seq"
-            START WITH 1
-            INCREMENT BY 1
-            NO MINVALUE
-            NO MAXVALUE
-            CACHE 1;
-        ALTER SEQUENCE "glass_atlas_{0}_{1}_prep"."glass_transcript_id_seq" OWNED BY "glass_atlas_{0}_{1}_prep"."glass_transcript".id;
-        ALTER TABLE "glass_atlas_{0}_{1}_prep"."glass_transcript" ALTER COLUMN id SET DEFAULT nextval('"glass_atlas_{0}_{1}_prep"."glass_transcript_id_seq"'::regclass);
-        ALTER TABLE ONLY "glass_atlas_{0}_{1}_prep"."glass_transcript" ADD CONSTRAINT glass_transcript_pkey PRIMARY KEY (id);
-        """.format(self.genome, self.cell_type, user=self.user)
+        """.format(schema_name_prefix=self.schema_name_prefix, table_name=table_name, user=self.user)\
+        + self.pkey_sequence_sql(self.schema_name_prefix + '_prep', table_name)
         
     def prep_table_chrom_transcript(self, chr_id):   
         return """ 
-        CREATE TABLE "glass_atlas_{0}_{1}_prep"."glass_transcript_{chr_id}" (
+        CREATE TABLE "{schema_name_prefix}_prep"."glass_transcript_{chr_id}" (
             CHECK ( chromosome_id = {chr_id} )
-        ) INHERITS ("glass_atlas_{0}_{1}_prep"."glass_transcript");
-        CREATE INDEX glass_transcript_{chr_id}_pkey_idx ON "glass_atlas_{0}_{1}_prep"."glass_transcript_{chr_id}" USING btree (id);
-        CREATE INDEX glass_transcript_{chr_id}_chr_idx ON "glass_atlas_{0}_{1}_prep"."glass_transcript_{chr_id}" USING btree (chromosome_id);
-        CREATE INDEX glass_transcript_{chr_id}_strand_idx ON "glass_atlas_{0}_{1}_prep"."glass_transcript_{chr_id}" USING btree (strand);
-        CREATE INDEX glass_transcript_{chr_id}_start_end_idx ON "glass_atlas_{0}_{1}_prep"."glass_transcript_{chr_id}" USING gist (start_end);
-        CREATE INDEX glass_transcript_{chr_id}_start_density_idx ON "glass_atlas_{0}_{1}_prep"."glass_transcript_{chr_id}" USING gist (start_density);
-        CREATE INDEX glass_transcript_{chr_id}_density_circle_idx ON "glass_atlas_{0}_{1}_prep"."glass_transcript_{chr_id}" USING gist (density_circle);
-        """.format(self.genome, self.cell_type, chr_id=chr_id)
+        ) INHERITS ("{schema_name_prefix}_prep"."glass_transcript");
+        CREATE INDEX glass_transcript_{chr_id}_pkey_idx ON "{schema_name_prefix}_prep"."glass_transcript_{chr_id}" USING btree (id);
+        CREATE INDEX glass_transcript_{chr_id}_chr_idx ON "{schema_name_prefix}_prep"."glass_transcript_{chr_id}" USING btree (chromosome_id);
+        CREATE INDEX glass_transcript_{chr_id}_strand_idx ON "{schema_name_prefix}_prep"."glass_transcript_{chr_id}" USING btree (strand);
+        CREATE INDEX glass_transcript_{chr_id}_start_end_idx ON "{schema_name_prefix}_prep"."glass_transcript_{chr_id}" USING gist (start_end);
+        CREATE INDEX glass_transcript_{chr_id}_start_density_idx ON "{schema_name_prefix}_prep"."glass_transcript_{chr_id}" USING gist (start_density);
+        CREATE INDEX glass_transcript_{chr_id}_density_circle_idx ON "{schema_name_prefix}_prep"."glass_transcript_{chr_id}" USING gist (density_circle);
+        """.format(schema_name_prefix=self.schema_name_prefix, chr_id=chr_id)
         
     def prep_table_trigger_transcript(self):
         return """
-        CREATE OR REPLACE FUNCTION glass_atlas_{0}_{1}_prep.glass_transcript_insert_trigger()
+        CREATE OR REPLACE FUNCTION {schema_name_prefix}_prep.glass_transcript_insert_trigger()
         RETURNS TRIGGER AS $$
         BEGIN
-            EXECUTE 'INSERT INTO glass_atlas_{0}_{1}_prep.glass_transcript_' || NEW.chromosome_id || ' VALUES ('
+            EXECUTE 'INSERT INTO {schema_name_prefix}_prep.glass_transcript_' || NEW.chromosome_id || ' VALUES ('
             || quote_literal(NEW.id) || ','
             || quote_literal(NEW.chromosome_id) || ','
             || quote_literal(NEW.strand) || ','
@@ -144,13 +138,14 @@ class GlassAtlasSqlGenerator(object):
         
         -- Trigger function for inserts on main table
         CREATE TRIGGER glass_transcript_trigger
-            BEFORE INSERT ON "glass_atlas_{0}_{1}_prep"."glass_transcript"
-            FOR EACH ROW EXECUTE PROCEDURE glass_atlas_{0}_{1}_prep.glass_transcript_insert_trigger();
-        """.format(self.genome, self.cell_type)
+            BEFORE INSERT ON "{schema_name_prefix}_prep"."glass_transcript"
+            FOR EACH ROW EXECUTE PROCEDURE {schema_name_prefix}_prep.glass_transcript_insert_trigger();
+        """.format(schema_name_prefix=self.schema_name_prefix)
         
     def table_main_source(self, suffix=''):
+        table_name = 'glass_transcript_source'
         return """
-        CREATE TABLE "glass_atlas_{0}_{1}{suffix}"."glass_transcript_source" (
+        CREATE TABLE "{schema_name_prefix}{suffix}"."" (
             "id" int4 NOT NULL,
             "chromosome_id" int4 DEFAULT NULL,
             "glass_transcript_id" int4 DEFAULT NULL,
@@ -158,34 +153,25 @@ class GlassAtlasSqlGenerator(object):
             "tag_count" int4 DEFAULT NULL,
             "gaps" int4 DEFAULT NULL
         );
-        GRANT ALL ON TABLE "glass_atlas_{0}_{1}{suffix}"."glass_transcript_source" TO  "{user}";
-        CREATE SEQUENCE "glass_atlas_{0}_{1}{suffix}"."glass_transcript_source_id_seq"
-            START WITH 1
-            INCREMENT BY 1
-            NO MINVALUE
-            NO MAXVALUE
-            CACHE 1;
-        ALTER SEQUENCE "glass_atlas_{0}_{1}{suffix}"."glass_transcript_source_id_seq" OWNED BY "glass_atlas_{0}_{1}{suffix}"."glass_transcript_source".id;
-        ALTER TABLE "glass_atlas_{0}_{1}{suffix}"."glass_transcript_source" ALTER COLUMN id SET DEFAULT nextval('"glass_atlas_{0}_{1}{suffix}"."glass_transcript_source_id_seq"'::regclass);
-        ALTER TABLE ONLY "glass_atlas_{0}_{1}{suffix}"."glass_transcript_source" ADD CONSTRAINT glass_transcript_source_pkey PRIMARY KEY (id);
-        """.format(self.genome, self.cell_type, user=self.user, suffix=suffix)
+        """.format(schema_name_prefix=self.schema_name_prefix, table_name=table_name, suffix=suffix)\
+        + self.pkey_sequence_sql(self.schema_name_prefix + suffix, table_name)
         
     def table_chrom_source(self, chr_id, suffix=''):
         return """
-        CREATE TABLE "glass_atlas_{0}_{1}{suffix}"."glass_transcript_source_{chr_id}" (
+        CREATE TABLE "{schema_name_prefix}{suffix}"."glass_transcript_source_{chr_id}" (
             CHECK ( chromosome_id = {chr_id} )
-        ) INHERITS ("glass_atlas_{0}_{1}{suffix}"."glass_transcript_source");
-        CREATE INDEX glass_transcript_source_{chr_id}_pkey_idx ON "glass_atlas_{0}_{1}{suffix}"."glass_transcript_source_{chr_id}" USING btree (id);
-        CREATE INDEX glass_transcript_source_{chr_id}_transcript_idx ON "glass_atlas_{0}_{1}{suffix}"."glass_transcript_source_{chr_id}" USING btree (glass_transcript_id);
-        CREATE INDEX glass_transcript_source_{chr_id}_sequencing_run_idx ON "glass_atlas_{0}_{1}{suffix}"."glass_transcript_source_{chr_id}" USING btree (sequencing_run_id);
-        """.format(self.genome, self.cell_type, chr_id=chr_id, suffix=suffix)
+        ) INHERITS ("{schema_name_prefix}{suffix}"."glass_transcript_source");
+        CREATE INDEX glass_transcript_source_{chr_id}_pkey_idx ON "{schema_name_prefix}{suffix}"."glass_transcript_source_{chr_id}" USING btree (id);
+        CREATE INDEX glass_transcript_source_{chr_id}_transcript_idx ON "{schema_name_prefix}{suffix}"."glass_transcript_source_{chr_id}" USING btree (glass_transcript_id);
+        CREATE INDEX glass_transcript_source_{chr_id}_sequencing_run_idx ON "{schema_name_prefix}{suffix}"."glass_transcript_source_{chr_id}" USING btree (sequencing_run_id);
+        """.format(schema_name_prefix=self.schema_name_prefix, chr_id=chr_id, suffix=suffix)
         
     def table_trigger_source(self, suffix=''):
         return """
-        CREATE OR REPLACE FUNCTION glass_atlas_{0}_{1}{suffix}.glass_transcript_source_insert_trigger()
+        CREATE OR REPLACE FUNCTION {schema_name_prefix}{suffix}.glass_transcript_source_insert_trigger()
         RETURNS TRIGGER AS $$
         BEGIN
-            EXECUTE 'INSERT INTO glass_atlas_{0}_{1}{suffix}.glass_transcript_source_' || NEW.chromosome_id || ' VALUES ('
+            EXECUTE 'INSERT INTO {schema_name_prefix}{suffix}.glass_transcript_source_' || NEW.chromosome_id || ' VALUES ('
             || quote_literal(NEW.id) || ','
             || quote_literal(NEW.chromosome_id) || ','
             || quote_literal(NEW.glass_transcript_id) || ','
@@ -201,13 +187,14 @@ class GlassAtlasSqlGenerator(object):
         
         -- Trigger function for inserts on main table
         CREATE TRIGGER glass_transcript_source_trigger
-            BEFORE INSERT ON "glass_atlas_{0}_{1}{suffix}"."glass_transcript_source"
-            FOR EACH ROW EXECUTE PROCEDURE glass_atlas_{0}_{1}{suffix}.glass_transcript_source_insert_trigger();
-        """.format(self.genome, self.cell_type, suffix=suffix)
+            BEFORE INSERT ON "{schema_name_prefix}{suffix}"."glass_transcript_source"
+            FOR EACH ROW EXECUTE PROCEDURE {schema_name_prefix}{suffix}.glass_transcript_source_insert_trigger();
+        """.format(schema_name_prefix=self.schema_name_prefix, suffix=suffix)
         
     def table_main_transcript(self):
+        table_name = 'glass_transcript'
         return """
-        CREATE TABLE "glass_atlas_{0}_{1}{suffix}"."glass_transcript" (
+        CREATE TABLE "{schema_name_prefix}{suffix}"."{table_name}" (
             "id" int4 NOT NULL,
             "chromosome_id" int4 DEFAULT NULL,
             "strand" int2 DEFAULT NULL,
@@ -221,38 +208,29 @@ class GlassAtlasSqlGenerator(object):
             "modified" timestamp(6) NULL DEFAULT NULL,
             "created" timestamp(6) NULL DEFAULT NULL
         );
-        GRANT ALL ON TABLE "glass_atlas_{0}_{1}{suffix}"."glass_transcript" TO  "{user}";
-        CREATE SEQUENCE "glass_atlas_{0}_{1}{suffix}"."glass_transcript_id_seq"
-            START WITH 1
-            INCREMENT BY 1
-            NO MINVALUE
-            NO MAXVALUE
-            CACHE 1;
-        ALTER SEQUENCE "glass_atlas_{0}_{1}{suffix}"."glass_transcript_id_seq" OWNED BY "glass_atlas_{0}_{1}{suffix}"."glass_transcript".id;
-        ALTER TABLE "glass_atlas_{0}_{1}{suffix}"."glass_transcript" ALTER COLUMN id SET DEFAULT nextval('"glass_atlas_{0}_{1}{suffix}"."glass_transcript_id_seq"'::regclass);
-        ALTER TABLE ONLY "glass_atlas_{0}_{1}{suffix}"."glass_transcript" ADD CONSTRAINT glass_transcript_pkey PRIMARY KEY (id);
-        """.format(self.genome, self.cell_type, user=self.user, suffix=self.staging)
+        """.format(schema_name_prefix=self.schema_name_prefix, table_name=table_name, suffix=self.staging)\
+        + self.pkey_sequence_sql(self.schema_name_prefix + self.staging, table_name)
         
     
     def table_chrom_transcript(self, chr_id):
         return """
-        CREATE TABLE "glass_atlas_{0}_{1}{suffix}"."glass_transcript_1" (
-            CHECK ( chromosome_id = 1 )
-        ) INHERITS ("glass_atlas_{0}_{1}{suffix}"."glass_transcript");
-        CREATE INDEX glass_transcript_1_pkey_idx ON "glass_atlas_{0}_{1}{suffix}"."glass_transcript_1" USING btree (id);
-        CREATE INDEX glass_transcript_1_chr_idx ON "glass_atlas_{0}_{1}{suffix}"."glass_transcript_1" USING btree (chromosome_id);
-        CREATE INDEX glass_transcript_1_strand_idx ON "glass_atlas_{0}_{1}{suffix}"."glass_transcript_1" USING btree (strand);
-        CREATE INDEX glass_transcript_1_score_idx ON "glass_atlas_{0}_{1}{suffix}"."glass_transcript_1" USING btree (score);
-        CREATE INDEX glass_transcript_1_distal_idx ON "glass_atlas_{0}_{1}{suffix}"."glass_transcript_1" USING btree (distal);
-        CREATE INDEX glass_transcript_1_start_end_idx ON "glass_atlas_{0}_{1}{suffix}"."glass_transcript_1" USING gist (start_end);
-        """.format(self.genome, self.cell_type, chr_id=chr_id, suffix=self.staging)
+        CREATE TABLE "{schema_name_prefix}{suffix}"."glass_transcript_{chr_id}" (
+            CHECK ( chromosome_id = {chr_id} )
+        ) INHERITS ("{schema_name_prefix}{suffix}"."glass_transcript");
+        CREATE INDEX glass_transcript_{chr_id}_pkey_idx ON "{schema_name_prefix}{suffix}"."glass_transcript_{chr_id}" USING btree (id);
+        CREATE INDEX glass_transcript_{chr_id}_chr_idx ON "{schema_name_prefix}{suffix}"."glass_transcript_{chr_id}" USING btree (chromosome_id);
+        CREATE INDEX glass_transcript_{chr_id}_strand_idx ON "{schema_name_prefix}{suffix}"."glass_transcript_{chr_id}" USING btree (strand);
+        CREATE INDEX glass_transcript_{chr_id}_score_idx ON "{schema_name_prefix}{suffix}"."glass_transcript_{chr_id}" USING btree (score);
+        CREATE INDEX glass_transcript_{chr_id}_distal_idx ON "{schema_name_prefix}{suffix}"."glass_transcript_{chr_id}" USING btree (distal);
+        CREATE INDEX glass_transcript_{chr_id}_start_end_idx ON "{schema_name_prefix}{suffix}"."glass_transcript_{chr_id}" USING gist (start_end);
+        """.format(schema_name_prefix=self.schema_name_prefix, chr_id=chr_id, suffix=self.staging)
         
     def table_trigger_transcript(self):
         return """
-        CREATE OR REPLACE FUNCTION glass_atlas_{0}_{1}{suffix}.glass_transcript_insert_trigger()
+        CREATE OR REPLACE FUNCTION {schema_name_prefix}{suffix}.glass_transcript_insert_trigger()
         RETURNS TRIGGER AS $$
         BEGIN
-            EXECUTE 'INSERT INTO glass_atlas_{0}_{1}{suffix}.glass_transcript_' || NEW.chromosome_id || ' VALUES ('
+            EXECUTE 'INSERT INTO {schema_name_prefix}{suffix}.glass_transcript_' || NEW.chromosome_id || ' VALUES ('
             || quote_literal(NEW.id) || ','
             || quote_literal(NEW.chromosome_id) || ','
             || quote_literal(NEW.strand) || ','
@@ -271,45 +249,38 @@ class GlassAtlasSqlGenerator(object):
         
         -- Trigger function for inserts on main table
         CREATE TRIGGER glass_transcript_trigger
-            BEFORE INSERT ON "glass_atlas_{0}_{1}{suffix}"."glass_transcript"
-            FOR EACH ROW EXECUTE PROCEDURE glass_atlas_{0}_{1}{suffix}.glass_transcript_insert_trigger();
+            BEFORE INSERT ON "{schema_name_prefix}{suffix}"."glass_transcript"
+            FOR EACH ROW EXECUTE PROCEDURE {schema_name_prefix}{suffix}.glass_transcript_insert_trigger();
 
-        """.format(self.genome, self.cell_type, suffix=self.staging)
+        """.format(schema_name_prefix=self.schema_name_prefix, suffix=self.staging)
         
         
     def region_relationship_types(self):
         return """
-        CREATE TYPE "glass_atlas_{0}_{1}{suffix}"."glass_transcript_transcription_region_relationship" 
+        CREATE TYPE "{schema_name_prefix}{suffix}"."glass_transcript_transcription_region_relationship" 
         AS ENUM('contains','is contained by','overlaps with','is equal to');
-        """.format(self.genome, self.cell_type, suffix=self.staging)
+        """.format(schema_name_prefix=self.schema_name_prefix, suffix=self.staging)
         
     def table_region_association(self, region_type):
+        table_name = 'glass_transcript_{type}'.format(type=region_type)
         return """
-        CREATE TABLE "glass_atlas_{0}_{1}{suffix}"."glass_transcript_{type}" (
+        CREATE TABLE "{schema_name_prefix}{suffix}"."{table_name}" (
             id integer NOT NULL,
             glass_transcript_id integer,
             {type}_transcription_region_id integer,
-            relationship "glass_atlas_{0}_{1}{suffix}"."glass_transcript_transcription_region_relationship",
+            relationship "{schema_name_prefix}{suffix}"."glass_transcript_transcription_region_relationship",
             major boolean
         );
-        GRANT ALL ON TABLE "glass_atlas_{0}_{1}{suffix}"."glass_transcript_{type}" TO "{user}";
-        CREATE SEQUENCE "glass_atlas_{0}_{1}{suffix}"."glass_transcript_{type}_id_seq"
-            START WITH 1
-            INCREMENT BY 1
-            NO MINVALUE
-            NO MAXVALUE
-            CACHE 1;
-        ALTER SEQUENCE "glass_atlas_{0}_{1}{suffix}"."glass_transcript_{type}_id_seq" OWNED BY "glass_atlas_{0}_{1}{suffix}"."glass_transcript_{type}".id;
-        ALTER TABLE "glass_atlas_{0}_{1}{suffix}"."glass_transcript_{type}" ALTER COLUMN id SET DEFAULT nextval('"glass_atlas_{0}_{1}{suffix}"."glass_transcript_{type}_id_seq"'::regclass);
-        ALTER TABLE ONLY "glass_atlas_{0}_{1}{suffix}"."glass_transcript_{type}" ADD CONSTRAINT glass_transcript_{type}_pkey PRIMARY KEY (id);
-        CREATE INDEX glass_transcript_{type}_transcript_idx ON "glass_atlas_{0}_{1}{suffix}"."glass_transcript_{type}" USING btree (glass_transcript_id);
-        CREATE INDEX glass_transcript_{type}_major_idx ON "glass_atlas_{0}_{1}{suffix}"."glass_transcript_{type}" USING btree (major);
-        """.format(self.genome, self.cell_type, type=region_type, user=self.user, suffix=self.staging)
+        CREATE INDEX {table_name}_transcript_idx ON "{schema_name_prefix}{suffix}"."{table_name}" USING btree (glass_transcript_id);
+        CREATE INDEX {table_name}_major_idx ON "{schema_name_prefix}{suffix}"."{table_name}" USING btree (major);
+        """.format(schema_name_prefix=self.schema_name_prefix, table_name=table_name, suffix=self.staging) \
+        + self.pkey_sequence_sql(self.schema_name_prefix + self.staging, table_name)
         
         
     def table_norm_sum(self):
+        table_name = 'norm_sum'
         return """
-        CREATE TABLE "glass_atlas_{0}_{1}{suffix}"."norm_sum" (
+        CREATE TABLE "{schema_name_prefix}{suffix}"."{table_name}" (
             "id" int4 NOT NULL,
             "name_1" varchar(100) DEFAULT NULL,
             "name_2" varchar(100) DEFAULT NULL,
@@ -324,25 +295,31 @@ class GlassAtlasSqlGenerator(object):
             "norm_factor" decimal(10,6) DEFAULT NULL,
             "modified" timestamp(6) DEFAULT NULL
         );
-        GRANT ALL ON TABLE "glass_atlas_{0}_{1}{suffix}"."norm_sum" TO  "{user}";
-        CREATE SEQUENCE "glass_atlas_{0}_{1}{suffix}"."norm_sum_id_seq"
-            START WITH 1
-            INCREMENT BY 1
-            NO MINVALUE
-            NO MAXVALUE
-            CACHE 1;
-        ALTER SEQUENCE "glass_atlas_{0}_{1}{suffix}"."norm_sum_id_seq" OWNED BY "glass_atlas_{0}_{1}{suffix}"."norm_sum".id;
-        ALTER TABLE "glass_atlas_{0}_{1}{suffix}"."norm_sum" ALTER COLUMN id SET DEFAULT nextval('"glass_atlas_{0}_{1}{suffix}"."norm_sum_id_seq"'::regclass);
-        ALTER TABLE ONLY "glass_atlas_{0}_{1}{suffix}"."norm_sum" ADD CONSTRAINT norm_sum_pkey PRIMARY KEY (id);
-        CREATE UNIQUE INDEX "norm_sum_name_idx" ON "glass_atlas_{0}_{1}{suffix}"."norm_sum" USING btree(name_1,name_2 ASC NULLS LAST);
-        """.format(self.genome, self.cell_type, user=self.user, suffix=self.staging)
+        CREATE UNIQUE INDEX "{table_name}_name_idx" ON "{schema_name_prefix}{suffix}"."{table_name}" USING btree(name_1,name_2 ASC NULLS LAST);
+        """.format(schema_name_prefix=self.schema_name_prefix, table_name=table_name, suffix=self.staging) \
+        + self.pkey_sequence_sql(self.schema_name_prefix + self.staging, table_name)
     
-    def peak_features(self):
+    def nearest_refseq(self):
+        table_name = 'nearest_refseq'
         return """
-        CREATE TYPE "glass_atlas_{0}_{1}{suffix}"."glass_transcript_feature_relationship" 
+        CREATE TABLE "{schema_name_prefix}{suffix}"."{table_name}" (
+            "id" int4 NOT NULL,
+            "glass_transcript_id" int4 DEFAULT NULL,
+            "nearest_refseq_transcript_id" int4 DEFAULT NULL
+        );
+        CREATE INDEX "{table_name}_transcript_idx" ON "{schema_name_prefix}{suffix}"."{table_name}" USING btree(glass_transcript_id);
+        CREATE INDEX "{table_name}_refseq_idx" ON "{schema_name_prefix}{suffix}"."{table_name}" USING btree(nearest_refseq_transcript_id);
+        """.format(schema_name_prefix=self.schema_name_prefix, table_name=table_name, suffix=self.staging) \
+        + self.pkey_sequence_sql(self.schema_name_prefix + self.staging, table_name)
+    
+        
+    def peak_features(self):
+        table_name = 'peak_feature'
+        return """
+        CREATE TYPE "{schema_name_prefix}{suffix}."glass_transcript_feature_relationship" 
             AS ENUM('contains','is contained by','overlaps with','is equal to','is upstream of','is downstream of');
             
-        CREATE TABLE "glass_atlas_{0}_{1}{suffix}"."peak_feature" (
+        CREATE TABLE "{schema_name_prefix}{suffix}"."{table_name}" (
             "id" int4 NOT NULL,
             "glass_transcript_id" int4 DEFAULT NULL,
             "glass_peak_id" int4 DEFAULT NULL,
@@ -355,21 +332,12 @@ class GlassAtlasSqlGenerator(object):
             "score" decimal(8,2) DEFAULT NULL,
             "distance_to_tss" int4 DEFAULT NULL
         );
-        GRANT ALL ON TABLE "glass_atlas_{0}_{1}{suffix}"."peak_feature" TO  "{user}";
-        CREATE SEQUENCE "glass_atlas_{0}_{1}{suffix}"."peak_feature_id_seq"
-            START WITH 1
-            INCREMENT BY 1
-            NO MINVALUE
-            NO MAXVALUE
-            CACHE 1;
-        ALTER SEQUENCE "glass_atlas_{0}_{1}{suffix}"."peak_feature_id_seq" OWNED BY "glass_atlas_{0}_{1}{suffix}"."peak_feature".id;
-        ALTER TABLE "glass_atlas_{0}_{1}{suffix}"."peak_feature" ALTER COLUMN id SET DEFAULT nextval('"glass_atlas_{0}_{1}{suffix}"."peak_feature_id_seq"'::regclass);
-        ALTER TABLE ONLY "glass_atlas_{0}_{1}{suffix}"."peak_feature" ADD CONSTRAINT peak_feature_pkey PRIMARY KEY (id);
-        CREATE INDEX peak_feature_glass_transcript_idx ON "glass_atlas_{0}_{1}{suffix}"."peak_feature" USING btree (glass_transcript_id);
-        CREATE INDEX peak_feature_peak_type_idx ON "glass_atlas_{0}_{1}{suffix}"."peak_feature" USING btree (peak_type_id);
-        CREATE INDEX peak_feature_relationship_idx ON "glass_atlas_{0}_{1}{suffix}"."peak_feature" USING btree (relationship);
-        CREATE INDEX peak_feature_touches_idx ON "glass_atlas_{0}_{1}{suffix}"."peak_feature" USING btree (touches);
-        """.format(self.genome, self.cell_type, user=self.user, suffix=self.staging)
+        CREATE INDEX {table_name}_glass_transcript_idx ON "{schema_name_prefix}{suffix}"."{table_name}" USING btree (glass_transcript_id);
+        CREATE INDEX {table_name}_peak_type_idx ON "{schema_name_prefix}{suffix}"."{table_name}" USING btree (peak_type_id);
+        CREATE INDEX {table_name}_relationship_idx ON "{schema_name_prefix}{suffix}"."{table_name}" USING btree (relationship);
+        CREATE INDEX {table_name}_touches_idx ON "{schema_name_prefix}{suffix}"."{table_name}" USING btree (touches);
+        """.format(schema_name_prefix=self.schema_name_prefix, table_name=table_name, suffix=self.staging) \
+        + self.pkey_sequence_sql(self.schema_name_prefix + self.staging, table_name)
             
     def other_tables(self):
         return """
@@ -389,16 +357,6 @@ class GlassAtlasSqlGenerator(object):
             "modified" timestamp(6) NULL DEFAULT NULL,
             "created" timestamp(6) NULL DEFAULT NULL
         );
-        GRANT ALL ON TABLE "glass_atlas_{0}"."sequencing_run" TO  "{user}";
-        CREATE SEQUENCE "glass_atlas_{0}"."sequencing_run_id_seq"
-            START WITH 1
-            INCREMENT BY 1
-            NO MINVALUE
-            NO MAXVALUE
-            CACHE 1;
-        ALTER SEQUENCE "glass_atlas_{0}"."sequencing_run_id_seq" OWNED BY "glass_atlas_{0}"."sequencing_run".id;
-        ALTER TABLE "glass_atlas_{0}"."sequencing_run" ALTER COLUMN id SET DEFAULT nextval('"glass_atlas_{0}"."sequencing_run_id_seq"'::regclass);
-        ALTER TABLE ONLY "glass_atlas_{0}"."sequencing_run" ADD CONSTRAINT sequencing_run_pkey PRIMARY KEY (id);
         CREATE UNIQUE INDEX sequencing_run_source_table_idx ON "glass_atlas_{0}"."sequencing_run" USING btree (source_table);
         
         CREATE TABLE "glass_atlas_{0}"."sequencing_run_annotation" (
@@ -406,16 +364,6 @@ class GlassAtlasSqlGenerator(object):
             "sequencing_run_id" int4 DEFAULT NULL,
             "note" varchar(100) DEFAULT NULL
         );
-        GRANT ALL ON TABLE "glass_atlas_{0}"."sequencing_run_annotation" TO  "{user}";
-        CREATE SEQUENCE "glass_atlas_{0}"."sequencing_run_annotation_id_seq"
-            START WITH 1
-            INCREMENT BY 1
-            NO MINVALUE
-            NO MAXVALUE
-            CACHE 1;
-        ALTER SEQUENCE "glass_atlas_{0}"."sequencing_run_annotation_id_seq" OWNED BY "glass_atlas_{0}"."sequencing_run_annotation".id;
-        ALTER TABLE "glass_atlas_{0}"."sequencing_run_annotation" ALTER COLUMN id SET DEFAULT nextval('"glass_atlas_{0}"."sequencing_run_annotation_id_seq"'::regclass);
-        ALTER TABLE ONLY "glass_atlas_{0}"."sequencing_run_annotation" ADD CONSTRAINT sequencing_run_annotation_pkey PRIMARY KEY (id);
         CREATE INDEX sequencing_run_annotation_run_idx ON "glass_atlas_{0}"."sequencing_run_annotation" USING btree (sequencing_run_id);
         
         CREATE TABLE "glass_atlas_{0}"."peak_type" (
@@ -423,19 +371,10 @@ class GlassAtlasSqlGenerator(object):
             "type" varchar(50) DEFAULT NULL,
             "diffuse" boolean DEFAULT NULL
         );
-        GRANT ALL ON TABLE "glass_atlas_{0}"."peak_type" TO  "{user}";
-        CREATE SEQUENCE "glass_atlas_{0}"."peak_type_id_seq"
-            START WITH 1
-            INCREMENT BY 1
-            NO MINVALUE
-            NO MAXVALUE
-            CACHE 1;
-        ALTER SEQUENCE "glass_atlas_{0}"."peak_type_id_seq" OWNED BY "glass_atlas_{0}"."peak_type".id;
-        ALTER TABLE "glass_atlas_{0}"."peak_type" ALTER COLUMN id SET DEFAULT nextval('"glass_atlas_{0}"."peak_type_id_seq"'::regclass);
-        ALTER TABLE ONLY "glass_atlas_{0}"."peak_type" ADD CONSTRAINT peak_type_pkey PRIMARY KEY (id);
-
-        """.format(self.genome, user=self.user)
-        
+        """.format(self.genome, user=self.user) \
+        + self.pkey_sequence_sql('glass_atlas_{0}'.format(self.genome), 'sequencing_run') \
+        + self.pkey_sequence_sql('glass_atlas_{0}'.format(self.genome), 'sequencing_run_annotation') \
+        + self.pkey_sequence_sql('glass_atlas_{0}'.format(self.genome), 'peak_type')
         
     def convenience_functions(self):
             return """
@@ -508,4 +447,6 @@ class GlassAtlasSqlGenerator(object):
             $$ LANGUAGE 'plpgsql';
             """
         
-        
+if __name__ == '__main__':
+    gen = GlassAtlasSqlGenerator(genome='mm9', cell_type='ThioMac', staging='')
+    print gen.nearest_refseq()

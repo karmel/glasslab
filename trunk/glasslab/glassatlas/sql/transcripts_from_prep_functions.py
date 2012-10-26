@@ -87,7 +87,6 @@ BEGIN
             GROUP by t1.id, t1.strand, t1.transcription_start, t1.transcription_end, t1.refseq
             ORDER by t1.transcription_start ASC'
     LOOP
-        -- @todo: Prevent two refseq transcripts being joined if there is an intervening non-refseq?
         IF trans.id IS NOT NULL THEN
             -- Reset transcript record.
             transcript := NULL;
