@@ -4,9 +4,6 @@ Created on Feb 23, 2011
 @author: karmel
 '''
 import sys
-from glasslab.glassatlas.sql.transcripts_from_tags_functions import sql as transcript_function_sql
-from glasslab.glassatlas.sql.transcripts_from_prep_functions import sql as transcript_from_prep_function_sql
-from glasslab.glassatlas.sql.features_functions import sql as features_function_sql
 from glasslab.glassatlas.sql.glassatlas_sql_generator import GlassAtlasSqlGenerator
 from glasslab.config import current_settings
 
