@@ -3,6 +3,7 @@ Created on Mar 22, 2012
 
 @author: karmel
 '''
+from __future__ import division
 from pandas.io import parsers
 from pandas.core.frame import DataFrame
 import os
@@ -83,8 +84,17 @@ class TranscriptAnalyzer(object):
                     and trans['transcription_start'] <= last['transcription_end']:
                         last['transcription_end'] = max(trans['transcription_end'],last['transcription_end'])
                         for key in last.index:
-                            if str(key).find('tag_count') >= 0: 
-                                last[key] += trans[key]
+                            print trans[key], last[key]
+                            if key.find('_start') >= 0:
+                                last[key] = min(last[key], trans[key])
+                            elif key.find('_end') >= 0:
+                                last[key] = max(last[key], trans[key])
+                            elif key.find('id') == 0 or key.find('_id') >= 0:
+                                pass # Keep single id
+                            else: 
+                                # Average any other vals, list any other strings
+                                try: last[key] = (last[key] + trans[key])/2
+                                except TypeError: last[key] = ','.join([last[key], trans[key]])
                 else: 
                     compressed.append((last.name, last))
                     last = trans
