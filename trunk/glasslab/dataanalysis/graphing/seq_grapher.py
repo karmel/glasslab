@@ -10,7 +10,6 @@ from matplotlib import pyplot
 from string import capwords
 from matplotlib.ticker import ScalarFormatter
 from glasslab.dataanalysis.base.datatypes import TranscriptAnalyzer
-from random import normalvariate
 import numpy
 import math
 
@@ -366,6 +365,23 @@ class SeqGrapher(TranscriptAnalyzer):
         if show_plot: self.show_plot()
         
         return ax
+    
+    def piechart(self, counts, labels,
+                 title='', colors=None,
+                 save_dir='', save_name='', show_plot=True):
+        
+        ax = self.set_up_plot()
+        spectrum = self.get_colors(len(counts))
+        patches, texts, autotexts = pyplot.pie(counts, labels=labels, 
+                                               colors=colors or spectrum,
+                                               autopct='%.2f%%')
+        # Hide labels. A bit of a hack...
+        [t.set_text('') for t in texts]
+        
+        pyplot.title(title + ' ({0} total)'.format(sum(counts)))
+        pyplot.legend(loc='lower left')
+        if save_dir: self.save_plot(self.get_filename(save_dir, save_name or (title.replace(' ','_') + '.png')))
+        if show_plot: self.show_plot()
     
     def bargraph_for_transcripts(self, data, indices, cols,
                                  bar_names=None, 

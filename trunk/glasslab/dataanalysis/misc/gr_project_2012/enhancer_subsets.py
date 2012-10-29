@@ -4,6 +4,7 @@ Created on Oct 26, 2012
 @author: karmel
 '''
 from glasslab.dataanalysis.graphing.seq_grapher import SeqGrapher
+import numpy
 
 
 if __name__ == '__main__':
@@ -14,25 +15,42 @@ if __name__ == '__main__':
     
     data = yzer.import_file(yzer.get_filename(dirpath, 'enhancers_with_nearest_gene.txt'))
     
+    # Make sure we have dimethyl
+    #data = data[data.filter(like='h3k4me2').sum(axis=1) > 0]
+    
     #data = yzer.collapse_strands(data)
     transcripts = yzer.import_file(yzer.get_filename(dirpath, 'feature_vectors.txt'))
+    transcripts['id'] = transcripts['glass_transcript_id']
+    data = data.merge(transcripts, how='left', on='id', suffixes=['','_trans'])
     
-    data = data.merge(transcripts, how='left outer', suffixes=['','_trans'])
+    data = data.fillna(0)
     
     transrepressed = data[(data['kla_1_lfc'] >= 1) & (data['dex_over_kla_1_lfc'] <= -.58)]
     not_trans = data[(data['kla_1_lfc'] < 1) | (data['dex_over_kla_1_lfc'] > -.58)]
     
-    total = len(data)
+    supersets = (('Transrepressed',transrepressed),('Not transrepressed', not_trans))
+    
+    # Plot trans versus not
+    yzer.piechart([len(d) for d in zip(*supersets)[1]], zip(*supersets)[0],
+                 title='Enhancer-like Subsets by state in KLA+Dex', 
+                 save_dir=img_dirpath)
     
     tfs = [('PU.1','pu_1'),('p65','p65'),('GR','gr')]
     contexts = [('DMSO',''),('Dex','dex'),('KLA','kla'),('KLA+Dex','kla_dex')]
     
-    for name, dataset in (('Transrepressed',transrepressed), 
-                          ('Not transrepressed'), not_trans):
+    for name, dataset in supersets:
         total_for_set = len(dataset)
         for tf_name, tf in tfs:
-            with_tf = 
-            total_with_tf = len()
+            # Get count for enhancer elements with this TF at all
+            with_tf = dataset[dataset.filter(like=tf).sum(axis=1) > 0]
+            without_tf = dataset[dataset.filter(like=tf).sum(axis=1) == 0]
+            
+            # Plot with TF versus not
+            yzer.piechart([len(with_tf), len(without_tf)], 
+                          ['Has {0}'.format(tf_name), 'No {0}'.format(tf_name)],
+                         title='{0} Enhancer-like Subsets by {1} Occupancy in any state'.format(name, tf_name), 
+                         save_dir=img_dirpath)
+            
             
             
             

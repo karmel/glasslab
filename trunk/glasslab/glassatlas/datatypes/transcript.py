@@ -150,20 +150,16 @@ class TranscriptModelBase(GlassModel):
         
 class TranscriptionRegionBase(TranscriptModelBase):
     # Use JS for browser link to auto-include in Django Admin form 
-    ucsc_session_url = 'http%3A%2F%2Fbiowhat.ucsd.edu%2Fkallison%2Fucsc%2Fsessions%2F'
-    ucsc_browser_link_1 = '''<a href="#" onclick="window.open('http://genome.ucsc.edu/cgi-bin/hgTracks?'''\
-                        + '''hgS_doLoadUrl=submit&amp;hgS_loadUrlName=%s''' % ucsc_session_url
-    ucsc_browser_sess_1 = '''' + (django.jQuery('form')[0].id.match('glasstranscript') && 'glasstranscript' '''\
-                        + ''' || 'glasstranscribedrna') + '_' '''\
-                        + ''' + (django.jQuery('#id_strand').val()=='0' && 'sense' || 'antisense') + '_strands.txt'''
-    ucsc_browser_sess_2 = '''all_tracks.txt'''
-    ucsc_browser_link_3 = '''&db=''' + current_settings.GENOME + '''&amp;position=' + '''\
+    ucsc_session        = 'gr_project_2012' 
+    ucsc_session_args   = '''hgS_doOtherUser=submit&amp;hgS_otherUserName=Karmel&amp;hgS_otherUserSessionName=%s''' % ucsc_session
+    ucsc_browser_link_1 = '''<a href="#" onclick="window.open('http://genome.ucsc.edu/cgi-bin/hgTracks?'''
+    ucsc_browser_link_2 = '''&amp;db=''' + current_settings.GENOME + '''&amp;position=' + '''\
                         + ''' django.jQuery('#id_chromosome').attr('title') '''\
                         + ''' + '%3A+' + django.jQuery('#id_transcription_start').val() '''\
                         + ''' + '-' + django.jQuery('#id_transcription_end').val(),'Glass Atlas UCSC View ' + '''\
                         + str(randint(100,99999)) + '''); return false;">'''
                         
-    ucsc_browser_link = ucsc_browser_link_1 + ucsc_browser_sess_2 + ucsc_browser_link_3\
+    ucsc_browser_link = ucsc_browser_link_1 + ucsc_session_args + ucsc_browser_link_2\
                         + '''View in UCSC Browser</a>'''
                         
     chromosome              = models.ForeignKey(Chromosome, help_text=ucsc_browser_link)

@@ -42,18 +42,10 @@ class TranscriptBase(ReadOnlyAdmin):
     transcript_length.short_description = 'Length'
     
     def ucsc_browser_link(self, obj):
-        all_tracks_file = 'all_tracks.txt'
-        all_link = self._ucsc_browser_link(obj, all_tracks_file, 'All')
-        return all_link
-                                       
-    def _ucsc_browser_link(self, obj, session_file, text): 
-                           
-        return '<a href="http://genome.ucsc.edu/cgi-bin/hgTracks?db=%s&amp;position=%s%%3A+%d-%d' \
+        return '<a href="http://genome.ucsc.edu/cgi-bin/hgTracks?db=%s&amp;position=%s%%3A+%d-%d&amp;' \
                 % (current_settings.GENOME, obj.chromosome.name.strip(), 
                            obj.transcription_start, obj.transcription_end) \
-                + '&amp;hgS_doLoadUrl=submit&amp;hgS_loadUrlName=' \
-                + obj.ucsc_session_url + session_file \
-                + '" target="_blank">View</a>'
+                + obj.ucsc_session_args + '" target="_blank">View</a>'
                      
     ucsc_browser_link.short_description = 'UCSC Browser' 
     ucsc_browser_link.allow_tags = True 

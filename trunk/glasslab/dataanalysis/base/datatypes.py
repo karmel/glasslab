@@ -84,7 +84,6 @@ class TranscriptAnalyzer(object):
                     and trans['transcription_start'] <= last['transcription_end']:
                         last['transcription_end'] = max(trans['transcription_end'],last['transcription_end'])
                         for key in last.index:
-                            print trans[key], last[key]
                             if key.find('_start') >= 0:
                                 last[key] = min(last[key], trans[key])
                             elif key.find('_end') >= 0:
