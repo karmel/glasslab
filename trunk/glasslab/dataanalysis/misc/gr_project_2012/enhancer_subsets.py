@@ -72,20 +72,4 @@ if __name__ == '__main__':
                          title='{0} Enhancer-like Subsets with {1} in KLA+Dex verus {2}'.format(name, tf_name, context_name), 
                          save_dir=img_dirpath, show_plot=False)
             
-            if tf == 'pu_1':
-                
-                pu1_sub = data[data['gr_dex_tag_count'] > 0]
-                none_kla_dex = pu1_sub[pu1_sub['{0}_tag_count'.format(tf)] == 0]
-                have_kla_dex = pu1_sub[pu1_sub['{0}_tag_count'.format(tf)] > 0]
-                loss_kla_dex = have_kla_dex[have_kla_dex['{0}_dex_tag_count'.format(tf)]*ratio < have_kla_dex[default_context]]
-                gain_kla_dex = have_kla_dex[have_kla_dex['{0}_dex_tag_count'.format(tf)] > ratio*have_kla_dex[default_context]]
-                nc_kla_dex = have_kla_dex[(have_kla_dex['{0}_dex_tag_count'.format(tf)] <= ratio*have_kla_dex[default_context])
-                                          & (have_kla_dex['{0}_dex_tag_count'.format(tf)]*ratio >= have_kla_dex[default_context])]
-                
-                counts = [len(d) for d in (none_kla_dex, loss_kla_dex, nc_kla_dex, gain_kla_dex)]
-                labels = [s.format(tf_name) for s in ('No {0} in DMSO', 'Loses {0} in Dex', 
-                                                      'No change in {0}', 'Gains {0} in Dex')]
-                
-                yzer.piechart(counts, labels,
-                             title='Enhancer-like Subsets with GR and {0} in Dex verus {1}'.format(tf_name, context_name), 
-                             save_dir=img_dirpath, show_plot=False)
+            
