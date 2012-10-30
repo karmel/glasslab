@@ -168,7 +168,11 @@ class SeqGrapher(TranscriptAnalyzer):
         
         Add grey to the front for background.
         '''
-        if number < 6: return ('blue','red','green','orange','purple')[:number]
+        if number < 7: 
+            # Take from beginning and end of list preferentially
+            base_cols = ('#FFABAB','#FFDAAB','#FFFB97','#DDFFAB','#ABE4FF','#D9ABFF')
+            selected = base_cols[:max(1,int(number/2))] + base_cols[-int(number/2):]
+            return selected
         segments = max(int(math.ceil(number/3)) - 1,1)
         colors = [x/(segments+1) for x in xrange(0,segments+2)][1:-1]
         colors_r = [204/256] + [1]*len(colors) + colors[::-1] + [0]*len(colors)
