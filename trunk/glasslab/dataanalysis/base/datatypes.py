@@ -80,8 +80,8 @@ class TranscriptAnalyzer(object):
         last = None
         for _, trans in ordered.iterrows():
             try:
-                if trans[chr_key] <= last[chr_key]\
-                    and trans['transcription_start'] <= last['transcription_end']:
+                if trans[chr_key] == last[chr_key]\
+                    and trans['transcription_start'] <= last['transcription_end'] + 200:
                         last['transcription_end'] = max(trans['transcription_end'],last['transcription_end'])
                         for key in last.index:
                             if key.find('_start') >= 0:

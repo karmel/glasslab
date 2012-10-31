@@ -306,7 +306,8 @@ class GlassAtlasSqlGenerator(SqlGenerator):
             "id" int4 NOT NULL,
             "glass_transcript_id" int4 DEFAULT NULL,
             "nearest_refseq_transcript_id" int4 DEFAULT NULL,
-            "distance" int4 DEFAULT NULL
+            "distance" int4 DEFAULT NULL, -- Distance from start to start
+            "minimal_distance" int4 DEFAULT NULL -- Distance from two closest ends
         );
         CREATE INDEX "{table_name}_transcript_idx" ON "{schema_name_prefix}{suffix}"."{table_name}" USING btree(glass_transcript_id);
         CREATE INDEX "{table_name}_refseq_idx" ON "{schema_name_prefix}{suffix}"."{table_name}" USING btree(nearest_refseq_transcript_id);

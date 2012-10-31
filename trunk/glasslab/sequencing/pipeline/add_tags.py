@@ -52,7 +52,7 @@ class FastqOptionParser(GlassOptionParser):
                
                ]
     
-def split_tag_file(options, file_name, tag_file_path):
+def split_tag_file(options, file_name, tag_file_name):
     '''
     Trying to upload a single file all at once into the table often means we lose the DB
     connection. Split the large file here to allow more manageable looping.
@@ -62,7 +62,7 @@ def split_tag_file(options, file_name, tag_file_path):
         os.mkdir(output_dir)
     
     output_prefix = os.path.join(output_dir, '%s_' % file_name)
-    split_command = 'split -a 4 -l 100000 %s %s' % (tag_file_path, output_prefix)
+    split_command = 'split -a 4 -l 100000 %s %s' % (tag_file_name, output_prefix)
     try: subprocess.check_call(split_command, shell=True)
     except Exception:
         raise Exception('Exception encountered while trying to split bowtie file. Traceback:\n%s'
@@ -131,7 +131,7 @@ if __name__ == '__main__':
     # Allow for easy running from Eclipse
     if not run_from_command_line:
         options.do_bowtie = False
-        options.file_path = '/Volumes/Unknowme/kallison/Sequencing/GroSeq/Nathan_NCoR_KO_2010_10_08/tags/ncor_ko_kla_1h/ncor_ko_kla_1h_bowtie.map'
+        options.file_name = '/Volumes/Unknowme/kallison/Sequencing/GroSeq/Nathan_NCoR_KO_2010_10_08/tags/ncor_ko_kla_1h/ncor_ko_kla_1h_bowtie.map'
         options.output_dir = '/Volumes/Unknowme/kallison/Sequencing/GroSeq/Nathan_NCoR_KO_2010_10_08/tags/ncor_ko_kla_1h'
         options.project_name = 'ncor_ko_kla_1h_2'
         

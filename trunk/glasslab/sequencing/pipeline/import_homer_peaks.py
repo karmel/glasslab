@@ -12,7 +12,7 @@ from glasslab.utils.parsing.delimited import DelimitedFileParser
 
 class HomerTagsOptionParser(GlassOptionParser):
     options = [
-               make_option('-f', '--file_path',action='store', type='string', dest='file_path', 
+               make_option('-f', '--file_name',action='store', type='string', dest='file_name', 
                            help='Path to Homer output file for processing.'),
                make_option('-g', '--genome',action='store', type='string', dest='genome', default='mm9', 
                            help='Currently supported: mm8, mm8r, mm9, hg18, hg18r'),
@@ -24,14 +24,14 @@ class HomerTagsOptionParser(GlassOptionParser):
             ]
 
 
-def import_peaks(file_name, peaks_file_path):
+def import_peaks(file_name, peaks_file_name):
     '''
     Given a Homer peak file, store peak data.
     
     NOTE: Homer peak file should be converted into a CSV file first!
     
     '''
-    parser = DelimitedFileParser(peaks_file_path)
+    parser = DelimitedFileParser(peaks_file_name)
     parser.convert_line_endings()
     data = parser.get_array(strip=True)
     
@@ -53,5 +53,5 @@ if __name__ == '__main__':
     file_name = check_input(options)
     
     create_schema()
-    import_peaks(file_name, options.file_path)
+    import_peaks(file_name, options.file_name)
     

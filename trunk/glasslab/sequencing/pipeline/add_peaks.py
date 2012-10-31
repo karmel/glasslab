@@ -18,7 +18,7 @@ from glasslab.sequencing.pipeline.add_short_reads import check_input, \
 
 class FastqOptionParser(GlassOptionParser):
     options = [
-               make_option('-f', '--file_path',action='store', type='string', dest='file_path', 
+               make_option('-f', '--file_name',action='store', type='string', dest='file_name', 
                            help='Path to FASTQ file for processing.'),
                make_option('-o', '--output_dir',action='store', type='string', dest='output_dir'),
                make_option('-g', '--genome',action='store', type='string', dest='genome', default='mm9', 
@@ -37,14 +37,14 @@ class FastqOptionParser(GlassOptionParser):
                ]
     
 
-def import_peaks(options, file_name, peaks_file_path, peak_type):
+def import_peaks(options, file_name, peaks_file_name, peak_type):
     '''
     Given a  peak file, save a temp table and store peak data.
     '''
     GlassPeak.create_table(file_name)
     #GlassPeak.set_table_name('peak_' + file_name)
     
-    parser = DelimitedFileParser(peaks_file_path)
+    parser = DelimitedFileParser(peaks_file_name)
     parser.convert_line_endings()
     data = parser.get_array()
     if data[0][0] == 'chr':
@@ -74,16 +74,16 @@ if __name__ == '__main__':
     
     # Allow for easy running from Eclipse
     if not run_from_command_line:
-        options.file_path = '/Users/karmel/GlassLab/SourceData/ThioMac_Lazar/test'
+        options.file_name = '/Users/karmel/GlassLab/SourceData/ThioMac_Lazar/test'
         options.output_dir = 'first_test'
         options.peak_table = 'enriched_peaks_enriched_peaks_first_test_2010-09-30_16-04-52_454502'
     
     file_name = check_input(options)
     
-    peaks_file_path = options.file_path
+    peaks_file_name = options.file_name
     
     peak_type = GlassPeak.peak_type(options.peak_type or options.project_name)
     _print('Creating schema if necessary.')
     create_schema()
     _print('Saving peaks to table.')
-    import_peaks(options, file_name, peaks_file_path, peak_type)
+    import_peaks(options, file_name, peaks_file_name, peak_type)
