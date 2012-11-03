@@ -123,9 +123,12 @@ class SeqGrapher(TranscriptAnalyzer):
     
         return ax
     
-    def set_up_plot(self, ax=None, subplot=111):
+    def set_up_plot(self, ax=None, subplot=111, wide=False):
         # Set up plot
-        if not ax: pyplot.figure(figsize=[10*int(str(subplot)[1]), # Width for cols
+        width = 10
+        if wide: width = width*(wide is True and 2 or wide)
+             
+        if not ax: pyplot.figure(figsize=[width*int(str(subplot)[1]), # Width for cols
                                           10*int(str(subplot)[0])]) # Height for rows
         ax = pyplot.subplot(subplot)
         return ax
@@ -182,7 +185,7 @@ class SeqGrapher(TranscriptAnalyzer):
             base_cols = zip(colors_r, colors_g, colors_b)
             
         # Take from beginning and end of list preferentially
-        selected = base_cols[:max(1,int(number/2))] + base_cols[-int(number/2):]
+        selected = base_cols[:max(1,int(math.ceil(number/2)))] + base_cols[-int(number/2):]
         return selected
 
     
@@ -258,9 +261,10 @@ class SeqGrapher(TranscriptAnalyzer):
         return ax
     
     def boxplot(self, data,
-                    bar_names=None, subplot=111,
+                    bar_names=None, subplot=111, wide=False,
                     title='', xlabel=None, ylabel=None,
-                    show_outliers=True, show_plot=True, ax=None):
+                    show_outliers=True, save_dir='', save_name='', 
+                    show_plot=True, ax=None):
         '''
         Draw a boxplot for passed data.
         
@@ -270,7 +274,7 @@ class SeqGrapher(TranscriptAnalyzer):
             ...]
         
         '''
-        ax = self.set_up_plot(ax, subplot)
+        ax = self.set_up_plot(ax, subplot, wide=wide)
         
         if show_outliers: symbol = '+'
         else: symbol = ''
@@ -284,6 +288,7 @@ class SeqGrapher(TranscriptAnalyzer):
         # Any other operations to tack on?
         self.other_plot()
         
+        if save_dir: self.save_plot(self.get_filename(save_dir, save_name or (title.replace(' ','_') + '.png')))
         if show_plot: self.show_plot()
         
         return ax
