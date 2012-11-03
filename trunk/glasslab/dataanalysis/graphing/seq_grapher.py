@@ -12,6 +12,7 @@ from matplotlib.ticker import ScalarFormatter
 from glasslab.dataanalysis.base.datatypes import TranscriptAnalyzer
 import numpy
 import math
+from matplotlib.font_manager import FontProperties
 
 class SeqGrapher(TranscriptAnalyzer):
     def scatterplot(self, data, xcolname, ycolname, 
@@ -169,16 +170,20 @@ class SeqGrapher(TranscriptAnalyzer):
         Add grey to the front for background.
         '''
         if number < 7: 
-            # Take from beginning and end of list preferentially
             base_cols = ('#FFABAB','#FFDAAB','#FFFB97','#DDFFAB','#ABE4FF','#D9ABFF')
-            selected = base_cols[:max(1,int(number/2))] + base_cols[-int(number/2):]
-            return selected
-        segments = max(int(math.ceil(number/3)) - 1,1)
-        colors = [x/(segments+1) for x in xrange(0,segments+2)][1:-1]
-        colors_r = [204/256] + [1]*len(colors) + colors[::-1] + [0]*len(colors)
-        colors_g = [204/256] + colors + [1]*len(colors) + colors[::-1]
-        colors_b = [204/256] + [0]*len(colors) + [0]*len(colors) + colors
-        return zip(colors_r, colors_g, colors_b)[:number]
+        else:
+            # Split needed number into three; for first seg, hold red steady.
+            # Then green for the second segment, then blue.
+            segments = max(int(math.ceil(number/3)),1)
+            ascent = [x/(segments+1) for x in xrange(0,segments+2)][1:-1]
+            colors_r = [1]*segments + ascent[::-1] + [0]*segments
+            colors_g = ascent + [1]*segments + ascent[::-1]
+            colors_b = [0]*segments + ascent + [1]*segments
+            base_cols = zip(colors_r, colors_g, colors_b)
+            
+        # Take from beginning and end of list preferentially
+        selected = base_cols[:max(1,int(number/2))] + base_cols[-int(number/2):]
+        return selected
 
     
     def bargraph_for_transcript(self, transcript_row, cols,
@@ -371,7 +376,7 @@ class SeqGrapher(TranscriptAnalyzer):
         return ax
     
     def piechart(self, counts, labels,
-                 title='', colors=None,
+                 title='', colors=None, small_legend=False,
                  save_dir='', save_name='', show_plot=True):
         
         ax = self.set_up_plot()
@@ -383,7 +388,12 @@ class SeqGrapher(TranscriptAnalyzer):
         [t.set_text('') for t in texts]
         
         pyplot.title(title + ' ({0} total)'.format(sum(counts)))
-        pyplot.legend(loc='lower left')
+        
+        font_p = FontProperties()
+        if small_legend:
+            font_p.set_size(10)
+        pyplot.legend(loc='lower left', prop=font_p)
+        
         if save_dir: self.save_plot(self.get_filename(save_dir, save_name or (title.replace(' ','_') + '.png')))
         if show_plot: self.show_plot()
     
