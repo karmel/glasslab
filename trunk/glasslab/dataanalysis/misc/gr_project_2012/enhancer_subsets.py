@@ -31,12 +31,13 @@ if __name__ == '__main__':
     not_trans = data[(data['kla_1_lfc_trans'] < 1) | (data['dex_over_kla_1_lfc_trans'] > -.58)]
     up_in_kla = data[(data['kla_1_lfc_trans'] >= 1) & (data['dex_over_kla_1_lfc_trans'] > -.58)]
     
-    supersets = (('Not near transrepressed genes', not_trans), 
+    supersets = (('All', data),
+                 ('Not near transrepressed genes', not_trans), 
                  ('Up in KLA', up_in_kla),
                  ('Near transrepressed genes',transrepressed))
     
     # Plot trans versus not
-    yzer.piechart([len(d) for d in zip(*supersets)[1]], zip(*supersets)[0],
+    yzer.piechart([len(d) for d in zip(*supersets[1:])[1]], zip(*supersets[1:])[0],
                  title='Enhancer-like Subsets by state in KLA+Dex', 
                  save_dir=img_dirpath, show_plot=False)
     
@@ -47,8 +48,9 @@ if __name__ == '__main__':
         total_for_set = len(dataset)
         for tf_name, tf in tfs:
             # Get count for enhancer elements with this TF at all
-            with_tf = dataset[dataset.filter(like=tf).max(axis=1) > min_tags]
-            without_tf = dataset[dataset.filter(like=tf).max(axis=1) <= min_tags]
+            cols = ['{0}_{1}tag_count'.format(tf, c and (c+'_') or '') for _, c in contexts]
+            with_tf = dataset[dataset.filter(items=cols).max(axis=1) > min_tags]
+            without_tf = dataset[dataset.filter(items=cols).max(axis=1) <= min_tags]
             
             # Plot with TF versus not
             yzer.piechart([ len(without_tf), len(with_tf)], 

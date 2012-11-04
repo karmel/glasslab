@@ -34,13 +34,14 @@ if __name__ == '__main__':
     not_trans = data[(data['kla_1_lfc_trans'] < 1) | (data['dex_over_kla_1_lfc_trans'] > -.58)]
     up_in_kla = data[(data['kla_1_lfc_trans'] >= 1) & (data['dex_over_kla_1_lfc_trans'] > -.58)]
     
-    supersets = (('Not near transrepressed genes', not_trans), 
+    supersets = (('All', data),
+                 ('Not near transrepressed genes', not_trans), 
                  ('Up in KLA', up_in_kla),
                  ('Near transrepressed genes',transrepressed))
     
     # Plot trans versus not
     if draw_pies:
-        yzer.piechart([len(d) for d in zip(*supersets)[1]], zip(*supersets)[0],
+        yzer.piechart([len(d) for d in zip(*supersets[1:])[1]], zip(*supersets[1:])[0],
                      title='Enhancer-like Subsets by state in KLA+Dex', 
                      save_dir=img_dirpath, show_plot=False)
         
@@ -51,7 +52,7 @@ if __name__ == '__main__':
         total_for_set = len(dataset)
         
         # Have GR
-        dataset = dataset[dataset.filter(like='gr').max(axis=1) > min_tags]
+        dataset = dataset[dataset['gr_dex_tag_count'] + dataset['gr_kla_dex_tag_count'] > min_tags]
         total_gr = len(dataset)
         if draw_pies:
             yzer.piechart([total_for_set - total_gr, total_gr], ['No GR', 'Has GR'],
@@ -109,12 +110,12 @@ if __name__ == '__main__':
                         ]
         
         in_dex_no_p65 = dataset[(dataset['gr_dex_tag_count'] > min_tags) &
-                                 (dataset.filter(like='p65').max(axis=1) <= min_tags)
+                                 (dataset['p65_kla_tag_count'] + dataset['p65_kla_dex_tag_count'] <= min_tags)
                          ]
         
         kla_only_no_p65 = dataset[(dataset['gr_dex_tag_count'] <= min_tags) &
                                  (dataset['gr_kla_dex_tag_count'] > min_tags) &
-                                 (dataset.filter(like='p65').max(axis=1) <= min_tags)
+                                 (dataset['p65_kla_tag_count'] + dataset['p65_kla_dex_tag_count'] <= min_tags)
                          ]
         
         sets = [tethered, direct_comp_gr, indirect_comp_gr, 
@@ -147,7 +148,7 @@ if __name__ == '__main__':
                          ylabel='log2(KLA+Dex GRO-seq/KLA GRO-seq)', 
                          show_outliers=False, show_plot=False, wide=True
                          )
-        
+        yzer.ylim(ax, -4, 2)
         pyplot.setp(ax.get_xticklabels(), fontsize=10)
         yzer.save_plot(yzer.get_filename(img_dirpath, erna_title + '.png'))
         yzer.show_plot()
