@@ -10,7 +10,7 @@ if __name__ == '__main__':
     yzer = SeqGrapher()
     dirpath = 'karmel/Desktop/Projects/GlassLab/Notes_and_Reports/GR_Analysis/enhancer_classification'
     dirpath = yzer.get_path(dirpath)
-    img_dirpath = yzer.get_and_create_path(dirpath, 'boxplots_by_expression','rep4')
+    img_dirpath = yzer.get_and_create_path(dirpath, 'boxplots_by_expression')
     
     data = yzer.import_file(yzer.get_filename(dirpath, 'enhancers_with_nearest_gene.txt'))
     data['ucsc_link_nod'] = data['ucsc_link_nod'].apply(lambda s: s.replace('nod_balbc','gr_project_2012'))
@@ -30,21 +30,28 @@ if __name__ == '__main__':
     
     data = data.fillna(0)
     
-    transrepressed = data[(data['kla_4_lfc_trans'] >= 1) & (data['dex_over_kla_4_lfc_trans'] <= -.58)]
-    not_trans = data[(data['kla_4_lfc_trans'] < 1) | (data['dex_over_kla_4_lfc_trans'] > -.58)]
-    up_in_kla = data[(data['kla_4_lfc_trans'] >= 1) & (data['dex_over_kla_4_lfc_trans'] > -.58)]
+    transrepressed = data[(data['kla_1_lfc_trans'] >= 1) & (data['dex_over_kla_1_lfc_trans'] <= -.58)]
+    not_trans = data[(data['kla_1_lfc_trans'] < 1) | (data['dex_over_kla_1_lfc_trans'] > -.58)]
+    up_in_kla = data[(data['kla_1_lfc_trans'] >= 1) & (data['dex_over_kla_1_lfc_trans'] > -.58)]
     
-    supersets = (('All', data),
+    
+    
+    
+    for subgroup, suffix, dataset in (('Nearby Enhancers', '', data), 
+                                      ('RefSeq Transcripts', '_trans', 
+                                       data.groupby(by='nearest_refseq_transcript_id', as_index=False).mean())):
+        
+        supersets = (('All', dataset),
                  ('Not near transrepressed genes', not_trans), 
                  ('Up in KLA', up_in_kla),
                  ('Near transrepressed genes',transrepressed))
+        
+        
+        labels = zip(*supersets)[0]
+        xlabel = 'Subgroup'
     
-    labels = zip(*supersets)[0]
-    xlabel = 'Subgroup'
-    
-    for subgroup, suffix in (('Nearby Enhancers', ''), ('RefSeq Transcripts', '_trans')):
         # KLA tag count
-        vals = [d['kla_4_tag_count{0}'.format(suffix)]/d['length{0}'.format(suffix)] for _,d in supersets]
+        vals = [d['kla_1_tag_count{0}'.format(suffix)]/d['length{0}'.format(suffix)] for _,d in supersets]
         title = 'GroSeq tag counts in {0}: DMSO 2h + KLA 1h by gene category'.format(subgroup)
         ax = yzer.boxplot(vals, labels, 
                          title=title, xlabel=xlabel, 
@@ -56,7 +63,7 @@ if __name__ == '__main__':
         yzer.show_plot()
         
         # KLA LFC
-        vals = [d['kla_4_lfc{0}'.format(suffix)] for _,d in supersets]
+        vals = [d['kla_1_lfc{0}'.format(suffix)] for _,d in supersets]
         title = 'GroSeq Log Fold Change in {0} in DMSO 2h + KLA 1h by gene category'.format(subgroup)
         ax = yzer.boxplot(vals, labels, 
                          title=title, xlabel=xlabel, 
@@ -68,7 +75,7 @@ if __name__ == '__main__':
         yzer.show_plot()
         
         # DMSO tag count
-        vals = [d['dmso_4_tag_count{0}'.format(suffix)]/d['length{0}'.format(suffix)] for _,d in supersets]
+        vals = [d['dmso_1_tag_count{0}'.format(suffix)]/d['length{0}'.format(suffix)] for _,d in supersets]
         title = 'GroSeq tag counts in {0} in DMSO 2h by gene category'.format(subgroup)
         ax = yzer.boxplot(vals, labels, 
                          title=title, xlabel=xlabel, 
