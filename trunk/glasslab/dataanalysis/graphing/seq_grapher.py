@@ -19,12 +19,13 @@ class SeqGrapher(TranscriptAnalyzer):
                     subplot=111, log=False, color='blue',
                     master_dataset=None,
                     title='', xlabel=None, ylabel=None,
-                    label=None, add_noise=False,
+                    label='', add_noise=False,
                     show_points=True, set_limits=False,
                     show_2x_range=True, plot_regression=False,
                     show_count = True, show_correlation=True,
                     text_shift=0, text_color='black', 
-                    show_legend=True, show_plot=True, ax=None):
+                    show_legend=True, save_dir='', save_name='', 
+                    show_plot=True, ax=None):
         
         '''
         Designed to show scatterplots of tags by tags for a given run
@@ -119,6 +120,7 @@ class SeqGrapher(TranscriptAnalyzer):
         # Any other operations to tack on?
         self.other_plot()
         
+        if save_dir: self.save_plot(self.get_filename(save_dir, save_name or (title.replace(' ','_') + '.png')))
         if show_plot: self.show_plot()
     
         return ax

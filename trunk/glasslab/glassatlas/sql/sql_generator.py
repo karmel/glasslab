@@ -429,6 +429,14 @@ class GlassAtlasSqlGenerator(SqlGenerator):
             END;
             $$ LANGUAGE 'plpgsql';
             
+            CREATE OR REPLACE FUNCTION public.ucsc_link_mm9(chr_name character, transcription_start bigint, transcription_end bigint, session text)
+            RETURNS text AS $$
+            BEGIN
+                RETURN 'http://genome.ucsc.edu/cgi-bin/hgTracks?hgS_doOtherUser=submit&hgS_otherUserName=karmel&hgS_otherUserSessionName=' 
+                        || session || '&db=mm9&position=' || chr_name || '%3A+' || transcription_start || '-' || transcription_end;
+            END;
+            $$ LANGUAGE 'plpgsql';
+            
             CREATE OR REPLACE FUNCTION public.make_box(x1 numeric, y1 numeric, x2 numeric, y2 numeric)
             RETURNS box AS $$
             DECLARE
@@ -451,5 +459,5 @@ class GlassAtlasSqlGenerator(SqlGenerator):
             """
         
 if __name__ == '__main__':
-    gen = GlassAtlasSqlGenerator(genome='mm9', cell_type='ThioMac', staging='')
-    print gen.nearest_refseq()
+    gen = GlassAtlasSqlGenerator(genome='mm9', cell_type='CD4TCell', staging='')
+    print gen.table_norm_sum()

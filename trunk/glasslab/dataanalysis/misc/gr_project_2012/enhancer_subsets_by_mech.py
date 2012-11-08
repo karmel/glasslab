@@ -10,7 +10,9 @@ if __name__ == '__main__':
     yzer = SeqGrapher()
     dirpath = 'karmel/Desktop/Projects/GlassLab/Notes_and_Reports/GR_Analysis/enhancer_classification'
     dirpath = yzer.get_path(dirpath)
-    img_dirpath = yzer.get_and_create_path(dirpath, 'piecharts_by_mechanism','by_genes')
+    
+    consistent = True
+    img_dirpath = yzer.get_and_create_path(dirpath, 'piecharts_by_mechanism',consistent and 'consistent' or 'by_genes')
     
     data = yzer.import_file(yzer.get_filename(dirpath, 'enhancers_with_nearest_gene.txt'))
     data['ucsc_link_nod'] = data['ucsc_link_nod'].apply(lambda s: s.replace('nod_balbc','gr_project_2012'))
@@ -30,10 +32,23 @@ if __name__ == '__main__':
     
     data = data.fillna(0)
     
-    transrepressed = data[(data['kla_1_lfc_trans'] >= 1) & (data['dex_over_kla_1_lfc_trans'] <= -.58)]
-    not_trans = data[(data['kla_1_lfc_trans'] < 1) | (data['dex_over_kla_1_lfc_trans'] > -.58)]
-    up_in_kla = data[(data['kla_1_lfc_trans'] >= 1) & (data['dex_over_kla_1_lfc_trans'] > -.58)]
     
+    if consistent:
+        transrepressed = data[(data['kla_1_lfc_trans'] >= 1) & (data['dex_over_kla_1_lfc_trans'] <= -.58)
+                                     & (data['kla_3_lfc_trans'] >= 1) & (data['dex_over_kla_3_lfc_trans'] <= -.58)
+                                     & (data['kla_4_lfc_trans'] >= 1) & (data['dex_over_kla_4_lfc_trans'] <= -.58)]
+        up_in_kla = data[((data['kla_1_lfc_trans'] >= 1) & (data['kla_3_lfc_trans'] >= 1) 
+                            & (data['kla_4_lfc_trans'] >= 1)) & 
+                            ((data['dex_over_kla_1_lfc_trans'] > -.58) | (data['dex_over_kla_3_lfc_trans'] > -.58)
+                             | (data['dex_over_kla_4_lfc_trans'] > -.58))]
+        
+        not_trans = data[(~data.index.isin(up_in_kla.index)) & (~data.index.isin(transrepressed.index))]
+    else:
+        transrepressed = data[(data['kla_1_lfc_trans'] >= 1) & (data['dex_over_kla_1_lfc_trans'] <= -.58)]
+        not_trans = data[(data['kla_1_lfc_trans'] < 1) | (data['dex_over_kla_1_lfc_trans'] > -.58)]
+        up_in_kla = data[(data['kla_1_lfc_trans'] >= 1) & (data['dex_over_kla_1_lfc_trans'] > -.58)]
+        
+        
     supersets = (('All', data),
                  ('Not near transrepressed genes', not_trans), 
                  ('Up in KLA', up_in_kla),
