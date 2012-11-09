@@ -19,7 +19,7 @@ class MotifAnalyzer(TranscriptAnalyzer):
     
     
     def run_homer(self, data, project_name, dirpath,
-                  center=True, reverse=False, preceding=True,
+                  center=True, reverse=False, preceding=False,
                   size=None, length=None, number_of_motifs=20,
                   bg='', genome='mm9', cpus=1,
                   files_already_prepped=False):
