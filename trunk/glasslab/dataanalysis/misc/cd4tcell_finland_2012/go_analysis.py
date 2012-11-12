@@ -52,15 +52,21 @@ if __name__ == '__main__':
                                                                     key2a, key2b, key1a, key1b)
             print ','.join(down['gene_names'])
         
-            yzer.run_homer(up, 'up_{0}x_{0}_{1}_preceding'.format(2**lfc, lfc_key_a, lfc_key_b), curr_path, 
+            yzer.run_homer(up, 'up_{0}x_{1}_{2}_preceding'.format(2**lfc, lfc_key_a, lfc_key_b), curr_path, 
                     center=False, reverse=False, preceding=True, size=200,
                     cpus=6, bg=bg_preceding)
-            yzer.run_homer(up, 'up_{0}x_{0}_{1}'.format(2**lfc, lfc_key_a, lfc_key_b), curr_path, 
+            yzer.run_homer(up, 'up_{0}x_{1}_{2}'.format(2**lfc, lfc_key_a, lfc_key_b), curr_path, 
                     center=False, reverse=False, preceding=False, size=200,
                     cpus=6, bg=bg)
-            yzer.run_homer(down, 'down_{0}x_{0}_{1}_preceding'.format(2**lfc, lfc_key_a, lfc_key_b), curr_path, 
+            yzer.run_homer(up, 'up_{0}x_{1}_{2}'.format(2**lfc, lfc_key_a, lfc_key_b), curr_path, 
+                    center=True, reverse=False, preceding=False, size=300,
+                    cpus=6, bg=bg, files_already_prepped=True)
+            yzer.run_homer(down, 'down_{0}x_{1}_{2}_preceding'.format(2**lfc, lfc_key_a, lfc_key_b), curr_path, 
                     center=False, reverse=False, preceding=True, size=200,
                     cpus=6, bg=bg_preceding)
-            yzer.run_homer(down, 'down_{0}x_{0}_{1}'.format(2**lfc, lfc_key_a, lfc_key_b), curr_path, 
+            yzer.run_homer(down, 'down_{0}x_{1}_{2}'.format(2**lfc, lfc_key_a, lfc_key_b), curr_path, 
                     center=False, reverse=False, preceding=False, size=200,
                     cpus=6, bg=bg)
+            yzer.run_homer(down, 'down_{0}x_{1}_{2}'.format(2**lfc, lfc_key_a, lfc_key_b), curr_path, 
+                    center=True, reverse=False, preceding=False, size=300,
+                    cpus=6, bg=bg, files_already_prepped=True)

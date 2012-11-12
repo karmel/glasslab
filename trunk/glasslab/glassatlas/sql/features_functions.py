@@ -6,7 +6,7 @@ Created on Nov 12, 2010
 Convenience script for feature association functions.
 '''
 genome = 'mm9'
-cell_type='thiomac'
+cell_type='cd4tcell'
 def sql(genome, cell_type):
     return """
 CREATE OR REPLACE FUNCTION glass_atlas_{0}_{1}.insert_associated_peak_features_from_run(run_id integer, chr_id integer)

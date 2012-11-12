@@ -11,6 +11,8 @@ from glasslab.sequencing.datatypes.peak import GlassPeak
 
 class TranscriptsFromTagsParser(GlassOptionParser):
     options = [
+               make_option('-g', '--genome',action='store', type='string', dest='genome', default='mm9', 
+                           help='Currently supported: mm8, mm8r, mm9, hg18, hg18r'),
                make_option('-c', '--cell_type',action='store', type='string', dest='cell_type', 
                            help='Cell type for this run? Options are: %s' % ','.join(CellTypeBase.get_correlations().keys())),
                make_option('-t', '--peak_table',action='store', type='string', dest='peak_table', 

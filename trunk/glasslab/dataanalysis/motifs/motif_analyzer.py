@@ -36,7 +36,7 @@ class MotifAnalyzer(TranscriptAnalyzer):
         
     
     def prep_files_for_homer(self, data, project_name, dirpath,
-                  center=True, reverse=False, preceding=True, size=None,
+                  center=False, reverse=False, preceding=False, size=None,
                   files_already_prepped=False):
         '''
         Create tab-delimited files with Windows carriage returns for Homer.
@@ -110,7 +110,7 @@ class MotifAnalyzer(TranscriptAnalyzer):
                                         self.homer_bin, self.sanitize_filename(homer_filename),
                                         genome, fullpath,
                                         size, length, cpus, number_of_motifs, bg)
-        
+        print command
         subprocess.check_call(command, shell=True)
         
         print 'Successfully executed command %s' % command

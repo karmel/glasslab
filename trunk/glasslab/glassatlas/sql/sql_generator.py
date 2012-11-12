@@ -319,7 +319,7 @@ class GlassAtlasSqlGenerator(SqlGenerator):
     def peak_features(self):
         table_name = 'peak_feature'
         return """
-        CREATE TYPE "{schema_name_prefix}{suffix}."glass_transcript_feature_relationship" 
+        CREATE TYPE "{schema_name_prefix}{suffix}"."glass_transcript_feature_relationship" 
             AS ENUM('contains','is contained by','overlaps with','is equal to','is upstream of','is downstream of');
             
         CREATE TABLE "{schema_name_prefix}{suffix}"."{table_name}" (
@@ -328,7 +328,7 @@ class GlassAtlasSqlGenerator(SqlGenerator):
             "glass_peak_id" int4 DEFAULT NULL,
             "sequencing_run_id" int4 DEFAULT NULL,
             "peak_type_id" int4 DEFAULT NULL,
-            relationship "glass_atlas_{0}_{1}{suffix}"."glass_transcript_feature_relationship",
+            relationship "{schema_name_prefix}{suffix}"."glass_transcript_feature_relationship",
             "touches" boolean DEFAULT NULL,
             "length" int4 DEFAULT NULL,
             "tag_count" decimal(8,2) DEFAULT NULL,
@@ -460,4 +460,4 @@ class GlassAtlasSqlGenerator(SqlGenerator):
         
 if __name__ == '__main__':
     gen = GlassAtlasSqlGenerator(genome='mm9', cell_type='CD4TCell', staging='')
-    print gen.table_norm_sum()
+    print gen.peak_features()
