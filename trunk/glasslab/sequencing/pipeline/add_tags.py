@@ -136,6 +136,7 @@ if __name__ == '__main__':
         options.project_name = 'ncor_ko_kla_1h_2'
         
     file_name = check_input(options)
+    if options.cell_type: current_settings.CELL_TYPE = options.cell_type
     
     if not options.skip_tag_table:
         # First, convert the mapped file to the desired format.

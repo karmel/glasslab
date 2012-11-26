@@ -12,10 +12,11 @@ if __name__ == '__main__':
     yzer = SeqGrapher()
     dirpath = 'karmel/Desktop/Projects/GlassLab/Notes_and_Reports/CD4TCells_Finland_2012'
     dirpath = yzer.get_path(dirpath)
-    img_dirpath = yzer.get_and_create_path(dirpath, 'basic_scatterplots')
+    img_dirpath = yzer.get_and_create_path(dirpath, 'with_me3', 'basic_scatterplots')
 
     data = yzer.import_file(yzer.get_filename(dirpath, 'transcript_vectors.txt'))
-                            
+    data = data.fillna(0)
+    data = data[data['naive_me3_tag_count'] + data['act_me3_tag_count'] > 0]
                             
     for key1, key2, norm_factor in comparison_sets:
         name1 = pretty_names[key1[:-1]] + key1[-1:]

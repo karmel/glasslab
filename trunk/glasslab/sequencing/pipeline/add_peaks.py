@@ -15,6 +15,7 @@ from glasslab.sequencing.datatypes.peak import GlassPeak
 from glasslab.utils.parsing.delimited import DelimitedFileParser
 from glasslab.sequencing.pipeline.add_short_reads import check_input, \
     create_schema, _print
+from glasslab.config import current_settings
 
 class FastqOptionParser(GlassOptionParser):
     options = [
@@ -77,6 +78,8 @@ if __name__ == '__main__':
         options.file_name = '/Users/karmel/GlassLab/SourceData/ThioMac_Lazar/test'
         options.output_dir = 'first_test'
         options.peak_table = 'enriched_peaks_enriched_peaks_first_test_2010-09-30_16-04-52_454502'
+    
+    if options.cell_type: current_settings.CELL_TYPE = options.cell_type
     
     file_name = check_input(options)
     

@@ -28,14 +28,15 @@ class MotifAnalyzer(TranscriptAnalyzer):
         transcription_end, and chr_name.
         '''
         fullpath, homer_filename = self.prep_files_for_homer(data,
-                            project_name, dirpath, center, reverse, preceding, size,
+                            project_name, dirpath, 
+                            center=center, reverse=reverse, preceding=preceding, size=size,
                             files_already_prepped=files_already_prepped)
         
         self.run_homer_with_pos_file(homer_filename, fullpath, center, size,
                                      length, number_of_motifs, bg, genome, cpus)
         
     
-    def prep_files_for_homer(self, data, project_name, dirpath,
+    def prep_files_for_homer(self, data_orig, project_name, dirpath,
                   center=False, reverse=False, preceding=False, size=None,
                   files_already_prepped=False):
         '''
@@ -49,6 +50,9 @@ class MotifAnalyzer(TranscriptAnalyzer):
         homer_filename = self.get_filename(fullpath, project_name + '_regions_for_homer.txt')
         
         if not files_already_prepped:
+            # We don't want to modify the data.
+            data = data_orig.copy()
+            
             if not size: size = self.default_size
             
             try: data['strand'] = data['strand'].apply(int)
