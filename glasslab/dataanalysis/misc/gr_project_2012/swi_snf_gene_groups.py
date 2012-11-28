@@ -14,12 +14,15 @@ if __name__ == '__main__':
     dirpath = 'karmel/Desktop/Projects/GlassLab/Notes_and_Reports/GR_Analysis/cpg_island_promoters'
     dirpath = yzer.get_path(dirpath)
     
-    for rep in (1,3,4):
-        img_dirpath = yzer.get_and_create_path(dirpath, 'boxplots_by_expression', 'Ramirez-Carrozzi','rep{0}'.format(rep))
+    for rep in (4,3,1):
+        img_dirpath = yzer.get_and_create_path(dirpath, 'boxplots_by_expression', 'Ramirez-Carrozzi',
+                                               'rep{0}'.format(rep), 'transrepressed_only')
         
         data = yzer.import_file(yzer.get_filename(dirpath, 'transcript_vectors.txt'))
         data['ucsc_link_nod'] = data['ucsc_link_nod'].apply(lambda s: s.replace('nod_balbc','gr_project_2012'))
         data = data.fillna(0)
+        
+        data = data[(data['kla_{0}_lfc'.format(rep)] >= 1) & (data['dex_over_kla_{0}_lfc'.format(rep)] <= -.58)] 
         
         # 2006
         secondary_response = data[data['gene_names'].isin(['{Il12b}','{Il6}','{Nos2}','{Mx1}','{Mx2}','{Marco}','{Cmpk2}','{Rsad2}'])]

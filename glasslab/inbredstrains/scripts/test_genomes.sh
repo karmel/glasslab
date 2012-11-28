@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [ "$CURRENT_PATH" == "" ]; then
-	export CURRENT_PATH="/Users/karmel/Desktop/Projects/GlassLab/Repositories/glasslab/glasslab/trunk"
+	export CURRENT_PATH="/Users/karmel/Desktop/Projects/GlassLab/Repositories/glasslab/glasslab"
 fi 
 
 export PYTHONPATH=$CURRENT_PATH:$PYTHONPATH
