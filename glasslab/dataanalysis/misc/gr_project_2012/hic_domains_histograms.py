@@ -56,7 +56,7 @@ if __name__ == '__main__':
         ax = yzer.histogram(shuffled_grouped['kla_ratio'], bins=10,
                          title='Percent of transcripts up in KLA {0} by HiC Domain'.format(rep), 
                          xlabel='Count of domains', ylabel='Percent of transcripts up in KLA', 
-                         color='None', label='Replicate {0} Data'.format(rep),
+                         color='black', fill=False,label='Replicate {0} Data'.format(rep),
                          show_legend=True, save_dir=img_dirpath, show_plot=False, ax=ax)
         
         
