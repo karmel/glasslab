@@ -15,8 +15,8 @@ if __name__ == '__main__':
     dirpath = yzer.get_path(dirpath)
     
     for rep in (4,3,1):
-        img_dirpath = yzer.get_and_create_path(dirpath, 'boxplots_by_expression', 'Ramirez-Carrozzi',
-                                               'rep{0}'.format(rep), 'transrepressed_only')
+        img_dirpath = yzer.get_and_create_path(dirpath, 'boxplots_by_expression', 'genes_with_gr',
+                                               'rep{0}'.format(rep), 'transrepressed')
         
         data = yzer.import_file(yzer.get_filename(dirpath, 'transcript_vectors.txt'))
         data['ucsc_link_nod'] = data['ucsc_link_nod'].apply(lambda s: s.replace('nod_balbc','gr_project_2012'))
@@ -37,24 +37,25 @@ if __name__ == '__main__':
         secondary = data[data['gene_names'].isin(['{Irf7}', '{Il6}', '{Il12b}', '{Nos2}', '{Lcn2}', '{Marco}', '{Mx1}', '{Mx2}', '{Serpinb3b}',])]
         
         # Cpg Islands
-        refseq = data[data['gene_names'] != 0]
-        high_cpg = refseq[refseq['has_cpg'] == 1]
-        low_cpg = refseq[refseq['has_cpg'] == 0]
+        data = data[data['gr_kla_dex_tag_count'] > 10]
+        cpg_set = data[data['gene_names'] != 0]
+        high_cpg = cpg_set[cpg_set['has_cpg'] == 1]
+        low_cpg = cpg_set[cpg_set['has_cpg'] == 0]
         
         supersets = ((secondary_response, delayed, early_response),
                      (swi_snf_ind_cpg, swi_snf_ind_non_cpg, swi_snf_dep_non_irf3, swi_snf_dep_irf3, secondary),
-                     (high_cpg, low_cpg))
+                     (high_cpg, low_cpg),)
         superlabels = (('Secondary Response', 'Delayed Early\nResponse','Early Response'),
                        ('Early SWI/SNF Ind.\n CpG-Island Prom.', 'Early SWI/SNF Ind.\n No CpG-Island',
                         'Early SWI/SNF Dep.\n Irf3 Ind.', 'Early SWI/SNF Dep.\n Irf3 Dep.',
                         'Secondary\nSWI/SNF Dep.'),
                        ('Has CpG Island', 'No CpG Island'))
         title_groups = ('Ramirez-Carrozzi 2006', 'Ramirez-Carrozzi 2009', 'CpG Islands')
-        for labels, sets, group in zip(superlabels, supersets, title_groups):
+        for labels, sets, group in zip(superlabels, supersets, title_groups)[-1:]:
             for d in sets: print len(d)
             vals = [d['dex_over_kla_{0}_lfc'.format(rep)] for d in sets]
             
-            title = 'Dex Transrepression for Genes Groups defined by {0}'.format(group)
+            title = 'Dex Transrepression for Transrepressed Transcript Groups defined by {0}'.format(group)
             ax = yzer.boxplot(vals, labels, 
                              title=title, xlabel='Gene Group', 
                              ylabel='log2(KLA+Dex/KLA)', 
