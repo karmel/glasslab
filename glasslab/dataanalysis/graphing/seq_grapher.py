@@ -120,7 +120,7 @@ class SeqGrapher(TranscriptAnalyzer):
         # Any other operations to tack on?
         self.other_plot()
         
-        if save_dir: self.save_plot(self.get_filename(save_dir, save_name or (title.replace(' ','_') + '.png')))
+        self.save_plot_with_dir(save_dir, save_name, title)
         if show_plot: self.show_plot()
     
         return ax
@@ -147,6 +147,9 @@ class SeqGrapher(TranscriptAnalyzer):
             
     def show_plot(self): pyplot.show()
     def save_plot(self, filename): pyplot.savefig(filename)
+    def save_plot_with_dir(self, save_dir='', save_name='', title=''):
+        if save_dir: self.save_plot(self.get_filename(save_dir, save_name or (title.replace(' ','_') + '.png')))
+        
     
     def add_title(self, title, ax):
         pyplot.title(title)
@@ -290,14 +293,16 @@ class SeqGrapher(TranscriptAnalyzer):
         # Any other operations to tack on?
         self.other_plot()
         
-        if save_dir: self.save_plot(self.get_filename(save_dir, save_name or (title.replace(' ','_') + '.png')))
+        self.save_plot_with_dir(save_dir, save_name, title)
         if show_plot: self.show_plot()
         
         return ax
     
     def histogram(self, data,
                     subplot=111, bins=50,
-                    title='', xlabel=None, ylabel=None,
+                    title='', xlabel=None, ylabel=None, show_legend=True,
+                    label='', 
+                    color=None, save_dir='', save_name='',
                     show_plot=True, ax=None):
         '''
         Draw a histogram for passed data.
@@ -308,14 +313,17 @@ class SeqGrapher(TranscriptAnalyzer):
         '''
         ax = self.set_up_plot(ax, subplot)
         
-        bp = pyplot.hist(data, bins=bins)
+        bp = pyplot.hist(data, bins=bins, color=color or self.get_colors(1), label='')
         
         self.add_axis_labels(xlabel, ylabel)
         self.add_title(title, ax)
+        if show_legend: pyplot.legend()
+        
         #pyplot.ylim(0,100)
         # Any other operations to tack on?
         self.other_plot()
         
+        self.save_plot_with_dir(save_dir, save_name, title)
         if show_plot: self.show_plot()
         
         return ax
@@ -401,7 +409,7 @@ class SeqGrapher(TranscriptAnalyzer):
             font_p.set_size(10)
         pyplot.legend(loc='lower left', prop=font_p)
         
-        if save_dir: self.save_plot(self.get_filename(save_dir, save_name or (title.replace(' ','_') + '.png')))
+        self.save_plot_with_dir(save_dir, save_name, title)
         if show_plot: self.show_plot()
     
     def bargraph_for_transcripts(self, data, indices, cols,
