@@ -57,7 +57,7 @@ if __name__ == '__main__':
                          title='Percent of transcripts up in KLA {0} by HiC Domain'.format(rep), 
                          xlabel='Count of domains', ylabel='Percent of transcripts up in KLA', 
                          color='None', label='Replicate {0} Data'.format(rep),
-                         show_legend=True, save_dir=img_dirpath, show_plot=True, ax=ax)
+                         show_legend=True, save_dir=img_dirpath, show_plot=False, ax=ax)
         
         
         grouped['repressed_ratio'] = grouped['repressed']/grouped['count']
