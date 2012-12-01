@@ -313,7 +313,7 @@ class SeqGrapher(TranscriptAnalyzer):
         '''
         ax = self.set_up_plot(ax, subplot)
         
-        bp = pyplot.hist(data, bins=bins, color=color or self.get_colors(1), label='')
+        bp = pyplot.hist(data, bins=bins, color=color or self.get_colors(1)[0], label='')
         
         self.add_axis_labels(xlabel, ylabel)
         self.add_title(title, ax)
