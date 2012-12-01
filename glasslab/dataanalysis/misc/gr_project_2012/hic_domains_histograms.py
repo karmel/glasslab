@@ -49,7 +49,7 @@ if __name__ == '__main__':
         shuffled_grouped = shuffled_grouped.sort(['kla_ratio']).reset_index(drop=True)
         shuffled_grouped['idx'] = shuffled_grouped.index
         
-        ax = yzer.histograms(grouped['kla_ratio'], bins=10,
+        ax = yzer.histogram(grouped['kla_ratio'], bins=10,
                          label='Shuffled Data'.format(rep),
                          show_legend=False, show_plot=False)
         
