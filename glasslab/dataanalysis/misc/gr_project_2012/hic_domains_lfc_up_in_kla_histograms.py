@@ -30,22 +30,14 @@ if __name__ == '__main__':
         shuffle(shuffled)
         data['shuffled_domain_id'] = shuffled 
         
+        data = data[data[kla_key] >= 1]
+        
         grouped = data.groupby(by='domain_id', as_index=False).mean()
         shuffled_grouped = data.groupby(by='shuffled_domain_id', as_index=False).mean()
         
         grouped = grouped[grouped['domain_id'] != 0]
         shuffled_grouped = shuffled_grouped[shuffled_grouped['shuffled_domain_id'] != 0]
         
-        
-        ax = yzer.histogram(grouped[kla_key], bins=50,
-                         label='Replicate {0} Data'.format(rep),
-                         show_legend=False, show_plot=False)
-        
-        ax = yzer.histogram(shuffled_grouped[kla_key], bins=50,
-                         title='KLA LFC {0} by HiC Domain'.format(rep), 
-                         xlabel='Mean KLA log fold change for transcripts', ylabel='Count of Domains', 
-                         color='black', fill=False,label='Shuffled Data'.format(rep),
-                         show_legend=True, save_dir=img_dirpath, show_plot=False, ax=ax)
         
         
         ax = yzer.histogram(grouped[dex_kla_key], bins=50,
@@ -54,7 +46,7 @@ if __name__ == '__main__':
         
         ax = yzer.histogram(shuffled_grouped[dex_kla_key], bins=50,
                          title='Dex+KLA/KLA LFC {0} by HiC Domain'.format(rep), 
-                         xlabel='Mean Dex+KLA log fold change for transcripts', ylabel='Count of Domains', 
+                         xlabel='Mean Dex+KLA log fold change for transcripts up in KLA', ylabel='Count of Domains', 
                          color='black', fill=False,label='Shuffled Data'.format(rep),
                          show_legend=True, save_dir=img_dirpath, show_plot=False, ax=ax)
         
