@@ -20,7 +20,7 @@ if __name__ == '__main__':
     data = data.fillna(0)
     
     for rep in (4,3,1):
-        img_dirpath = yzer.get_and_create_path(dirpath, 'histograms',
+        img_dirpath = yzer.get_and_create_path(dirpath, 'histograms', 'more_than_1_transcript',
                                                'rep{0}'.format(rep))
         
         kla_key = 'kla_{0}_lfc'.format(rep)
@@ -40,6 +40,9 @@ if __name__ == '__main__':
         
         grouped = grouped[grouped['domain_id'] != 0]
         shuffled_grouped = shuffled_grouped[shuffled_grouped['shuffled_domain_id'] != 0]
+        
+        grouped = grouped[grouped['count'] > 1]
+        shuffled_grouped = shuffled_grouped[shuffled_grouped['count'] > 1]
         
         grouped['kla_ratio'] = grouped['up_in_kla']/grouped['count']
         grouped = grouped.sort(['kla_ratio']).reset_index(drop=True)
