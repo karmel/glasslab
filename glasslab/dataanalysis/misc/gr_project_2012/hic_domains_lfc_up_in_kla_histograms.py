@@ -26,11 +26,12 @@ if __name__ == '__main__':
         kla_key = 'kla_{0}_lfc'.format(rep)
         dex_kla_key = 'dex_over_kla_{0}_lfc'.format(rep)
         
+        
+        data = data[data[kla_key] >= 1]
+        
         shuffled = data['domain_id'].values.copy()
         shuffle(shuffled)
         data['shuffled_domain_id'] = shuffled 
-        
-        data = data[data[kla_key] >= 1]
         
         grouped = data.groupby(by='domain_id', as_index=False).mean()
         shuffled_grouped = data.groupby(by='shuffled_domain_id', as_index=False).mean()
