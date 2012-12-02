@@ -50,13 +50,13 @@ if __name__ == '__main__':
         shuffled_grouped['idx'] = shuffled_grouped.index
         
         ax = yzer.histogram(grouped['kla_ratio'], bins=50,
-                         label='Shuffled Data'.format(rep),
+                         label='Replicate {0} Data'.format(rep),
                          show_legend=False, show_plot=False)
         
         ax = yzer.histogram(shuffled_grouped['kla_ratio'], bins=50,
                          title='Percent of transcripts up in KLA {0} by HiC Domain'.format(rep), 
                          xlabel='Count of domains', ylabel='Percent of transcripts up in KLA', 
-                         color='black', fill=False,label='Replicate {0} Data'.format(rep),
+                         color='black', fill=False,label='Shuffled Data'.format(rep),
                          show_legend=True, save_dir=img_dirpath, show_plot=False, ax=ax)
         
         
@@ -68,6 +68,15 @@ if __name__ == '__main__':
         shuffled_grouped = shuffled_grouped.sort(['repressed_ratio']).reset_index(drop=True)
         shuffled_grouped['idx'] = shuffled_grouped.index
         
+        ax = yzer.histogram(grouped['repressed_ratio'], bins=50,
+                         label='Replicate {0} Data'.format(rep),
+                         show_legend=False, show_plot=False)
+        
+        ax = yzer.histogram(shuffled_grouped['repressed_ratio'], bins=50,
+                         title='Percent of transcripts repressed by Dex {0} by HiC Domain'.format(rep), 
+                         xlabel='Count of domains', ylabel='Percent of transcripts down in Dex', 
+                         color='black', fill=False,label='Shuffled Data'.format(rep),
+                         show_legend=True, save_dir=img_dirpath, show_plot=False, ax=ax)
         
        
         grouped['transrepressed_ratio'] = grouped['transrepressed']/grouped['count']
@@ -78,4 +87,13 @@ if __name__ == '__main__':
         shuffled_grouped = shuffled_grouped.sort(['transrepressed_ratio']).reset_index(drop=True)
         shuffled_grouped['idx'] = shuffled_grouped.index
         
-    
+        ax = yzer.histogram(grouped['transrepressed_ratio'], bins=50,
+                         label='Replicate {0} Data'.format(rep),
+                         show_legend=False, show_plot=False)
+        
+        ax = yzer.histogram(shuffled_grouped['transrepressed_ratio'], bins=50,
+                         title='Percent of transcripts transrepressed by Dex {0} by HiC Domain'.format(rep), 
+                         xlabel='Count of domains', ylabel='Percent of transcripts transrepressed by Dex', 
+                         color='black', fill=False,label='Shuffled Data'.format(rep),
+                         show_legend=True, save_dir=img_dirpath, show_plot=False, ax=ax)
+        
