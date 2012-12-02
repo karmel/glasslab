@@ -45,7 +45,7 @@ if __name__ == '__main__':
                          show_legend=False, show_plot=False)
         
         ax = yzer.histogram(shuffled_grouped[dex_kla_key], bins=50,
-                         title='Dex+KLA/KLA LFC {0} by HiC Domain'.format(rep), 
+                         title='Dex+KLA over KLA LFC {0} by HiC Domain'.format(rep), 
                          xlabel='Mean Dex+KLA log fold change for transcripts up in KLA', ylabel='Count of Domains', 
                          color='black', fill=False,label='Shuffled Data'.format(rep),
                          show_legend=True, save_dir=img_dirpath, show_plot=False, ax=ax)
