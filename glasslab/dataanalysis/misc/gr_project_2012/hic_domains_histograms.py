@@ -49,11 +49,11 @@ if __name__ == '__main__':
         shuffled_grouped = shuffled_grouped.sort(['kla_ratio']).reset_index(drop=True)
         shuffled_grouped['idx'] = shuffled_grouped.index
         
-        ax = yzer.histogram(grouped['kla_ratio'], bins=10,
+        ax = yzer.histogram(grouped['kla_ratio'], bins=50,
                          label='Shuffled Data'.format(rep),
                          show_legend=False, show_plot=False)
         
-        ax = yzer.histogram(shuffled_grouped['kla_ratio'], bins=10,
+        ax = yzer.histogram(shuffled_grouped['kla_ratio'], bins=50,
                          title='Percent of transcripts up in KLA {0} by HiC Domain'.format(rep), 
                          xlabel='Count of domains', ylabel='Percent of transcripts up in KLA', 
                          color='black', fill=False,label='Replicate {0} Data'.format(rep),
