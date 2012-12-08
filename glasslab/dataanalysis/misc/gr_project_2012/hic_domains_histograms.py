@@ -20,7 +20,7 @@ if __name__ == '__main__':
     data = data.fillna(0)
     
     for rep in (4,3,1):
-        img_dirpath = yzer.get_and_create_path(dirpath, 'histograms', 'a',
+        img_dirpath = yzer.get_and_create_path(dirpath, 'histograms', 'at_least_1_up_in_kla',
                                                'rep{0}'.format(rep))
         
         kla_key = 'kla_{0}_lfc'.format(rep)
