@@ -13,7 +13,7 @@ from optparse import make_option
 import traceback
 
 from django.db import connection, transaction
-from glasslab.sequencing.datatypes.tag import GlassTag
+from glasslab.sequencing.datatypes.interaction import GlassInteraction
 from multiprocessing import Pool
 from glasslab.config import current_settings
 from glasslab.sequencing.pipeline.add_short_reads import check_input, _print,\
@@ -50,14 +50,14 @@ def _copy_into_table(tag_dir, f_name):
         cursor.copy_expert("""COPY "%s" (chromosome_1, "start_1",
                                         strand_1, count, length_1, chromosome_2, 
                                         "start_2", strand_2, length_2)
-                                FROM STDIN WITH CSV DELIMITER E'\t'; """ % GlassTag.prep_table, f)
+                                FROM STDIN WITH CSV DELIMITER E'\t'; """ % GlassInteraction.prep_table, f)
         transaction.commit_unless_managed()
     except Exception:
         _print('Encountered exception while trying to copy data:\n%s' % traceback.format_exc())
         raise
     
 def upload_interaction_files(options, file_name, tag_dir):
-    GlassTag.create_prep_table(file_name)
+    GlassInteraction.create_prep_table(file_name)
     
     file_names = os.listdir(tag_dir)
     file_names = [f_name for f_name in file_names if re.match(r'chr\d+\.tags\.tsv', f_name)]
@@ -79,17 +79,17 @@ def translate_prep_columns(file_name):
     '''
     Transfer prep tags to indexed, streamlined Glass tags for annotation.
     '''
-    #GlassTag.set_table_name('tag_' + file_name)
-    GlassTag.create_parent_table(file_name)
-    GlassTag.create_partition_tables()
-    GlassTag.translate_from_prep()
-    GlassTag.add_record_of_tags()
+    #GlassInteraction.set_table_name('tag_' + file_name)
+    GlassInteraction.create_parent_table(file_name)
+    GlassInteraction.create_partition_tables()
+    GlassInteraction.translate_from_prep()
+    GlassInteraction.add_record_of_tags()
         
 def add_indices():
     # Execute after all the ends have been calculated,
     # as otherwise the insertion of ends takes far too long.
-    GlassTag.add_indices()
-    execute_query_without_transaction('VACUUM ANALYZE "%s";' % (GlassTag._meta.db_table))
+    GlassInteraction.add_indices()
+    execute_query_without_transaction('VACUUM ANALYZE "%s";' % (GlassInteraction._meta.db_table))
         
 if __name__ == '__main__':    
     run_from_command_line = True # Useful for debugging in Eclipse
@@ -106,10 +106,10 @@ if __name__ == '__main__':
         upload_interaction_files(options, file_name, options.file_name)
     else:
         _print('Skipping upload of interaction rows into table.')
-        GlassTag.set_prep_table(options.prep_table)
+        GlassInteraction.set_prep_table(options.prep_table)
     
     _print('Translating prep columns to integers.')
     translate_prep_columns(file_name)
     _print('Adding indices.')
-    GlassTag.set_table_name('tag_' + file_name)
+    GlassInteraction.set_table_name('interaction_' + file_name)
     add_indices()

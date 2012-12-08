@@ -78,7 +78,7 @@ class GlassInteraction(GlassSequencingOutput):
         Create table that will be used for these tags,
         dynamically named.
         '''
-        name = 'tag_%s' % name
+        name = 'interaction__%s' % name
         cls.set_table_name(name)
         table_sql = """
         CREATE TABLE "%s" (
