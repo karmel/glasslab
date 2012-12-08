@@ -37,10 +37,8 @@ class FastqOptionParser(GlassOptionParser):
                
                ]
     
-def copy_into_table_from_dir(tag_dir, f_name):
-    print f_name
-    print re.match(r'chr\d+\.tags\.tsv', f_name)
-    if re.match(r'chr\d+\.tags\.tsv', f_name):
+def copy_into_table_from_dir(tag_dir, f_names):
+    for f_name in f_names:
         _copy_into_table(tag_dir, f_name)
          
 def _copy_into_table(tag_dir, f_name):
@@ -62,6 +60,7 @@ def upload_interaction_files(options, file_name, tag_dir):
     GlassTag.create_prep_table(file_name)
     
     file_names = os.listdir(tag_dir)
+    file_names = [f_name for f_name in file_names if re.match(r'chr\d+\.tags\.tsv', f_name)]
     processes = current_settings.ALLOWED_PROCESSES
     step_size = max(1,len(file_names)//processes)
     p = Pool(processes) 
