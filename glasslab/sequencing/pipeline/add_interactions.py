@@ -38,6 +38,8 @@ class FastqOptionParser(GlassOptionParser):
                ]
     
 def copy_into_table_from_dir(tag_dir, f_name):
+    print f_name
+    print re.match(r'chr\d+\.tags\.tsv', f_name)
     if re.match(r'chr\d+\.tags\.tsv', f_name):
         _copy_into_table(tag_dir, f_name)
          
