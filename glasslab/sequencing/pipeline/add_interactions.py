@@ -23,7 +23,7 @@ from glasslab.utils.database import execute_query_without_transaction
 
 class FastqOptionParser(GlassOptionParser):
     options = [
-               make_option('-d', '--tag_dir',action='store', type='string', dest='tag_dir', 
+               make_option('-f', '--file_name',action='store', type='string', dest='file_name', 
                            help='Path to Homer Tag directory for processing.'),
                make_option('-g', '--genome',action='store', type='string', dest='genome', default='mm9', 
                            help='Currently supported: mm8, mm8r, mm9, hg18, hg18r'),
@@ -105,7 +105,7 @@ if __name__ == '__main__':
         _print('Creating schema if necessary.')
         create_schema()
         _print('Uploading tag file into table.')
-        upload_interaction_files(options, file_name, options.tag_dir)
+        upload_interaction_files(options, file_name, options.file_name)
     else:
         _print('Skipping upload of interaction rows into table.')
         GlassTag.set_prep_table(options.prep_table)
