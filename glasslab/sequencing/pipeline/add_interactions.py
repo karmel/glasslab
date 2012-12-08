@@ -16,7 +16,6 @@ from django.db import connection, transaction
 from glasslab.sequencing.datatypes.tag import GlassTag
 from multiprocessing import Pool
 from glasslab.config import current_settings
-import shutil
 from glasslab.sequencing.pipeline.add_short_reads import check_input, _print,\
     create_schema
 from glasslab.utils.database import execute_query_without_transaction
@@ -98,8 +97,6 @@ if __name__ == '__main__':
     options, args = parser.parse_args()
 
     file_name = check_input(options)
-    if options.cell_type: current_settings.CELL_TYPE = options.cell_type
-    
      
     if not options.prep_table:
         _print('Creating schema if necessary.')
