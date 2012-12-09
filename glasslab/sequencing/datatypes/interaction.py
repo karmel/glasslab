@@ -59,7 +59,7 @@ class GlassInteraction(GlassSequencingOutput):
             chromosome_1 varchar(20),
             "start_1" bigint,
             strand_1 int2,
-            count int4,
+            count float4,
             length_1 int4,
             chromosome_2 varchar(20),
             "start_2" bigint,
@@ -201,7 +201,7 @@ class GlassInteraction(GlassSequencingOutput):
                 SELECT chr_2.id, prep.strand_2, 
                 prep."start_2"-1, (prep."start_2"-1 + prep.length_2-1),
                 public.make_box(prep."start_2"-1, 0, (prep."start_2"-1 + prep.length_2-1), 0),
-                prep.count
+                prep.count::int
             FROM "{1}" prep
             JOIN "{2}" chr_1 ON chr_1.name = prep.chromosome_1
             JOIN "{2}" chr_2 ON chr_2.name = prep.chromosome_2
