@@ -191,6 +191,7 @@ class GlassInteraction(GlassSequencingOutput):
         Also, length is inclusive, so subtract 1.
         '''
         for chr_id in chr_list:
+            print 'Loading interactions for chromosome [0}'.format(chr_id)
             update_query = """
             INSERT INTO "{0}_{chr_id}" (chromosome_1_id, strand_1, "start_1", "end_1", start_end_1,
                 chromosome_2_id, strand_2, "start_2", "end_2", start_end_2, count)
