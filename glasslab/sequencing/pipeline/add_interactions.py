@@ -109,7 +109,7 @@ if __name__ == '__main__':
         GlassInteraction.set_prep_table(options.prep_table)
     
     _print('Translating prep columns to integers.')
-    translate_prep_columns(file_name)
+    #translate_prep_columns(file_name)
     _print('Adding indices.')
     GlassInteraction.set_table_name('interaction_' + file_name)
-    add_indices()
+    #add_indices()
