@@ -47,7 +47,7 @@ def _copy_into_table(tag_dir, f_name):
     try:
         connection.close()
         cursor = connection.cursor()
-        cursor.copy_expert("""COPY "%s" (chromosome_1, "start_1",
+        cursor.copy_expert("""COPY "%s" (id, chromosome_1, "start_1",
                                         strand_1, count, length_1, chromosome_2, 
                                         "start_2", strand_2, length_2)
                                 FROM STDIN WITH CSV DELIMITER E'\t'; """ % GlassInteraction.prep_table, f)
