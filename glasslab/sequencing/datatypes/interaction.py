@@ -55,6 +55,7 @@ class GlassInteraction(GlassSequencingOutput):
         cls.set_prep_table('prep_%s' % name)
         table_sql = """
         CREATE TABLE "%s" (
+            id varchar(10) defaul null,
             chromosome_1 varchar(20),
             "start_1" bigint,
             strand_1 int2,
