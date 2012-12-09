@@ -198,7 +198,7 @@ class GlassInteraction(GlassSequencingOutput):
                 SELECT {chr_id}, prep.strand_1, 
                 prep."start_1"-1, (prep."start_1"-1 + prep.length_1-1),
                 public.make_box(prep."start_1"-1, 0, (prep."start_1"-1 + prep.length_1-1), 0),
-                SELECT chr_2.id, prep.strand_2, 
+                chr_2.id, prep.strand_2, 
                 prep."start_2"-1, (prep."start_2"-1 + prep.length_2-1),
                 public.make_box(prep."start_2"-1, 0, (prep."start_2"-1 + prep.length_2-1), 0),
                 prep.count::int
