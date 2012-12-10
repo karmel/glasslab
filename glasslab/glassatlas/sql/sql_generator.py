@@ -145,7 +145,7 @@ class GlassAtlasSqlGenerator(SqlGenerator):
     def table_main_source(self, suffix=''):
         table_name = 'glass_transcript_source'
         return """
-        CREATE TABLE "{schema_name_prefix}{suffix}"."" (
+        CREATE TABLE "{schema_name_prefix}{suffix}"."{table_name}" (
             "id" int4 NOT NULL,
             "chromosome_id" int4 DEFAULT NULL,
             "glass_transcript_id" int4 DEFAULT NULL,
@@ -157,21 +157,23 @@ class GlassAtlasSqlGenerator(SqlGenerator):
         + self.pkey_sequence_sql(self.schema_name_prefix + suffix, table_name)
         
     def table_chrom_source(self, chr_id, suffix=''):
+        table_name = 'glass_transcript_source'
         return """
-        CREATE TABLE "{schema_name_prefix}{suffix}"."glass_transcript_source_{chr_id}" (
+        CREATE TABLE "{schema_name_prefix}{suffix}"."{table_name}_{chr_id}" (
             CHECK ( chromosome_id = {chr_id} )
-        ) INHERITS ("{schema_name_prefix}{suffix}"."glass_transcript_source");
-        CREATE INDEX glass_transcript_source_{chr_id}_pkey_idx ON "{schema_name_prefix}{suffix}"."glass_transcript_source_{chr_id}" USING btree (id);
-        CREATE INDEX glass_transcript_source_{chr_id}_transcript_idx ON "{schema_name_prefix}{suffix}"."glass_transcript_source_{chr_id}" USING btree (glass_transcript_id);
-        CREATE INDEX glass_transcript_source_{chr_id}_sequencing_run_idx ON "{schema_name_prefix}{suffix}"."glass_transcript_source_{chr_id}" USING btree (sequencing_run_id);
-        """.format(schema_name_prefix=self.schema_name_prefix, chr_id=chr_id, suffix=suffix)
+        ) INHERITS ("{schema_name_prefix}{suffix}"."{table_name}");
+        CREATE INDEX {table_name}_{chr_id}_pkey_idx ON "{schema_name_prefix}{suffix}"."{table_name}_{chr_id}" USING btree (id);
+        CREATE INDEX {table_name}_{chr_id}_transcript_idx ON "{schema_name_prefix}{suffix}"."{table_name}_{chr_id}" USING btree (glass_transcript_id);
+        CREATE INDEX {table_name}_{chr_id}_sequencing_run_idx ON "{schema_name_prefix}{suffix}"."{table_name}_{chr_id}" USING btree (sequencing_run_id);
+        """.format(schema_name_prefix=self.schema_name_prefix, chr_id=chr_id, table_name=table_name, suffix=suffix)
         
     def table_trigger_source(self, suffix=''):
+        table_name = 'glass_transcript_source'
         return """
-        CREATE OR REPLACE FUNCTION {schema_name_prefix}{suffix}.glass_transcript_source_insert_trigger()
+        CREATE OR REPLACE FUNCTION {schema_name_prefix}{suffix}.{table_name}_insert_trigger()
         RETURNS TRIGGER AS $$
         BEGIN
-            EXECUTE 'INSERT INTO {schema_name_prefix}{suffix}.glass_transcript_source_' || NEW.chromosome_id || ' VALUES ('
+            EXECUTE 'INSERT INTO {schema_name_prefix}{suffix}.{table_name}_' || NEW.chromosome_id || ' VALUES ('
             || quote_literal(NEW.id) || ','
             || quote_literal(NEW.chromosome_id) || ','
             || quote_literal(NEW.glass_transcript_id) || ','
@@ -186,10 +188,10 @@ class GlassAtlasSqlGenerator(SqlGenerator):
         LANGUAGE 'plpgsql';
         
         -- Trigger function for inserts on main table
-        CREATE TRIGGER glass_transcript_source_trigger
-            BEFORE INSERT ON "{schema_name_prefix}{suffix}"."glass_transcript_source"
-            FOR EACH ROW EXECUTE PROCEDURE {schema_name_prefix}{suffix}.glass_transcript_source_insert_trigger();
-        """.format(schema_name_prefix=self.schema_name_prefix, suffix=suffix)
+        CREATE TRIGGER {table_name}_trigger
+            BEFORE INSERT ON "{schema_name_prefix}{suffix}"."{table_name}"
+            FOR EACH ROW EXECUTE PROCEDURE {schema_name_prefix}{suffix}.{table_name}_insert_trigger();
+        """.format(schema_name_prefix=self.schema_name_prefix, table_name=table_name, suffix=suffix)
         
     def table_main_transcript(self):
         table_name = 'glass_transcript'
@@ -341,6 +343,57 @@ class GlassAtlasSqlGenerator(SqlGenerator):
         CREATE INDEX {table_name}_touches_idx ON "{schema_name_prefix}{suffix}"."{table_name}" USING btree (touches);
         """.format(schema_name_prefix=self.schema_name_prefix, table_name=table_name, suffix=self.staging) \
         + self.pkey_sequence_sql(self.schema_name_prefix + self.staging, table_name)
+
+    def table_main_interaction(self, suffix=''):
+        table_name = 'glass_transcript_interaction'
+        return """
+        CREATE TABLE "{schema_name_prefix}{suffix}"."{table_name}" (
+            "id" int4 NOT NULL,
+            "chromosome_id" int4 DEFAULT NULL,
+            "glass_transcript_id" int4 DEFAULT NULL,
+            "glass_transcript_2_id" int4 DEFAULT NULL,
+            "sequencing_run_id" int4 DEFAULT NULL,
+            "count" int4 DEFAULT NULL
+        );
+        """.format(schema_name_prefix=self.schema_name_prefix, table_name=table_name, suffix=suffix)\
+        + self.pkey_sequence_sql(self.schema_name_prefix + suffix, table_name)
+        
+    def table_chrom_interaction(self, chr_id, suffix=''):
+        table_name = 'glass_transcript_interaction'
+        return """
+        CREATE TABLE "{schema_name_prefix}{suffix}"."{table_name}_{chr_id}" (
+            CHECK ( chromosome_id = {chr_id} )
+        ) INHERITS ("{schema_name_prefix}{suffix}"."{table_name}");
+        CREATE INDEX {table_name}_{chr_id}_pkey_idx ON "{schema_name_prefix}{suffix}"."{table_name}_{chr_id}" USING btree (id);
+        CREATE INDEX {table_name}_{chr_id}_transcript_idx ON "{schema_name_prefix}{suffix}"."{table_name}_{chr_id}" USING btree (glass_transcript_id);
+        CREATE INDEX {table_name}_{chr_id}_sequencing_run_idx ON "{schema_name_prefix}{suffix}"."{table_name}_{chr_id}" USING btree (sequencing_run_id);
+        """.format(schema_name_prefix=self.schema_name_prefix, chr_id=chr_id, table_name=table_name, suffix=suffix)
+        
+    def table_trigger_interaction(self, suffix=''):
+        table_name = 'glass_transcript_interaction'
+        return """
+        CREATE OR REPLACE FUNCTION {schema_name_prefix}{suffix}.{table_name}_insert_trigger()
+        RETURNS TRIGGER AS $$
+        BEGIN
+            EXECUTE 'INSERT INTO {schema_name_prefix}{suffix}.{table_name}_' || NEW.chromosome_id || ' VALUES ('
+            || quote_literal(NEW.id) || ','
+            || quote_literal(NEW.chromosome_id) || ','
+            || quote_literal(NEW.glass_transcript_id) || ','
+            || quote_literal(NEW.glass_transcript_2_id) || ','
+            || quote_literal(NEW.sequencing_run_id) || ','
+            || quote_literal(NEW.count)
+            || ')'
+            ;
+            RETURN NULL;
+        END;
+        $$
+        LANGUAGE 'plpgsql';
+        
+        -- Trigger function for inserts on main table
+        CREATE TRIGGER {table_name}_trigger
+            BEFORE INSERT ON "{schema_name_prefix}{suffix}"."{table_name}"
+            FOR EACH ROW EXECUTE PROCEDURE {schema_name_prefix}{suffix}.{table_name}_insert_trigger();
+        """.format(schema_name_prefix=self.schema_name_prefix, table_name=table_name, suffix=suffix)
             
     def other_tables(self):
         return """
@@ -459,5 +512,7 @@ class GlassAtlasSqlGenerator(SqlGenerator):
             """
         
 if __name__ == '__main__':
-    gen = GlassAtlasSqlGenerator(genome='mm9', cell_type='CD4TCell', staging='')
-    print gen.peak_features()
+    gen = GlassAtlasSqlGenerator(genome='mm9', cell_type='ThioMac', staging='')
+    print gen.table_main_interaction()
+    for chr in xrange(1,23): print gen.table_chrom_interaction(chr)
+    print gen.table_trigger_interaction()
