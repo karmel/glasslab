@@ -15,7 +15,6 @@ from glasslab.utils.datatypes.basic_model import BoxField
 from glasslab.utils.database import execute_query
 from glasslab.glassatlas.datatypes.transcript import multiprocess_all_chromosomes
 from glasslab.glassatlas.datatypes.metadata import SequencingRun
-import re
 from glasslab.sequencing.datatypes.tag import GlassSequencingOutput,\
     wrap_translate_from_prep, wrap_add_indices
 
@@ -123,13 +122,13 @@ class GlassInteraction(GlassSequencingOutput):
         '''
         
         for chr_id in current_settings.GENOME_CHROMOSOMES:
-            table_sql = """
-            CREATE TABLE "%s_%d" (
-                CHECK ( chromosome_1_id = %d )
-            ) INHERITS ("%s");""" % (cls._meta.db_table,
-                                     chr_id, chr_id,
-                                     cls._meta.db_table)
-            execute_query(table_sql)
+            for strand in (0,1):
+                table_sql = """
+                CREATE TABLE "{table_name}_{chr_id}_{strand}" (
+                    CHECK ( chromosome_1_id = {chr_id} AND strand_1 = {strand} )
+                ) INHERITS ("{table_name}");""".format(table_name=cls._meta.db_table,
+                                                       chr_id=chr_id, strand=strand)
+                execute_query(table_sql)
         
         trigger_sql = '''
             CREATE OR REPLACE FUNCTION %s.glass_interaction_insert_trigger()
@@ -191,26 +190,29 @@ class GlassInteraction(GlassSequencingOutput):
         Also, length is inclusive, so subtract 1.
         '''
         for chr_id in chr_list:
-            print 'Loading interactions for chromosome [0}'.format(chr_id)
-            update_query = """
-            INSERT INTO "{0}_{chr_id}" (chromosome_1_id, strand_1, "start_1", "end_1", start_end_1,
-                chromosome_2_id, strand_2, "start_2", "end_2", start_end_2, count)
-            SELECT * FROM (
-                SELECT {chr_id}, prep.strand_1, 
-                prep."start_1"-1, (prep."start_1"-1 + prep.length_1-1),
-                public.make_box(prep."start_1"-1, 0, (prep."start_1"-1 + prep.length_1-1), 0),
-                chr_2.id, prep.strand_2, 
-                prep."start_2"-1, (prep."start_2"-1 + prep.length_2-1),
-                public.make_box(prep."start_2"-1, 0, (prep."start_2"-1 + prep.length_2-1), 0),
-                prep.count::int
-            FROM "{1}" prep
-            JOIN "{2}" chr_1 ON chr_1.name = prep.chromosome_1
-            JOIN "{2}" chr_2 ON chr_2.name = prep.chromosome_2
-            WHERE chr_1.id = {chr_id}) derived;
-            """.format(cls._meta.db_table, cls.prep_table,
-                   Chromosome._meta.db_table,
-                   chr_id=chr_id)
-            execute_query(update_query)
+            print 'Loading interactions for chromosome {0}'.format(chr_id)
+                
+            for strand in (0,1):
+                update_query = """
+                INSERT INTO "{0}_{chr_id}_{strand}" (chromosome_1_id, strand_1, "start_1", "end_1", start_end_1,
+                    chromosome_2_id, strand_2, "start_2", "end_2", start_end_2, count)
+                SELECT * FROM (
+                    SELECT {chr_id}, prep.strand_1, 
+                    prep."start_1"-1, (prep."start_1"-1 + prep.length_1-1),
+                    public.make_box(prep."start_1"-1, 0, (prep."start_1"-1 + prep.length_1-1), 0),
+                    chr_2.id, prep.strand_2, 
+                    prep."start_2"-1, (prep."start_2"-1 + prep.length_2-1),
+                    public.make_box(prep."start_2"-1, 0, (prep."start_2"-1 + prep.length_2-1), 0),
+                    prep.count::int
+                FROM "{1}" prep
+                JOIN "{2}" chr_1 ON chr_1.name = prep.chromosome_1
+                JOIN "{2}" chr_2 ON chr_2.name = prep.chromosome_2
+                WHERE chr_1.id = {chr_id}
+                AND prep.strand_1 = {strand}) derived;
+                """.format(cls._meta.db_table, cls.prep_table,
+                       Chromosome._meta.db_table,
+                       chr_id=chr_id, strand=strand)
+                execute_query(update_query)
                         
     @classmethod
     def add_indices(cls):
@@ -219,17 +221,18 @@ class GlassInteraction(GlassSequencingOutput):
     @classmethod
     def _add_indices(cls, chr_list):
         for chr_id in chr_list:
-            update_query = """
-            CREATE INDEX {0}_{chr_id}_pkey_idx ON "{1}_{chr_id}" USING btree (id);
-            CREATE INDEX {0}_{chr_id}_chr_1_idx ON "{1}_{chr_id}" USING btree (chromosome_1_id);
-            CREATE INDEX {0}_{chr_id}_strand_1_idx ON "{1}_{chr_id}" USING btree (strand_1);
-            CREATE INDEX {0}_{chr_id}_start_end_1_idx ON "{1}_{chr_id}" USING gist (start_end_1);
-            CREATE INDEX {0}_{chr_id}_chr_2_idx ON "{1}_{chr_id}" USING btree (chromosome_2_id);
-            CREATE INDEX {0}_{chr_id}_strand_2_idx ON "{1}_{chr_id}" USING btree (strand_2);
-            CREATE INDEX {0}_{chr_id}_start_end_2_idx ON "{1}_{chr_id}" USING gist (start_end_2);
-            ANALYZE "{1}_{chr_id}";
-            """.format(cls.name, cls._meta.db_table, chr_id=chr_id)
-            execute_query(update_query)
+            for strand in (0,1):
+                update_query = """
+                CREATE INDEX {0}_{chr_id}_{strand}_pkey_idx ON "{1}_{chr_id}_{strand}" USING btree (id);
+                CREATE INDEX {0}_{chr_id}_{strand}_chr_1_idx ON "{1}_{chr_id}_{strand}" USING btree (chromosome_1_id);
+                CREATE INDEX {0}_{chr_id}_{strand}_strand_1_idx ON "{1}_{chr_id}_{strand}" USING btree (strand_1);
+                CREATE INDEX {0}_{chr_id}_{strand}_start_end_1_idx ON "{1}_{chr_id}_{strand}" USING gist (start_end_1);
+                CREATE INDEX {0}_{chr_id}_{strand}_chr_2_idx ON "{1}_{chr_id}_{strand}" USING btree (chromosome_2_id);
+                CREATE INDEX {0}_{chr_id}_{strand}_strand_2_idx ON "{1}_{chr_id}_{strand}" USING btree (strand_2);
+                CREATE INDEX {0}_{chr_id}_{strand}_start_end_2_idx ON "{1}_{chr_id}_{strand}" USING gist (start_end_2);
+                ANALYZE "{1}_{chr_id}_{strand}";
+                """.format(cls.name, cls._meta.db_table, chr_id=chr_id, strand=strand)
+                execute_query(update_query)
 
     @classmethod 
     def add_record_of_tags(cls, description='', type='HiC', standard=False, stats_file=None):

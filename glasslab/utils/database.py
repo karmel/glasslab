@@ -3,7 +3,7 @@ Created on Nov 15, 2010
 
 @author: karmel
 '''
-#from django.db import transaction, connections, connection
+from django.db import transaction, connections, connection
 from subprocess import check_call
 from glasslab.config import current_settings, django_settings
 import datetime

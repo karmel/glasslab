@@ -60,7 +60,7 @@ def upload_interaction_files(options, file_name, tag_dir):
     GlassInteraction.create_prep_table(file_name)
     
     file_names = os.listdir(tag_dir)
-    file_names = [f_name for f_name in file_names if re.match(r'chr\d+\.tags\.tsv', f_name)]
+    file_names = [f_name for f_name in file_names if re.match(r'chr[\d|M|X|Y]+\.tags\.tsv', f_name)]
     processes = current_settings.ALLOWED_PROCESSES
     step_size = max(1,len(file_names)//processes)
     p = Pool(processes) 

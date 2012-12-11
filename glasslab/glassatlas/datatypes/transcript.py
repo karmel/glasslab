@@ -96,6 +96,7 @@ def wrap_stitch_together_transcripts(cls, chr_list, *args): wrap_errors(cls._sti
 def wrap_set_density(cls, chr_list, *args): wrap_errors(cls._set_density, chr_list, *args)
 def wrap_draw_transcript_edges(cls, chr_list): wrap_errors(cls._draw_transcript_edges, chr_list)
 def wrap_set_scores(cls, chr_list): wrap_errors(cls._set_scores, chr_list)
+def wrap_associate_interactions(cls, chr_list, *args): wrap_errors(cls._associate_interactions, chr_list, *args)
 def wrap_force_vacuum(cls, chr_list): wrap_errors(cls._force_vacuum, chr_list)
 
 class CellTypeBase(object):
@@ -124,10 +125,6 @@ class CellTypeBase(object):
     @property
     def glass_transcript_non_coding(self): return GlassTranscriptNonCoding
     @property
-    def glass_transcript_patterned(self): return GlassTranscriptPatterned
-    @property
-    def glass_transcript_conserved(self): return GlassTranscriptConserved
-    @property
     def peak_feature(self): 
         from glasslab.glassatlas.datatypes.feature import PeakFeature
         return PeakFeature
@@ -136,7 +133,6 @@ class CellTypeBase(object):
         return [self.glass_transcript, self.glass_transcript_prep, 
                 self.glass_transcript_source, self.glass_transcript_source_prep, 
                 self.glass_transcript_sequence, self.glass_transcript_non_coding,
-                self.glass_transcript_patterned, self.glass_transcript_conserved,
                 self.peak_feature]
 
     def get_cell_type_base(self, cell_type):
@@ -368,6 +364,38 @@ class GlassTranscript(TranscriptBase):
                        current_settings.GENOME,
                        current_settings.CELL_TYPE.lower(),
                        current_settings.STAGING, chr_id)
+            execute_query(query) 
+
+    @classmethod
+    def associate_interactions(cls, source_table):
+        connection.close()
+        sequencing_run = SequencingRun.objects.get(source_table=source_table)
+        multiprocess_all_chromosomes(wrap_associate_interactions, cls, sequencing_run)
+    
+    @classmethod
+    def _associate_interactions(cls, chr_list, sequencing_run):
+        for chr_id in chr_list:
+            print 'Associating interactions for chromosome %d' % chr_id
+            query = """
+                INSERT INTO {schema_name}.glass_transcript_interaction_{chr_id} 
+                    (chromosome_id, glass_transcript_id, glass_transcript_2_id,
+                    sequencing_run_id, count) 
+                select {chr_id}, t.id, t2.id, {sequencing_run_id}, i.count
+                FROM {schema_name}.glass_transcript_{chr_id} t
+                JOIN "{source_table}" i
+                ON t.chromosome_id = i.chromosome_1_id
+                AND t.strand = i.strand_1
+                AND t.start_end && i.start_end_1
+                FROM {schema_name}.glass_transcript_{chr_id} t2
+                ON i.chromosome_2_id = t2.chromosome_id
+                AND i.strand_2 = t2.strand
+                AND i.start_end_2 && t2.start_end
+                WHERE t.score >= {min_score}
+                and t2.score >= {min_score}
+                """.format(schema_name=cls.cell_base.schema_base,
+                           source_table=sequencing_run.source_table.strip(),
+                           min_score=MIN_SCORE/4,
+                           chr_id=chr_id)
             execute_query(query) 
     
     @classmethod
