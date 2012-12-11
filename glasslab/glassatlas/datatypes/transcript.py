@@ -374,6 +374,8 @@ class GlassTranscript(TranscriptBase):
     
     @classmethod
     def _associate_interactions(cls, chr_list, sequencing_run):
+        schema_name = 'glass_atlas_{0}_{1}'.format(current_settings.GENOME, current_settings.CELL_TYPE.lower())
+        
         for chr_id in chr_list:
             print 'Associating interactions for chromosome %d' % chr_id
             query = """
@@ -392,7 +394,7 @@ class GlassTranscript(TranscriptBase):
                 AND i.start_end_2 && t2.start_end
                 WHERE t.score >= {min_score}
                 and t2.score >= {min_score}
-                """.format(schema_name=cls.cell_base.schema_base,
+                """.format(schema_name=schema_base,
                            source_table=sequencing_run.source_table.strip(),
                            min_score=MIN_SCORE/4,
                            chr_id=chr_id)
