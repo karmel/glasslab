@@ -388,7 +388,7 @@ class GlassTranscript(TranscriptBase):
                 ON t.chromosome_id = i.chromosome_1_id
                 AND t.strand = i.strand_1
                 AND t.start_end && i.start_end_1
-                FROM {schema_name}.glass_transcript_{chr_id} t2
+                JOIN {schema_name}.glass_transcript_{chr_id} t2
                 ON i.chromosome_2_id = t2.chromosome_id
                 AND i.strand_2 = t2.strand
                 AND i.start_end_2 && t2.start_end
