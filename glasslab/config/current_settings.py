@@ -30,7 +30,7 @@ CURRENT_SCHEMA = 'current_projects'
 #####################################
 # Compute power
 #####################################
-ALLOWED_PROCESSES = 6
+ALLOWED_PROCESSES = 4
 CHR_LISTS = None # Dynamically set during processing
 
 #####################################
