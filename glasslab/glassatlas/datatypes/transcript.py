@@ -396,6 +396,7 @@ class GlassTranscript(TranscriptBase):
                 and t2.score >= {min_score}
                 """.format(schema_name=schema_name,
                            source_table=sequencing_run.source_table.strip(),
+                           sequencing_run_id=sequencing_run.id,
                            min_score=MIN_SCORE/4,
                            chr_id=chr_id)
             execute_query(query) 
