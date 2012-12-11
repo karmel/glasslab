@@ -29,6 +29,6 @@ if __name__ == '__main__':
     
     source_table = options.schema_name and '{0}"."{1}'.format(options.schema_name, options.interaction_table) \
                                 or options.interaction_table
-    cell_base.glass_transcipt.associate_interactions(source_table)
+    cell_base.glass_transcript.associate_interactions(source_table)
 
     
