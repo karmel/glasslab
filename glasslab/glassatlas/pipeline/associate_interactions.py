@@ -27,8 +27,8 @@ if __name__ == '__main__':
     if options.cell_type: current_settings.CELL_TYPE = options.cell_type
     cell_base = CellTypeBase().get_cell_type_base(current_settings.CELL_TYPE)()
     
-    source_table = options.schema_name and '{0}"."{1}'.format(options.schema_name, options.peak_table) \
-                                or options.peak_table
+    source_table = options.schema_name and '{0}"."{1}'.format(options.schema_name, options.interaction_table) \
+                                or options.interaction_table
     cell_base.glass_transcipt.associate_interactions(source_table)
 
     
