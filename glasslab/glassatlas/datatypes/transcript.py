@@ -394,7 +394,7 @@ class GlassTranscript(TranscriptBase):
                 AND i.start_end_2 && t2.start_end
                 WHERE t.score >= {min_score}
                 and t2.score >= {min_score}
-                """.format(schema_name=schema_base,
+                """.format(schema_name=schema_name,
                            source_table=sequencing_run.source_table.strip(),
                            min_score=MIN_SCORE/4,
                            chr_id=chr_id)
