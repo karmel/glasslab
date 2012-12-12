@@ -377,11 +377,10 @@ class GlassTranscript(TranscriptBase):
         schema_name = 'glass_atlas_{0}_{1}'.format(current_settings.GENOME, current_settings.CELL_TYPE.lower())
         
         for chr_id in chr_list:
-            #if chr_id != 19: continue
             print 'Associating interactions for chromosome %d' % chr_id
             for strand in (0,1):
                 query = """
-                    CREATE  TABLE {schema_name}.prep_glass_transcript_interaction_{chr_id}_{strand}
+                    CREATE PREP TABLE prep_glass_transcript_interaction_{chr_id}_{strand}
                         (
                             "chromosome_id" int4 DEFAULT NULL,
                             "glass_transcript_id" int4 DEFAULT NULL,
@@ -389,7 +388,7 @@ class GlassTranscript(TranscriptBase):
                             "sequencing_run_id" int4 DEFAULT NULL,
                             "count" int4 DEFAULT NULL
                         );
-                    INSERT INTO {schema_name}.prep_glass_transcript_interaction_{chr_id}_{strand}
+                    INSERT INTO prep_glass_transcript_interaction_{chr_id}_{strand}
                         (chromosome_id, glass_transcript_id, glass_transcript_2_id,
                         sequencing_run_id, "count") 
                     select {chr_id}, t.id, t2.id, {sequencing_run_id}, i."count"
@@ -405,19 +404,19 @@ class GlassTranscript(TranscriptBase):
                     WHERE t.score >= {min_score}
                     AND t2.score >= {min_score}
                     AND t.strand = {strand}
-                    AND t2.strand = {strand};"""
-                query = """ 
+                    AND t2.strand = {strand};
+                
                     CREATE INDEX interaction_{chr_id}_{strand}_transcript_idx 
-                        ON {schema_name}.prep_glass_transcript_interaction_{chr_id}_{strand} 
+                        ON prep_glass_transcript_interaction_{chr_id}_{strand} 
                         USING btree (glass_transcript_id, glass_transcript_2_id);
-                    ANALYZE {schema_name}.prep_glass_transcript_interaction_{chr_id}_{strand};
+                    ANALYZE prep_glass_transcript_interaction_{chr_id}_{strand};
                     INSERT INTO {schema_name}.glass_transcript_interaction_{chr_id}
                         ("chromosome_id", "glass_transcript_id", 
                         "glass_transcript_2_id", "sequencing_run_id", "count")
                     SELECT * FROM 
                         (SELECT "chromosome_id", "glass_transcript_id", 
                             "glass_transcript_2_id", "sequencing_run_id", SUM("count")
-                        FROM {schema_name}.prep_glass_transcript_interaction_{chr_id}_{strand}
+                        FROM prep_glass_transcript_interaction_{chr_id}_{strand}
                         GROUP BY "chromosome_id", "glass_transcript_id", 
                             "glass_transcript_2_id", "sequencing_run_id") der;
                     
@@ -427,6 +426,7 @@ class GlassTranscript(TranscriptBase):
                                min_score=MIN_SCORE/4,
                                chr_id=chr_id, strand=strand)
                 execute_query(query) 
+            
     
     @classmethod
     def nearest_genes(cls):
