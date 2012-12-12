@@ -377,29 +377,41 @@ class GlassTranscript(TranscriptBase):
         schema_name = 'glass_atlas_{0}_{1}'.format(current_settings.GENOME, current_settings.CELL_TYPE.lower())
         
         for chr_id in chr_list:
+            #if chr_id != 19: continue
             print 'Associating interactions for chromosome %d' % chr_id
-            query = """
-                INSERT INTO {schema_name}.glass_transcript_interaction_{chr_id} 
-                    (chromosome_id, glass_transcript_id, glass_transcript_2_id,
-                    sequencing_run_id, count) 
-                select {chr_id}, t.id, t2.id, {sequencing_run_id}, i.count
-                FROM {schema_name}.glass_transcript_{chr_id} t
-                JOIN "{source_table}" i
-                ON t.chromosome_id = i.chromosome_1_id
-                AND t.strand = i.strand_1
-                AND t.start_end && i.start_end_1
-                JOIN {schema_name}.glass_transcript_{chr_id} t2
-                ON i.chromosome_2_id = t2.chromosome_id
-                AND i.strand_2 = t2.strand
-                AND i.start_end_2 && t2.start_end
-                WHERE t.score >= {min_score}
-                and t2.score >= {min_score}
-                """.format(schema_name=schema_name,
-                           source_table=sequencing_run.source_table.strip(),
-                           sequencing_run_id=sequencing_run.id,
-                           min_score=MIN_SCORE/4,
-                           chr_id=chr_id)
-            execute_query(query) 
+            for strand in (0,1):
+                query = """
+                    CREATE  TABLE {schema_name}.prep_glass_transcript_interaction_{chr_id}_{strand}
+                        (
+                            "chromosome_id" int4 DEFAULT NULL,
+                            "glass_transcript_id" int4 DEFAULT NULL,
+                            "glass_transcript_2_id" int4 DEFAULT NULL,
+                            "sequencing_run_id" int4 DEFAULT NULL,
+                            "count" int4 DEFAULT NULL
+                        );
+                    INSERT INTO {schema_name}.prep_glass_transcript_interaction_{chr_id}_{strand}
+                        (chromosome_id, glass_transcript_id, glass_transcript_2_id,
+                        sequencing_run_id, "count") 
+                    select {chr_id}, t.id, t2.id, {sequencing_run_id}, i."count"
+                    FROM {schema_name}.glass_transcript_{chr_id} t
+                    JOIN "{source_table}_{chr_id}_{strand}" i
+                    ON t.chromosome_id = i.chromosome_1_id
+                    AND t.strand = i.strand_1
+                    AND t.start_end && i.start_end_1
+                    JOIN {schema_name}.glass_transcript t2
+                    ON i.chromosome_2_id = t2.chromosome_id
+                    AND i.strand_2 = t2.strand
+                    AND i.start_end_2 && t2.start_end
+                    WHERE t.score >= {min_score}
+                    AND t2.score >= {min_score}
+                    AND t.strand = {strand}
+                    AND t2.strand = {strand}
+                    """.format(schema_name=schema_name,
+                               source_table=sequencing_run.source_table.strip(),
+                               sequencing_run_id=sequencing_run.id,
+                               min_score=MIN_SCORE/4,
+                               chr_id=chr_id, strand=strand)
+                execute_query(query) 
     
     @classmethod
     def nearest_genes(cls):
