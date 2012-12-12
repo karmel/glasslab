@@ -23,7 +23,8 @@ class SequencingRun(GlassModel):
     '''
     Record of details of a given sequencing run and its total tags.
     '''
-    type            = models.CharField(max_length=50, choices=[(x,x) for x in ('Gro-Seq','RNA-Seq','ChIP-Seq','Ribo-Seq')], default='Gro-Seq')
+    type            = models.CharField(max_length=50, choices=[(x,x) for x in ('Gro-Seq','RNA-Seq','ChIP-Seq','Ribo-Seq','HiC')], 
+                                       default='Gro-Seq')
     
     cell_type       = models.CharField(max_length=50)
     name            = models.CharField(max_length=100)

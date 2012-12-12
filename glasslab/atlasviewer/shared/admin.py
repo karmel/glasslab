@@ -11,11 +11,10 @@ from django.forms.widgets import Input, Select
 from django.utils.encoding import force_unicode
 from django.forms.util import flatatt
 from django.utils.safestring import mark_safe
-import itertools
 
-def make_all_fields_readonly(model, include_help_text=False):
+def make_all_fields_readonly(model, include_all=False, include_help_text=False):
     return [f.name for f in model._meta.fields 
-                if f.name not in ('id','modified','created') and 
+                if (not include_all and f.name not in ('id','modified','created')) and 
                 (not include_help_text or not f.help_text)]
 
 class ReadOnlyInput(Input):

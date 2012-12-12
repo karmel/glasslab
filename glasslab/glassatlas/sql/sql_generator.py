@@ -366,7 +366,9 @@ class GlassAtlasSqlGenerator(SqlGenerator):
         ) INHERITS ("{schema_name_prefix}{suffix}"."{table_name}");
         CREATE INDEX {table_name}_{chr_id}_pkey_idx ON "{schema_name_prefix}{suffix}"."{table_name}_{chr_id}" USING btree (id);
         CREATE INDEX {table_name}_{chr_id}_transcript_idx ON "{schema_name_prefix}{suffix}"."{table_name}_{chr_id}" USING btree (glass_transcript_id);
+        CREATE INDEX {table_name}_{chr_id}_transcript_2_idx ON "{schema_name_prefix}{suffix}"."{table_name}_{chr_id}" USING btree (glass_transcript_2_id);
         CREATE INDEX {table_name}_{chr_id}_sequencing_run_idx ON "{schema_name_prefix}{suffix}"."{table_name}_{chr_id}" USING btree (sequencing_run_id);
+        CREATE INDEX {table_name}_{chr_id}_count_idx ON "{schema_name_prefix}{suffix}"."{table_name}_{chr_id}" USING btree ("count");
         """.format(schema_name_prefix=self.schema_name_prefix, chr_id=chr_id, table_name=table_name, suffix=suffix)
         
     def table_trigger_interaction(self, suffix=''):

@@ -18,7 +18,7 @@ class SequenceDetailInline(ReadOnlyInline):
 
 class SequenceTranscriptionRegionInline(ReadOnlyInline):
     model = SequenceTranscriptionRegion
-    readonly_fields = make_all_fields_readonly(model)
+    readonly_fields = make_all_fields_readonly(model, include_all=True)
 
 class SequenceKeggPathwayInline(ReadOnlyInline):
     model = SequenceKeggPathway

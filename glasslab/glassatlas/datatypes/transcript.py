@@ -13,7 +13,7 @@ from glasslab.glassatlas.datatypes.metadata import SequencingRun
 from glasslab.utils.datatypes.basic_model import BoxField, GlassModel
 from multiprocessing import Pool
 from glasslab.utils.database import execute_query,\
-    execute_query_without_transaction, fetch_rows
+    execute_query_without_transaction, fetch_rows, discard_temp_tables
 import os
 from random import randint
 from django.db.models.aggregates import Max
@@ -403,13 +403,16 @@ class GlassTranscript(TranscriptBase):
                     AND i.start_end_2 && t2.start_end
                     WHERE t.score >= {min_score}
                     AND t2.score >= {min_score}
-                    AND t.strand = {strand}
-                    AND t2.strand = {strand};
+                    AND t.strand = {strand};
                 
                     CREATE INDEX interaction_{chr_id}_{strand}_transcript_idx 
                         ON prep_glass_transcript_interaction_{chr_id}_{strand} 
                         USING btree (glass_transcript_id, glass_transcript_2_id);
                     ANALYZE prep_glass_transcript_interaction_{chr_id}_{strand};
+                    
+                    DELETE FROM prep_glass_transcript_interaction_{chr_id}_{strand} 
+                    WHERE glass_transcript_id = glass_transcript_2_id;
+                    
                     INSERT INTO {schema_name}.glass_transcript_interaction_{chr_id}
                         ("chromosome_id", "glass_transcript_id", 
                         "glass_transcript_2_id", "sequencing_run_id", "count")
@@ -420,13 +423,14 @@ class GlassTranscript(TranscriptBase):
                         GROUP BY "chromosome_id", "glass_transcript_id", 
                             "glass_transcript_2_id", "sequencing_run_id") der;
                     
+                     
                     """.format(schema_name=schema_name,
                                source_table=sequencing_run.source_table.strip(),
                                sequencing_run_id=sequencing_run.id,
                                min_score=MIN_SCORE/4,
                                chr_id=chr_id, strand=strand)
                 execute_query(query) 
-            
+                discard_temp_tables()
     
     @classmethod
     def nearest_genes(cls):

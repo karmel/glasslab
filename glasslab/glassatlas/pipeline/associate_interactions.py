@@ -7,7 +7,6 @@ from glasslab.glassatlas.datatypes.transcript import CellTypeBase
 from glasslab.utils.scripting import GlassOptionParser
 from optparse import make_option
 from glasslab.config import current_settings
-from glasslab.utils.database import discard_temp_tables
 
 class InteractionsParser(GlassOptionParser):
     options = [
@@ -32,4 +31,3 @@ if __name__ == '__main__':
                                 or options.interaction_table
     cell_base.glass_transcript.associate_interactions(source_table)
 
-    discard_temp_tables();
