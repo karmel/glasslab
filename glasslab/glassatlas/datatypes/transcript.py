@@ -380,7 +380,7 @@ class GlassTranscript(TranscriptBase):
             print 'Associating interactions for chromosome %d' % chr_id
             for strand in (0,1):
                 query = """
-                    CREATE PREP TABLE prep_glass_transcript_interaction_{chr_id}_{strand}
+                    CREATE TEMP TABLE prep_glass_transcript_interaction_{chr_id}_{strand}
                         (
                             "chromosome_id" int4 DEFAULT NULL,
                             "glass_transcript_id" int4 DEFAULT NULL,
