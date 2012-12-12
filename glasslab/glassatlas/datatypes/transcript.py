@@ -405,7 +405,22 @@ class GlassTranscript(TranscriptBase):
                     WHERE t.score >= {min_score}
                     AND t2.score >= {min_score}
                     AND t.strand = {strand}
-                    AND t2.strand = {strand}
+                    AND t2.strand = {strand};"""
+                query = """ 
+                    CREATE INDEX interaction_{chr_id}_{strand}_transcript_idx 
+                        ON {schema_name}.prep_glass_transcript_interaction_{chr_id}_{strand} 
+                        USING btree (glass_transcript_id, glass_transcript_2_id);
+                    ANALYZE {schema_name}.prep_glass_transcript_interaction_{chr_id}_{strand};
+                    INSERT INTO {schema_name}.glass_transcript_interaction_{chr_id}
+                        ("chromosome_id", "glass_transcript_id", 
+                        "glass_transcript_2_id", "sequencing_run_id", "count")
+                    SELECT * FROM 
+                        (SELECT "chromosome_id", "glass_transcript_id", 
+                            "glass_transcript_2_id", "sequencing_run_id", SUM("count")
+                        FROM {schema_name}.prep_glass_transcript_interaction_{chr_id}_{strand}
+                        GROUP BY "chromosome_id", "glass_transcript_id", 
+                            "glass_transcript_2_id", "sequencing_run_id") der;
+                    
                     """.format(schema_name=schema_name,
                                source_table=sequencing_run.source_table.strip(),
                                sequencing_run_id=sequencing_run.id,
