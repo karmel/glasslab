@@ -15,7 +15,6 @@ from glasslab.sequencing.datatypes.peak import GlassPeak
 from glasslab.utils.parsing.delimited import DelimitedFileParser
 from glasslab.sequencing.pipeline.add_short_reads import check_input, \
     create_schema, _print
-from glasslab.config import current_settings
 
 class FastqOptionParser(GlassOptionParser):
     options = [
@@ -32,8 +31,8 @@ class FastqOptionParser(GlassOptionParser):
                
                make_option('--peak_type',action='store', dest='peak_type',  
                            help='What type of peak are we looking for? H4K3me1, PU_1, etc.? Should match a type in PeakType table.'),
-               make_option('--not_homer',action='store_true', dest='not_homer', default=False, 
-                           help='Is the input file a HOMER peaks file?'),
+               make_option('--not_homer',action='store', dest='not_homer', default=False, 
+                           help='If the input file is not a HOMER peaks file, what is it? (bed, macs, sicer)'),
                            
                ]
     
@@ -54,10 +53,9 @@ def import_peaks(options, file_name, peaks_file_name, peak_type):
     for row in data:
         if not options.not_homer:
             peak = GlassPeak.init_from_homer_row(row)
-        elif not peak_type.diffuse:
-            peak = GlassPeak.init_from_macs_row(row)
         else:
-            peak = GlassPeak.init_from_sicer_row(row)
+            peak = getattr(GlassPeak, 'init_from_{0}_row'.format(options.not_homer))(row)
+
         peak.save()
 
     if options.not_homer and peak_type.diffuse:
@@ -78,8 +76,6 @@ if __name__ == '__main__':
         options.file_name = '/Users/karmel/GlassLab/SourceData/ThioMac_Lazar/test'
         options.output_dir = 'first_test'
         options.peak_table = 'enriched_peaks_enriched_peaks_first_test_2010-09-30_16-04-52_454502'
-    
-    if options.cell_type: current_settings.CELL_TYPE = options.cell_type
     
     file_name = check_input(options)
     

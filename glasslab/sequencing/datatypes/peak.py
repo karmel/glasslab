@@ -175,6 +175,19 @@ class GlassPeak(GlassSequencingOutput):
                      fdr_threshold_exp=len(fdr) > 1 and fdr[1] or 0
                      )
     @classmethod
+    def init_from_bed_row(cls, row):
+        '''
+        From a standard tab-delimited BED peak file, create model instance.
+        '''
+        return cls(chromosome=Chromosome.objects.get(name=str(row[0]).strip()),
+                     start=int(row[1]),
+                     end=int(row[2]),
+                     start_end=(int(row[1]), 0, int(row[2]), 0),
+                     length=int(row[2]) - int(row[1]),
+                     score=str(row[4]),
+                     )
+        
+    @classmethod
     def score_sicer_peaks(cls):
         '''
         Scale tag count to get a density-based score for peaks.
