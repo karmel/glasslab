@@ -148,8 +148,7 @@ class TranscriptModelBase(GlassModel):
         
 class TranscriptionRegionBase(TranscriptModelBase):
     # Use JS for browser link to auto-include in Django Admin form 
-    ucsc_session        = 'gr_project_2012' 
-    ucsc_session_args   = '''hgS_doOtherUser=submit&amp;hgS_otherUserName=Karmel&amp;hgS_otherUserSessionName=%s''' % ucsc_session
+    ucsc_session_args   = '''hgS_doOtherUser=submit&amp;hgS_otherUserName=Karmel&amp;hgS_otherUserSessionName=%s''' % current_settings.UCSC_SESSION
     ucsc_browser_link_1 = '''<a href="#" onclick="window.open('http://genome.ucsc.edu/cgi-bin/hgTracks?'''
     ucsc_browser_link_2 = '''&amp;db=''' + current_settings.GENOME + '''&amp;position=' + '''\
                         + ''' django.jQuery('#id_chromosome').attr('title') '''\

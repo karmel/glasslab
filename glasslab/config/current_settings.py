@@ -22,6 +22,7 @@ STAGING_SUFFIX = '_staging'
 
 GENOME_ASSEMBLY_PATHS = {'mm9': '/Volumes/Unknowme/kallison/Genomes/mm9/fasta',}
 
+UCSC_SESSION = 'TCC_2012'
 #####################################
 # Databases
 #####################################
