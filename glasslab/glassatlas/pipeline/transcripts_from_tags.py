@@ -35,6 +35,8 @@ class TranscriptsFromTagsParser(GlassOptionParser):
                            help='Should the edges between transcripts be created and saved?'),
                make_option('--score',action='store_true', dest='score',  
                            help='Should transcripts be stored?'),
+               make_option('--set_start_end_tss',action='store_true', dest='set_start_end_tss',  
+                           help='Should transcripts be updated with either whole start_end values or just the TSS in the field set_start_end_tss?'),
                make_option('--no_extended_gaps',action='store_true', dest='no_extended_gaps',  
                            help='Should extended gaps (i.e., under RefSeq regions) be allowed?'),
                make_option('--staging',action='store_true', dest='staging', default=False,  
@@ -92,6 +94,9 @@ if __name__ == '__main__':
     
     if options.score:
         cell_base.glass_transcript.set_scores()
+        
+    if options.set_start_end_tss:
+        cell_base.glass_transcript.set_start_end_tss()
         
     if options.output_dir:
         cell_base.filtered_glass_transcript.generate_bed_file(options.output_dir)
