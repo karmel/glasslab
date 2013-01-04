@@ -367,18 +367,61 @@ class GlassTranscript(TranscriptBase):
 
     @classmethod
     def associate_interactions(cls, source_table):
+        schema_name = 'glass_atlas_{0}_{1}'.format(current_settings.GENOME, current_settings.CELL_TYPE.lower())
+        
         connection.close()
         sequencing_run = SequencingRun.objects.get(source_table=source_table)
-        multiprocess_all_chromosomes(wrap_associate_interactions, cls, sequencing_run)
+        
+        # First we want to get either whole start_end, or, if refseq, just TSS +/- 1000
+        query = """
+        CREATE TABLE {schema_name}.glass_transcript_start_end
+            (
+                "glass_transcript_id" int4 DEFAULT NULL,
+                "chromosome_id" int4 DEFAULT NULL,
+                "strand" int2 DEFAULT NULL,
+                "start_end" box DEFAULT NULL
+            );
+        
+        INSERT INTO {schema_name}.glass_transcript_start_end
+            (glass_transcript_id, chromosome_id, strand, start_end)
+            SELECT DISTINCT ON(t.id) t.id, t.chromosome_id, t.strand,
+                CASE WHEN s.id IS NULL THEN t.start_end
+                    WHEN (s.id IS NOT NULL AND t.strand = 0) THEN 
+                        public.make_box(t.transcription_start - 1000, t.transcription_start + 1000)
+                    WHEN (s.id IS NOT NULL AND t.strand = 1) THEN 
+                        public.make_box(t.transcription_end - 1000, t.transcription_end + 1000)
+                    ELSE NULL END
+            FROM {schema_name}.glass_transcript t
+            LEFT OUTER JOIN {schema_name}.glass_transcript_sequence s
+            ON t.id = s.glass_transcript_id
+            AND s.major = true
+            WHERE t.score >= {min_score};
+        
+        CREATE INDEX  glass_transcript_start_end_chr_idx ON 
+            {schema_name}.glass_transcript_start_end USING btree(chromosome_id);
+        CREATE INDEX  glass_transcript_start_end_strand_idx ON 
+            {schema_name}.glass_transcript_start_end USING btree(strand);
+        CREATE INDEX  glass_transcript_start_end_idx ON 
+            {schema_name}.glass_transcript_start_end USING gist(start_end);
+        ANALYZE {schema_name}.glass_transcript_start_end;
+        """.format(schema_name=schema_name, min_score=MIN_SCORE/4)
+        
+        execute_query(query)
+        
+        multiprocess_all_chromosomes(wrap_associate_interactions, cls, sequencing_run, schema_name)
     
+        query = "DELETE {schema_name}.glass_transcript_start_end;".format(schema_name=schema_name)
+        execute_query(query)
+        
     @classmethod
-    def _associate_interactions(cls, chr_list, sequencing_run):
-        schema_name = 'glass_atlas_{0}_{1}'.format(current_settings.GENOME, current_settings.CELL_TYPE.lower())
+    def _associate_interactions(cls, chr_list, sequencing_run, schema_name):
+        
         
         for chr_id in chr_list:
             print 'Associating interactions for chromosome %d' % chr_id
             for strand in (0,1):
                 query = """
+                    
                     CREATE TEMP TABLE prep_glass_transcript_interaction_{chr_id}_{strand}
                         (
                             "chromosome_id" int4 DEFAULT NULL,
@@ -390,19 +433,18 @@ class GlassTranscript(TranscriptBase):
                     INSERT INTO prep_glass_transcript_interaction_{chr_id}_{strand}
                         (chromosome_id, glass_transcript_id, glass_transcript_2_id,
                         sequencing_run_id, "count") 
-                    select {chr_id}, t.id, t2.id, {sequencing_run_id}, i."count"
-                    FROM {schema_name}.glass_transcript_{chr_id} t
+                    SELECT {chr_id}, t.glass_transcript_id, t2.glass_transcript_id, 
+                        {sequencing_run_id}, i."count"
+                    FROM {schema_name}.glass_transcript_start_end t
                     JOIN "{source_table}_{chr_id}_{strand}" i
                     ON t.chromosome_id = i.chromosome_1_id
                     AND t.strand = i.strand_1
                     AND t.start_end && i.start_end_1
-                    JOIN {schema_name}.glass_transcript t2
+                    JOIN {schema_name}.glass_transcript_start_end t2
                     ON i.chromosome_2_id = t2.chromosome_id
                     AND i.strand_2 = t2.strand
                     AND i.start_end_2 && t2.start_end
-                    WHERE t.score >= {min_score}
-                    AND t2.score >= {min_score}
-                    AND t.strand = {strand};
+                    WHERE t.strand = {strand};
                 
                     CREATE INDEX interaction_{chr_id}_{strand}_transcript_idx 
                         ON prep_glass_transcript_interaction_{chr_id}_{strand} 
@@ -426,7 +468,6 @@ class GlassTranscript(TranscriptBase):
                     """.format(schema_name=schema_name,
                                source_table=sequencing_run.source_table.strip(),
                                sequencing_run_id=sequencing_run.id,
-                               min_score=MIN_SCORE/4,
                                chr_id=chr_id, strand=strand)
                 execute_query(query) 
                 discard_temp_tables()
