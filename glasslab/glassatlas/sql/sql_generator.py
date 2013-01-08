@@ -32,7 +32,7 @@ class GlassAtlasSqlGenerator(SqlGenerator):
         s += self.prep_table_main_transcript()
         s += self.table_main_source(prep_suffix)
         
-        for chr_id in current_settings.GENOME_CHROMOSOMES:
+        for chr_id in current_settings.GENOME_CHOICES[current_settings.GENOME]['chromsomes']:
             s += self.prep_table_chrom_transcript(chr_id)
             s += self.table_chrom_source(chr_id, prep_suffix)
         
@@ -47,7 +47,7 @@ class GlassAtlasSqlGenerator(SqlGenerator):
         s = self.schema(self.staging)
         s += self.table_main_transcript()
         s += self.table_main_source(self.staging)
-        for chr_id in current_settings.GENOME_CHROMOSOMES:
+        for chr_id in current_settings.GENOME_CHOICES[current_settings.GENOME]['chromsomes']:
             s += self.table_chrom_transcript(chr_id)
             s += self.table_chrom_source(chr_id, self.staging)
         
@@ -404,7 +404,7 @@ class GlassAtlasSqlGenerator(SqlGenerator):
         CREATE TYPE "glass_atlas_{0}"."sequencing_run_type" AS ENUM('Gro-Seq','RNA-Seq','ChIP-Seq');
         CREATE TABLE "glass_atlas_{0}"."sequencing_run" (
             "id" int4 NOT NULL,
-            "type" glass_atlas_{0}.sequencing_run_type DEFAULT NULL,
+            "type" genome_reference_{0}.sequencing_run_type DEFAULT NULL,
             "cell_type" varchar(50) DEFAULT NULL,
             "name" varchar(100) DEFAULT NULL,
             "source_table" varchar(100) DEFAULT NULL,
@@ -518,5 +518,5 @@ class GlassAtlasSqlGenerator(SqlGenerator):
 if __name__ == '__main__':
     gen = GlassAtlasSqlGenerator(genome='mm9', cell_type='ThioMac', staging='')
     print gen.table_main_interaction()
-    for chr in xrange(1,23): print gen.table_chrom_interaction(chr)
+    for chrom in xrange(1,23): print gen.table_chrom_interaction(chrom)
     print gen.table_trigger_interaction()

@@ -15,7 +15,6 @@ NegCtl: Has one of GR, p65, PU.1, but not the others
 '''
 from __future__ import division
 from glasslab.dataanalysis.graphing.seq_grapher import SeqGrapher
-from glasslab.utils.functions import nonzero
 
 def ucsc_link_cleanup(data):
     data['ucsc_link_nod'] = data['ucsc_link_nod'].map(lambda x: '<a href={0} target="_blank">UCSC</a>'.format(

@@ -12,16 +12,16 @@ def sql(genome, cell_type):
 CREATE OR REPLACE FUNCTION glass_atlas_{0}_{1}.insert_associated_peak_features_from_run(run_id integer, chr_id integer)
 RETURNS VOID AS $$
 DECLARE
-    run glass_atlas_{0}.sequencing_run;
+    run genome_reference_{0}.sequencing_run;
 BEGIN
-    run := (SELECT (seq_run.*)::glass_atlas_{0}.sequencing_run 
-            FROM glass_atlas_{0}.sequencing_run seq_run WHERE id = run_id);
+    run := (SELECT (seq_run.*)::genome_reference_{0}.sequencing_run 
+            FROM genome_reference_{0}.sequencing_run seq_run WHERE id = run_id);
     PERFORM glass_atlas_{0}_{1}.insert_associated_peak_features(run, chr_id);
     RETURN;
 END;
 $$ LANGUAGE 'plpgsql';
 
-CREATE OR REPLACE FUNCTION glass_atlas_{0}_{1}.insert_associated_peak_features(run glass_atlas_{0}.sequencing_run, chr_id integer)
+CREATE OR REPLACE FUNCTION glass_atlas_{0}_{1}.insert_associated_peak_features(run genome_reference_{0}.sequencing_run, chr_id integer)
 RETURNS VOID AS $$
 DECLARE
     rec record;
@@ -116,10 +116,10 @@ $$ LANGUAGE 'plpgsql';
 CREATE OR REPLACE FUNCTION glass_atlas_{0}_{1}.update_peak_features(chr_id integer, run_requires_reload_only boolean)
 RETURNS VOID AS $$
 DECLARE
-    run glass_atlas_{0}.sequencing_run;
+    run genome_reference_{0}.sequencing_run;
 BEGIN
     FOR run IN
-        SELECT * FROM glass_atlas_{0}.sequencing_run
+        SELECT * FROM genome_reference_{0}.sequencing_run
         WHERE (run_requires_reload_only = false OR requires_reload = true)
             AND peak_type_id IS NOT NULL
     LOOP

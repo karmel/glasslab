@@ -9,18 +9,18 @@ should be set on a run-wide basis.
 #####################################
 # Genomes
 #####################################
-GENOME_CHOICES = {'mm9': {'name':'Mus musculus', 'chromosomes': range(1,23)},
-                  'dm3': {'name':'Drosophila melanogaster', 'chromosomes': range(1,15)}}
+GENOME_CHOICES = {'mm9': {'name':'Mus musculus', 'chromosomes': range(1, 23)},
+                  'dm3': {'name':'Drosophila melanogaster', 'chromosomes': range(1, 15)}}
 
 GENOME = 'mm9'
 
 
 CELL_TYPE = 'Default'
 
-STAGING = '' # Set to the appropriate suffix during DB staging.
+STAGING = ''  # Set to the appropriate suffix during DB staging.
 STAGING_SUFFIX = '_staging'
 
-GENOME_ASSEMBLY_PATHS = {'mm9': '/Volumes/Unknowme/kallison/Genomes/mm9/fasta',}
+GENOME_ASSEMBLY_PATHS = {'mm9': '/Volumes/Unknowme/kallison/Genomes/mm9/fasta', }
 
 UCSC_SESSION = 'TCC_2012'
 #####################################
@@ -51,7 +51,7 @@ DATABASES = {
 # Compute power
 #####################################
 ALLOWED_PROCESSES = 6
-CHR_LISTS = None # Dynamically set during processing
+CHR_LISTS = None  # Dynamically set during processing
 
 #####################################
 # Compute resources

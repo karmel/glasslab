@@ -238,7 +238,7 @@ BEGIN
         FROM glass_atlas_{0}_{1}{suffix}.glass_transcript_' || chr_id || ' transcript 
         JOIN glass_atlas_{0}_{1}{suffix}.glass_transcript_source_' || chr_id || ' source
         ON transcript.id = source.glass_transcript_id
-        JOIN glass_atlas_{0}.sequencing_run run
+        JOIN genome_reference_{0}.sequencing_run run
         ON source.sequencing_run_id = run.id
         WHERE run.use_for_scoring = true
             AND transcript.score IS NULL
@@ -280,7 +280,7 @@ BEGIN
     -- For transcripts that don't show up at all in the notx runs, we default to zero.
     -- This is not theoretically perfect, but will suffice for our purposes.
     
-    total_runs := (SELECT count(*) FROM glass_atlas_{0}.sequencing_run run
+    total_runs := (SELECT count(*) FROM genome_reference_{0}.sequencing_run run
         WHERE run.standard = true
             AND run.type = 'Gro-Seq'
             AND run.wt = true
@@ -303,7 +303,7 @@ BEGIN
         FROM glass_atlas_{0}_{1}{suffix}.glass_transcript_' || chr_id || '  t
         JOIN glass_atlas_{0}_{1}{suffix}.glass_transcript_source_' || chr_id || ' s
             ON t.id = s.glass_transcript_id
-        JOIN glass_atlas_{0}.sequencing_run run
+        JOIN genome_reference_{0}.sequencing_run run
             ON s.sequencing_run_id = run.id
         WHERE run.standard = true
             AND run.type = ''Gro-Seq''

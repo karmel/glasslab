@@ -4,7 +4,6 @@ Created on Nov 8, 2010
 @author: karmel
 '''
 from django.contrib import admin
-from django.template.defaultfilters import urlencode
 from glasslab.atlasviewer.utilities.models import SavedQuery
 
 

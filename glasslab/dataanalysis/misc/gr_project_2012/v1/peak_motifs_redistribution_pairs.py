@@ -4,7 +4,7 @@ Created on Sep 7, 2012
 @author: karmel
 '''
 from glasslab.dataanalysis.motifs.motif_analyzer import MotifAnalyzer
-from glasslab.dataanalysis.misc.gr_project_2012.boxplots_redistribution_pairs import get_high_quality_pairs
+from glasslab.dataanalysis.misc.gr_project_2012.v1.boxplots_redistribution_pairs import get_high_quality_pairs
 
 
 if __name__ == '__main__':

@@ -6,7 +6,7 @@ Created on Oct 1, 2012
 from __future__ import division
 from glasslab.dataanalysis.graphing.seq_grapher import SeqGrapher
 from glasslab.utils.functions import nonzero
-from glasslab.dataanalysis.misc.gr_project_2012.enhancer_subsets_for_supershift import ucsc_link_cleanup
+from glasslab.dataanalysis.misc.gr_project_2012.v1.enhancer_subsets_for_supershift import ucsc_link_cleanup
 import numpy
 
 if __name__ == '__main__':
