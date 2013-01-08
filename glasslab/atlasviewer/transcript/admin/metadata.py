@@ -4,7 +4,7 @@ Created on Jan 6, 2011
 @author: karmel
 '''
 from django.contrib import admin
-from glasslab.glassatlas.datatypes.metadata import SequencingRun,\
+from glasslab.genomereference.datatypes import SequencingRun,\
     SequencingRunAnnotation, PeakType
 
 class SequencingRunAnnotationInline(admin.TabularInline):

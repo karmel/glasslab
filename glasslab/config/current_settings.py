@@ -9,13 +9,13 @@ should be set on a run-wide basis.
 #####################################
 # Genomes
 #####################################
-GENOME_CHOICES = ['mm9']
+GENOME_CHOICES = {'mm9': {'name':'Mus musculus', 'chromosomes': range(1,23)},
+                  'dm3': {'name':'Drosophila melanogaster', 'chromosomes': range(1,15)}}
 
 GENOME = 'mm9'
-GENOME_CHROMOSOMES = range(1,23)
 
 
-CELL_TYPE = 'ThioMac'
+CELL_TYPE = 'Default'
 
 STAGING = '' # Set to the appropriate suffix during DB staging.
 STAGING_SUFFIX = '_staging'
@@ -27,6 +27,25 @@ UCSC_SESSION = 'TCC_2012'
 # Databases
 #####################################
 CURRENT_SCHEMA = 'current_projects'
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'glasslab',
+        'USER': 'glass',
+        'PASSWORD': 'monocyte',
+        'HOST': 'localhost',
+        'PORT': '54321',
+    },
+    'read_only': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'glasslab',
+        'USER': 'glass_read_only',
+        'PASSWORD': 'monocyte',
+        'HOST': 'localhost',
+        'PORT': '54321',
+    }
+}
 
 #####################################
 # Compute power

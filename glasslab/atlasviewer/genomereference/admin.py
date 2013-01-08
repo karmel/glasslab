@@ -4,7 +4,7 @@ Created on Nov 8, 2010
 @author: karmel
 '''
 from django.contrib import admin
-from glasslab.utils.datatypes.genome_reference import SequenceIdentifier,\
+from glasslab.genomereference.datatypes import SequenceIdentifier,\
     SequenceDetail, SequenceTranscriptionRegion, SequenceExon,\
     SequenceKeggPathway, NonCodingTranscriptionRegion, NonCodingRna
 from glasslab.config import current_settings

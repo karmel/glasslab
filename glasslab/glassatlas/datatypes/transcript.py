@@ -6,10 +6,9 @@ Created on Nov 8, 2010
 from __future__ import division
 from glasslab.config import current_settings
 from django.db import models, connection, utils
-from glasslab.utils.datatypes.genome_reference import Chromosome,\
+from glasslab.genomereference.datatypes import Chromosome,\
     SequenceTranscriptionRegion, InfrastructureTranscriptionRegion,\
-    NonCodingTranscriptionRegion
-from glasslab.glassatlas.datatypes.metadata import SequencingRun
+    NonCodingTranscriptionRegion, SequencingRun
 from glasslab.utils.datatypes.basic_model import BoxField, GlassModel
 from multiprocessing import Pool
 from glasslab.utils.database import execute_query,\
@@ -36,7 +35,6 @@ def multiprocess_all_chromosomes(func, cls, *args, **kwargs):
     Convenience method for splitting up queries based on glass tag id.
     '''
     processes = current_settings.ALLOWED_PROCESSES
-    p = Pool(processes)
     
     if not current_settings.CHR_LISTS:
         try:
@@ -44,16 +42,16 @@ def multiprocess_all_chromosomes(func, cls, *args, **kwargs):
                 # Note that we accept a kwarg use_table
                 all_chr = fetch_rows('''
                     SELECT chromosome_id as id
-                    FROM "%s" 
-                    GROUP BY chromosome_id ORDER BY COUNT(chromosome_id) DESC;''' 
-                                    % (kwargs.get('use_table',None) or cls._meta.db_table))
+                    FROM "{0}" 
+                    GROUP BY chromosome_id ORDER BY COUNT(chromosome_id) DESC;'''.format(
+                                    kwargs.get('use_table',None) or cls._meta.db_table))
             except utils.DatabaseError:
                 # Prep table instead?
                 all_chr = fetch_rows('''
                     SELECT chromosome_id as id
-                    FROM "%s" 
-                    GROUP BY chromosome_id ORDER BY COUNT(chromosome_id) DESC;''' 
-                                    % (getattr(cls,'prep_table',None)
+                    FROM "{0}" 
+                    GROUP BY chromosome_id ORDER BY COUNT(chromosome_id) DESC;'''.format(
+                                    getattr(cls,'prep_table',None)
                                         or cls.cell_base.glass_transcript_prep._meta.db_table))
                 
             all_chr = zip(*all_chr)[0]
@@ -61,7 +59,7 @@ def multiprocess_all_chromosomes(func, cls, *args, **kwargs):
             
         except Exception:
             # cls in question does not have explicit relation to chromosomes; get all
-            all_chr = current_settings.GENOME_CHROMOSOMES
+            all_chr = current_settings.GENOME_CHOICES[current_settings.GENOME]['chromosomes']
 
         # Chromosomes are sorted by count descending, so we want to snake them
         # back and forth to create even-ish groups. 
@@ -75,8 +73,9 @@ def multiprocess_all_chromosomes(func, cls, *args, **kwargs):
             if i % 2 == 0: chr_set.reverse()
             
         current_settings.CHR_LISTS = chr_sets
-        print 'Determined chromosome sets:\n%s' % str(current_settings.CHR_LISTS)
+        print 'Determined chromosome sets:\n{0}'.format(str(current_settings.CHR_LISTS))
     
+    p = Pool(processes)
     for chr_list in current_settings.CHR_LISTS:
         p.apply_async(func, args=[cls, chr_list,] + list(args))
     p.close()
@@ -88,7 +87,7 @@ def multiprocess_all_chromosomes(func, cls, *args, **kwargs):
 def wrap_errors(func, *args):
     try: func(*args)
     except Exception:
-        print 'Encountered exception in wrapped function:\n%s' % traceback.format_exc()
+        print 'Encountered exception in wrapped function:\n{0}'.format(traceback.format_exc())
         raise
    
 def wrap_add_transcripts_from_groseq(cls, chr_list, *args): wrap_errors(cls._add_transcripts_from_groseq, chr_list, *args)
@@ -97,8 +96,7 @@ def wrap_set_density(cls, chr_list, *args): wrap_errors(cls._set_density, chr_li
 def wrap_draw_transcript_edges(cls, chr_list): wrap_errors(cls._draw_transcript_edges, chr_list)
 def wrap_set_scores(cls, chr_list): wrap_errors(cls._set_scores, chr_list)
 def wrap_set_start_end_tss(cls, chr_list): wrap_errors(cls._set_start_end_tss, chr_list)
-def wrap_associate_interactions_1(cls, chr_list, *args): wrap_errors(cls._associate_interactions_1, chr_list, *args)
-def wrap_associate_interactions_2(cls, chr_list, *args): wrap_errors(cls._associate_interactions_2, chr_list, *args)
+def wrap_associate_interactions(cls, chr_list, *args): wrap_errors(cls._associate_interactions, chr_list, *args)
 def wrap_force_vacuum(cls, chr_list): wrap_errors(cls._force_vacuum, chr_list)
 
 class CellTypeBase(object):
@@ -109,9 +107,13 @@ class CellTypeBase(object):
         from glasslab.glassatlas.datatypes.celltypes.thiomac import ThioMacBase
         from glasslab.glassatlas.datatypes.celltypes.bmdc import BMDCBase
         from glasslab.glassatlas.datatypes.celltypes.cd4tcell import CD4TCellBase
-
-        return {'thiomac': ThioMacBase, 'bmdc':BMDCBase, 'cd4tcell': CD4TCellBase}
-          
+        from glasslab.glassatlas.datatypes.celltypes.default import DefaultBase, RefSeqBase
+        return {'default': DefaultBase,
+                'thiomac': ThioMacBase,
+                'cd4tcell': CD4TCellBase,
+				'bmdc':BMDCBase,
+                'refseq': RefSeqBase}
+      
     @property
     def glass_transcript(self): return GlassTranscript
     @property
@@ -141,10 +143,12 @@ class CellTypeBase(object):
         correlations = self.__class__.get_correlations()
         try: return correlations[cell_type.lower()]
         except KeyError:
-            raise Exception('Could not find models to match cell type %s.' % cell_type
-                            + '\nOptions are: %s' % ','.join(correlations.keys()))
+            raise Exception('Could not find models to match cell type {0}.'.format(cell_type)
+                            + '\nOptions are: {0}'.format(','.join(correlations.keys())))
+            
 class TranscriptModelBase(GlassModel):
     cell_base = CellTypeBase()
+    schema_base = 'glass_atlas_{0}_{1}'
     class Meta:
         abstract = True
         
@@ -172,20 +176,11 @@ class TranscriptionRegionBase(TranscriptModelBase):
         abstract = True
     
     def __unicode__(self):
-        return '%s %d: %s: %d-%d' % (self.__class__.__name__, self.id,
+        return '{0} {1}: {2}: {3}-{4}'.format(self.__class__.__name__, self.id,
                                   self.chromosome.name.strip(), 
                                   self.transcription_start, 
                                   self.transcription_end)
-    @classmethod
-    def reset_table_name(cls, genome=''):
-        '''
-        Dynamically reset the current db_table name. Useful for 
-        switching between test DBs.
-        '''
-        cls._meta.db_table = 'glass_atlas_%s_%s%s"."glass_transcript' % (
-                                genome or current_settings.GENOME, 
-                                cls.cell_base.cell_type.lower(),
-                                current_settings.STAGING)
+
         
     @classmethod 
     def add_from_tags(cls,  tag_table):
@@ -282,12 +277,14 @@ class GlassTranscript(TranscriptBase):
     # Transcript cleanup and refinement
     ################################################
     @classmethod
-    def stitch_together_transcripts(cls, allow_extended_gaps=True, set_density=False, null_only=True):
+    def stitch_together_transcripts(cls, allow_extended_gaps=True, extension_percent='.2', 
+                                    set_density=False, null_only=True):
         multiprocess_all_chromosomes(wrap_stitch_together_transcripts, cls, 
-                                     allow_extended_gaps, set_density, null_only)
+                                     allow_extended_gaps, extension_percent, set_density, null_only)
     
     @classmethod
-    def _stitch_together_transcripts(cls, chr_list, allow_extended_gaps=True, set_density=False, null_only=True):
+    def _stitch_together_transcripts(cls, chr_list, allow_extended_gaps=True, extension_percent='.2', 
+                                     set_density=False, null_only=True):
         '''
         This is tag-level agnostic, stitching based on gap size alone.
         '''
@@ -302,33 +299,35 @@ class GlassTranscript(TranscriptBase):
             if set_density:
                 print 'Setting average tags for preparatory transcripts for chromosome %d' % chr_id
                 query = """
-                    SELECT glass_atlas_{0}_{1}_prep.set_density({2},{3},{4},{5},{6},{7});
+                    SELECT glass_atlas_{0}_{1}_prep.set_density({2},{3},{4},{5},{6},{7},{8});
                     """.format(current_settings.GENOME, 
                                current_settings.CELL_TYPE.lower(),
                                chr_id, MAX_EDGE, EDGE_SCALING_FACTOR, 
                                DENSITY_MULTIPLIER, 
                                allow_extended_gaps and 'true' or 'false',
+                               extension_percent,
                                null_only and 'true' or 'false')
                 execute_query(query)
     
     @classmethod
-    def set_density(cls, allow_extended_gaps=True, null_only=True):
-        multiprocess_all_chromosomes(wrap_set_density, cls, allow_extended_gaps, null_only)
+    def set_density(cls, allow_extended_gaps=True, extension_percent='.2', null_only=True):
+        multiprocess_all_chromosomes(wrap_set_density, cls, allow_extended_gaps, extension_percent, null_only)
     
     @classmethod
-    def _set_density(cls, chr_list, allow_extended_gaps=True, null_only=True):
+    def _set_density(cls, chr_list, allow_extended_gaps=True, extension_percent='.2', null_only=True):
         '''
         Force reset average tags for prep DB.
         '''
         for chr_id  in chr_list:
             print 'Setting average tags for preparatory transcripts for chromosome %d' % chr_id
             query = """
-                SELECT glass_atlas_{0}_{1}_prep.set_density({2},{3},{4},{5},{6},{7});
+                SELECT glass_atlas_{0}_{1}_prep.set_density({2},{3},{4},{5},{6},{7},{8});
                 """.format(current_settings.GENOME, 
                            current_settings.CELL_TYPE.lower(),
                            chr_id, MAX_EDGE, EDGE_SCALING_FACTOR, 
                            DENSITY_MULTIPLIER, 
                            allow_extended_gaps and 'true' or 'false',
+                           extension_percent,
                            null_only and 'true' or 'false')
             execute_query(query)
             
@@ -403,11 +402,10 @@ class GlassTranscript(TranscriptBase):
     def associate_interactions(cls, source_table):
         connection.close()
         sequencing_run = SequencingRun.objects.get(source_table=source_table)
-        multiprocess_all_chromosomes(wrap_associate_interactions_1, cls, sequencing_run)
-        #multiprocess_all_chromosomes(wrap_associate_interactions_2, cls, sequencing_run)
+        multiprocess_all_chromosomes(wrap_associate_interactions, cls, sequencing_run)
     
     @classmethod
-    def _associate_interactions_1(cls, chr_list, sequencing_run):
+    def _associate_interactions(cls, chr_list, sequencing_run):
         schema_name = 'glass_atlas_{0}_{1}'.format(current_settings.GENOME, current_settings.CELL_TYPE.lower())
         
         for chr_id in chr_list:
@@ -482,23 +480,6 @@ class GlassTranscript(TranscriptBase):
                 execute_query(query) 
         discard_temp_tables()
 
-                
-    @classmethod
-    def _associate_interactions_2(cls, chr_list, sequencing_run):
-        schema_name = 'glass_atlas_{0}_{1}'.format(current_settings.GENOME, current_settings.CELL_TYPE.lower())
-        
-        for chr_id in chr_list:
-            print 'Associating interactions for chromosome %d' % chr_id
-            for strand in (0,1):
-                query = """
-                    
-                    """.format(schema_name=schema_name,
-                               source_table=sequencing_run.source_table.strip(),
-                               sequencing_run_id=sequencing_run.id,
-                               min_score=MIN_SCORE/4,
-                               chr_id=chr_id, strand=strand)
-                execute_query(query) 
-                discard_temp_tables()
     
     @classmethod
     def nearest_genes(cls):

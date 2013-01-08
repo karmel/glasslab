@@ -6,7 +6,7 @@ Created on Jan 17, 2011
 Features and annotations relevant to transcripts.
 '''
 from django.db import models, connection
-from glasslab.glassatlas.datatypes.metadata import SequencingRun, PeakType
+from glasslab.genomereference.datatypes import SequencingRun, PeakType
 from glasslab.sequencing.datatypes.tag import wrap_errors
 from glasslab.config import current_settings
 from glasslab.utils.database import execute_query

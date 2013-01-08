@@ -11,7 +11,7 @@ import os
 from glasslab.utils.datatypes.genetics import InbredStrainVariation,\
     InbredStrain
 import sys, re
-from glasslab.utils.datatypes.genome_reference import Chromosome
+from glasslab.genomereference.datatypes import Chromosome
 from glasslab.utils.misc.inbredstrains.generate_genomes_from_reference import get_nucleotides_and_header
 
 def main(strain='BALB'):

@@ -9,12 +9,11 @@ transcripts that interact.
 '''
 from __future__ import division
 from django.db import models, connection
-from glasslab.utils.datatypes.genome_reference import Chromosome
+from glasslab.genomereference.datatypes import Chromosome, SequencingRun
 from glasslab.config import current_settings
 from glasslab.utils.datatypes.basic_model import BoxField
 from glasslab.utils.database import execute_query
 from glasslab.glassatlas.datatypes.transcript import multiprocess_all_chromosomes
-from glasslab.glassatlas.datatypes.metadata import SequencingRun
 from glasslab.sequencing.datatypes.tag import GlassSequencingOutput,\
     wrap_translate_from_prep, wrap_add_indices
 

@@ -6,7 +6,7 @@ Created on Nov 16, 2011
 
 from glasslab.utils.datatypes.basic_model import GlassModel, BoxField
 from django.db import models
-from glasslab.utils.datatypes.genome_reference import Chromosome
+from glasslab.genomereference.datatypes import Chromosome
 
 class InbredStrain(GlassModel):
     name = models.CharField(max_length=10)

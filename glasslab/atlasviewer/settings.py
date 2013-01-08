@@ -1,6 +1,6 @@
 # Django settings for atlasviewer project.
-from glasslab.config import django_settings
 import os
+from glasslab.config import current_settings
 
 current_dir = os.path.dirname(__file__)
 
@@ -13,7 +13,7 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
-DATABASES = django_settings.DATABASES
+DATABASES = current_settings.DATABASES
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name

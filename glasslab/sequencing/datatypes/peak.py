@@ -4,10 +4,10 @@ Created on Sep 27, 2010
 @author: karmel
 '''
 from django.db import models, connection
-from glasslab.utils.datatypes.genome_reference import Chromosome
+from glasslab.genomereference.datatypes import Chromosome, \
+    SequencingRun, PeakType
 from glasslab.utils.datatypes.basic_model import BoxField
 from glasslab.utils.database import execute_query
-from glasslab.glassatlas.datatypes.metadata import SequencingRun, PeakType
 from glasslab.config import current_settings
 from glasslab.sequencing.datatypes.tag import GlassSequencingOutput
    

@@ -22,7 +22,7 @@ import yaml
 import subprocess
 from glasslab.utils.datatypes.genetics import InbredStrainVariation,\
     InbredVariant, InbredStrain
-from glasslab.utils.datatypes.genome_reference import Chromosome
+from glasslab.genomereference.datatypes import Chromosome
 
 class CompeteGrapher(SeqGrapher):
     compete_dir = '/Applications/bioinformatics/compete.0.9.0'

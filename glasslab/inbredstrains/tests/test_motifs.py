@@ -15,7 +15,7 @@ Homer creates and removes temp files.
 from __future__ import division
 import os
 import sys
-from glasslab.utils.datatypes.genome_reference import Chromosome
+from glasslab.genomereference.datatypes import Chromosome
 from glasslab.utils.misc.inbredstrains.generate_genomes_from_reference import get_nucleotides_and_header
 from glasslab.utils.datatypes.motif import BindingSite, Motif
 import subprocess

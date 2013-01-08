@@ -7,9 +7,8 @@ Methods for drawing transcripts along the linear chromosome, separated by sample
 '''
 from glasslab.glassatlas.datatypes.transcript import CellTypeBase
 from glasslab.config import current_settings
-from glasslab.utils.datatypes.genome_reference import Chromosome,\
+from glasslab.genomereference.datatypes import SequencingRun,\
     SequenceTranscriptionRegion, SequenceDetail
-from glasslab.glassatlas.datatypes.metadata import SequencingRun
 from matplotlib import pyplot
 import os, sys
 

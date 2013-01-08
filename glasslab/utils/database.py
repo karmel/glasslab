@@ -5,7 +5,7 @@ Created on Nov 15, 2010
 '''
 from django.db import transaction, connections, connection
 from subprocess import check_call
-from glasslab.config import current_settings, django_settings
+from glasslab.config import current_settings
 import datetime
 from psycopg2 import OperationalError, Error as psycoError
 import time
@@ -60,11 +60,11 @@ def restart_server():
     then that it can actually accept incoming queries.
     '''
     check_call('{0} "{1}/bin/pg_ctl restart -D {1}/data/ -m immediate </dev/null >/dev/null 2>&1 &"'.format(
-                                            current_settings.PG_ACCESS_CMD, 
+                                            current_settings.PG_ACCESS_CMD,
                                             current_settings.PG_HOME), shell=True)
     
     # Make sure everything went as planned
-    time_to_wait = 5*60
+    time_to_wait = 5 * 60
     # We have to wait for the server to actually be up and running!
     server_is_starting = datetime.datetime.now()
     while server_is_starting:
@@ -92,7 +92,7 @@ class SqlGenerator(object):
     '''
     user = None
     def __init__(self, user=None):
-        self.user = user or django_settings.DATABASES['default']['USER']
+        self.user = user or current_settings.DATABASES['default']['USER']
     
     def pkey_sequence_sql(self, schema_name, table_name):
         return """
