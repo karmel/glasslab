@@ -404,14 +404,14 @@ class GlassTranscript(TranscriptBase):
         connection.close()
         sequencing_run = SequencingRun.objects.get(source_table=source_table)
         multiprocess_all_chromosomes(wrap_associate_interactions_1, cls, sequencing_run)
-        multiprocess_all_chromosomes(wrap_associate_interactions_2, cls, sequencing_run)
+        #multiprocess_all_chromosomes(wrap_associate_interactions_2, cls, sequencing_run)
     
     @classmethod
     def _associate_interactions_1(cls, chr_list, sequencing_run):
         schema_name = 'glass_atlas_{0}_{1}'.format(current_settings.GENOME, current_settings.CELL_TYPE.lower())
         
         for chr_id in chr_list:
-            print 'Adding first half of interactions for chromosome %d' % chr_id
+            print 'Associating interactions for chromosome %d' % chr_id
             for strand in (0,1):
                 query = """
                     
@@ -449,29 +449,14 @@ class GlassTranscript(TranscriptBase):
                         ON {schema_name}.prep_glass_transcript_interaction_{chr_id}_{strand} 
                         USING btree (glass_transcript_id, glass_transcript_2_id);
                     ANALYZE {schema_name}.prep_glass_transcript_interaction_{chr_id}_{strand};
-                    """.format(schema_name=schema_name,
-                               source_table=sequencing_run.source_table.strip(),
-                               sequencing_run_id=sequencing_run.id,
-                               min_score=MIN_SCORE/4,
-                               chr_id=chr_id, strand=strand)
-                execute_query(query) 
-                
-    @classmethod
-    def _associate_interactions_2(cls, chr_list, sequencing_run):
-        schema_name = 'glass_atlas_{0}_{1}'.format(current_settings.GENOME, current_settings.CELL_TYPE.lower())
-        
-        for chr_id in chr_list:
-            print 'Associating interactions for chromosome %d' % chr_id
-            for strand in (0,1):
-                query = """
+                    
                     UPDATE {schema_name}.prep_glass_transcript_interaction_{chr_id}_{strand} prep
                     SET glass_transcript_2_id = t2.id
-                    FROM {schema_name}.glass_transcript_{chr_id} t2, "{source_table}_{chr_id}_{strand}" i
+                    FROM {schema_name}.glass_transcript t2
                     WHERE t2.chromosome_id = prep.chromosome_2_id
                     AND t2.strand = prep.strand
                     AND t2.start_end_tss && prep.start_end
-                    AND t2.score >= {min_score}
-                    AND t2.strand = {strand};
+                    AND t2.score >= {min_score};
                 
                     DELETE FROM {schema_name}.prep_glass_transcript_interaction_{chr_id}_{strand} 
                     WHERE glass_transcript_2_id IS NULL;
@@ -488,7 +473,25 @@ class GlassTranscript(TranscriptBase):
                         GROUP BY "chromosome_id", "glass_transcript_id", 
                             "glass_transcript_2_id", "sequencing_run_id") der;
                     
-                    -- DROP TABLE {schema_name}.prep_glass_transcript_interaction_{chr_id}_{strand}; 
+                    DROP TABLE {schema_name}.prep_glass_transcript_interaction_{chr_id}_{strand}; 
+                    """.format(schema_name=schema_name,
+                               source_table=sequencing_run.source_table.strip(),
+                               sequencing_run_id=sequencing_run.id,
+                               min_score=MIN_SCORE/4,
+                               chr_id=chr_id, strand=strand)
+                execute_query(query) 
+        discard_temp_tables()
+
+                
+    @classmethod
+    def _associate_interactions_2(cls, chr_list, sequencing_run):
+        schema_name = 'glass_atlas_{0}_{1}'.format(current_settings.GENOME, current_settings.CELL_TYPE.lower())
+        
+        for chr_id in chr_list:
+            print 'Associating interactions for chromosome %d' % chr_id
+            for strand in (0,1):
+                query = """
+                    
                     """.format(schema_name=schema_name,
                                source_table=sequencing_run.source_table.strip(),
                                sequencing_run_id=sequencing_run.id,
