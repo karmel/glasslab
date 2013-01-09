@@ -27,31 +27,31 @@ if __name__ == '__main__':
     img_dirpath = yzer.get_and_create_path(dirpath, 'boxplots_by_me2_in_notx')
 
     data = {}
-    data['all_enhancers_less_me2'] = yzer.import_file(yzer.get_filename(dirpath, 'all_enhancers_less_me2_in_notx.txt'))
+    data['all_enhancers_with_less_me2'] = yzer.import_file(yzer.get_filename(dirpath, 'all_enhancers_with_less_me2_in_notx.txt'))
     data['all_enhancers_with_me2'] = yzer.import_file(yzer.get_filename(dirpath, 'all_enhancers_with_me2_in_notx.txt'))
-    data['interacting_in_notx_less_me2'] = yzer.import_file(yzer.get_filename(dirpath, 'interacting_in_notx_enhancers_less_me2_in_notx.txt'))
+    data['interacting_in_notx_with_less_me2'] = yzer.import_file(yzer.get_filename(dirpath, 'interacting_in_notx_enhancers_with_less_me2_in_notx.txt'))
     data['interacting_in_notx_with_me2'] = yzer.import_file(yzer.get_filename(dirpath, 'interacting_in_notx_enhancers_with_me2_in_notx.txt'))
-    data['interacting_in_kla_less_me2'] = yzer.import_file(yzer.get_filename(dirpath, 'interacting_in_kla_enhancers_less_me2_in_notx.txt'))
-    data['interacting_in_kla_with_me2'] = yzer.import_file(yzer.get_filename(dirpath, 'interacting_in_kla_enhancers_with_me2_in_notx.txt'))
-    data['interacting_in_kla_4h_less_me2'] = yzer.import_file(yzer.get_filename(dirpath, 'interacting_in_kla_4h_enhancers_less_me2_in_notx.txt'))
+    data['interacting_in_kla_30m_with_less_me2'] = yzer.import_file(yzer.get_filename(dirpath, 'interacting_in_kla_30m_enhancers_with_less_me2_in_notx.txt'))
+    data['interacting_in_kla_30m_with_me2'] = yzer.import_file(yzer.get_filename(dirpath, 'interacting_in_kla_30m_enhancers_with_me2_in_notx.txt'))
+    data['interacting_in_kla_4h_with_less_me2'] = yzer.import_file(yzer.get_filename(dirpath, 'interacting_in_kla_4h_enhancers_with_less_me2_in_notx.txt'))
     data['interacting_in_kla_4h_with_me2'] = yzer.import_file(yzer.get_filename(dirpath, 'interacting_in_kla_4h_enhancers_with_me2_in_notx.txt'))
-   
+
     for key in data: 
-        if key[:5] != 'inter' or 'less_me2' not in key: continue
+        if 'less_me2' not in key: continue
         data[key] = data[key][data[key]['me2_notx_tag_count']*4 < data[key]['me2_tag_count']]
     
-    zero_intxns_in_notx_less_me2 = len(data['all_enhancers_less_me2']) - len(data['interacting_in_notx_less_me2'])
+    zero_intxns_in_notx_with_less_me2 = len(data['all_enhancers_with_less_me2']) - len(data['interacting_in_notx_with_less_me2'])
     zero_intxns_in_notx_with_me2 = len(data['all_enhancers_with_me2']) - len(data['interacting_in_notx_with_me2'])
-    zero_intxns_in_kla_less_me2 = len(data['all_enhancers_less_me2']) - len(data['interacting_in_kla_less_me2'])
-    zero_intxns_in_kla_with_me2 = len(data['all_enhancers_with_me2']) - len(data['interacting_in_kla_with_me2'])
-    zero_intxns_in_kla_4h_less_me2 = len(data['all_enhancers_less_me2']) - len(data['interacting_in_kla_4h_less_me2'])
+    zero_intxns_in_kla_30m_with_less_me2 = len(data['all_enhancers_with_less_me2']) - len(data['interacting_in_kla_30m_with_less_me2'])
+    zero_intxns_in_kla_30m_with_me2 = len(data['all_enhancers_with_me2']) - len(data['interacting_in_kla_30m_with_me2'])
+    zero_intxns_in_kla_4h_with_less_me2 = len(data['all_enhancers_with_less_me2']) - len(data['interacting_in_kla_4h_with_less_me2'])
     zero_intxns_in_kla_4h_with_me2 = len(data['all_enhancers_with_me2']) - len(data['interacting_in_kla_4h_with_me2'])
     
-    notx_less_me2_counts = data['interacting_in_notx_less_me2']['count'].values.tolist() + [0]*zero_intxns_in_notx_less_me2
+    notx_with_less_me2_counts = data['interacting_in_notx_with_less_me2']['count'].values.tolist() + [0]*zero_intxns_in_notx_with_less_me2
     notx_with_me2_counts = data['interacting_in_notx_with_me2']['count'].values.tolist() + [0]*zero_intxns_in_notx_with_me2
-    kla_less_me2_counts = data['interacting_in_kla_less_me2']['count'].values.tolist() + [0]*zero_intxns_in_kla_less_me2
-    kla_with_me2_counts = data['interacting_in_kla_with_me2']['count'].values.tolist() + [0]*zero_intxns_in_kla_with_me2
-    kla_4h_less_me2_counts = data['interacting_in_kla_4h_less_me2']['count'].values.tolist() + [0]*zero_intxns_in_kla_4h_less_me2
+    kla_30m_with_less_me2_counts = data['interacting_in_kla_30m_with_less_me2']['count'].values.tolist() + [0]*zero_intxns_in_kla_30m_with_less_me2
+    kla_30m_with_me2_counts = data['interacting_in_kla_30m_with_me2']['count'].values.tolist() + [0]*zero_intxns_in_kla_30m_with_me2
+    kla_4h_with_less_me2_counts = data['interacting_in_kla_4h_with_less_me2']['count'].values.tolist() + [0]*zero_intxns_in_kla_4h_with_less_me2
     kla_4h_with_me2_counts = data['interacting_in_kla_4h_with_me2']['count'].values.tolist() + [0]*zero_intxns_in_kla_4h_with_me2
 
     labels = ['Less than 1/4\navg H3K4me2 in notx,\ninteractions in notx', 
@@ -60,9 +60,9 @@ if __name__ == '__main__':
               'At least avg H3K4me2 in notx\ninteractions in KLA 30m',
               'Less than 1/4\navg H3K4me2 in notx,\ninteractions in KLA 4h', 
               'At least avg H3K4me2 in notx\ninteractions in KLA 4h',]
-    vals = [notx_less_me2_counts, notx_with_me2_counts, 
-            kla_less_me2_counts, kla_with_me2_counts,
-            kla_4h_less_me2_counts, kla_4h_with_me2_counts]
+    vals = [notx_with_less_me2_counts, notx_with_me2_counts, 
+            kla_30m_with_less_me2_counts, kla_30m_with_me2_counts,
+            kla_4h_with_less_me2_counts, kla_4h_with_me2_counts]
     labels = [l + '\n(count: {0})'.format(len(v)) for l,v in zip(labels, vals)]
     
     title = 'Number of interactions with "enhancers" by H3K4me2 state in notx'

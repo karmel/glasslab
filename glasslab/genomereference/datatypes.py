@@ -11,8 +11,9 @@ Created on Sep 24, 2010
 from django.db import models
 from glasslab.utils.datatypes.basic_model import BoxField, GlassModel
 from glasslab.utils.datatypes.genome_reference import KeggPathway
+from glasslab.config import current_settings
 
-SCHEMA_BASE = 'genome_reference_{0}'
+SCHEMA_BASE = 'genome_reference_{0}'.format(current_settings.GENOME)
 
 
 class GenomeReferenceBase(GlassModel):
@@ -203,13 +204,14 @@ class InfrastructureTranscriptionRegion(GlassModel):
 
 #######################################################
 # Metadata
-#######################################################   
+####################################################### 
+ALT_SCHEMA_BASE = 'glass_atlas_mm9'  
 class PeakType(GlassModel):
     type    = models.CharField(max_length=50)
     diffuse = models.BooleanField(default=False)
     
     class Meta:
-        db_table    = '{0}"."peak_type'.format(SCHEMA_BASE)
+        db_table    = '{0}"."peak_type'.format(ALT_SCHEMA_BASE)
         app_label   = 'Genome_Reference' 
           
     def __unicode__(self):
@@ -249,7 +251,7 @@ class SequencingRun(GlassModel):
     created         = models.DateTimeField(auto_now_add=True)
     
     class Meta:
-        db_table = '{0}"."sequencing_run'.format(SCHEMA_BASE)
+        db_table = '{0}"."sequencing_run'.format(ALT_SCHEMA_BASE)
         app_label   = 'Genome_Reference'
         
     def __unicode__(self):
@@ -263,7 +265,7 @@ class SequencingRunAnnotation(GlassModel):
     note            = models.CharField(max_length=100)
      
     class Meta:
-        db_table    = '{0}"."sequencing_run_annotation'.format(SCHEMA_BASE)
+        db_table    = '{0}"."sequencing_run_annotation'.format(ALT_SCHEMA_BASE)
         app_label   = 'Genome_Reference'
         
     def __unicode__(self):

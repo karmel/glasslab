@@ -8,7 +8,7 @@ from glasslab.dataanalysis.graphing.seq_grapher import SeqGrapher
 import pandas
 
 if __name__ == '__main__':
-    enhancer_counts = False # Are we looking at enhancer interactions (False) or counts (True)?
+    enhancer_counts = True # Are we looking at enhancer interactions (False) or counts (True)?
     
     yzer = SeqGrapher()
     dirpath = 'karmel/Desktop/Projects/GlassLab/Notes_and_Reports/HiC/enhancers_by_gene_length'
