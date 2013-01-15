@@ -16,10 +16,12 @@ if __name__ == '__main__':
     dirpath = 'karmel/Desktop/Projects/GlassLab/Notes_and_Reports/HiC/'
     dirpath = yzer.get_path(dirpath)
     data_dirpath = yzer.get_filename(dirpath, 'enhancer_sets')
-    img_dirpath = yzer.get_and_create_path(dirpath, 'novel_me2_sites')
- 
+    
     kla_col='kla_lfc'
    
+    tss_only = False
+    img_dirpath = yzer.get_and_create_path(dirpath, 'novel_me2_sites', tss_only and 'genic' or 'all_interactions','ratio_4')
+ 
     if False:
         enhancers = yzer.import_file(yzer.get_filename(data_dirpath,'all_distal_enhancers_inc_me2.txt'))
         
@@ -27,7 +29,8 @@ if __name__ == '__main__':
         transcripts = all_transcripts[['id', kla_col]]
         enhancers = enhancers.merge(transcripts, how='left', on='id')
         
-        interactions = yzer.import_file(yzer.get_filename(data_dirpath,'transcript_pairs_refseq_with_me2.txt'))
+        if tss_only: interactions = yzer.import_file(yzer.get_filename(data_dirpath,'transcript_pairs_refseq_with_me2.txt'))
+        else: interactions = yzer.import_file(yzer.get_filename(data_dirpath,'transcript_pairs_enhancer_with_anything.txt'))
         interactions = interactions[interactions['count'] > 1]
         interactions = interactions.fillna(0)
         interactions['hash'] = interactions.apply(lambda row: '{0}.{1}'.format(row['id'],row['id_2']), axis=1)
@@ -46,17 +49,18 @@ if __name__ == '__main__':
             enhancers.ix[index,'notx_interactions'] = sum(relevant_intxns[relevant_intxns['sequencing_run_id'] == 765].get('norm_count',[]))
             enhancers.ix[index,'kla_30m_interactions'] = sum(relevant_intxns[relevant_intxns['sequencing_run_id'] == 766].get('norm_count',[]))
             enhancers.ix[index,'kla_4h_interactions'] = sum(relevant_intxns[relevant_intxns['sequencing_run_id'] == 773].get('norm_count',[]))
-            enhancers.ix[index,'kla_30m_over_notx'] =  (enhancers.ix[index,'kla_30m_interactions'] or 1)/\
-                                                    (enhancers.ix[index,'notx_interactions'] or 1)
-            enhancers.ix[index,'kla_4h_over_notx'] =  (enhancers.ix[index,'kla_4h_interactions'] or 1)/\
-                                                    (enhancers.ix[index,'notx_interactions'] or 1)
+            enhancers.ix[index,'kla_30m_over_notx'] =  (enhancers.ix[index,'kla_30m_interactions'] or .1)/\
+                                                    (enhancers.ix[index,'notx_interactions'] or .1)
+            enhancers.ix[index,'kla_4h_over_notx'] =  (enhancers.ix[index,'kla_4h_interactions'] or .1)/\
+                                                    (enhancers.ix[index,'notx_interactions'] or .1)
             
         
         # Output so that we don't have to recompute that every time.
         enhancers.to_csv(yzer.get_filename(data_dirpath, 'all_enhancers_with_me2_and_interaction_stats.txt'), 
                          sep='\t', header=True, index=False)
     
-    enhancers = yzer.import_file(yzer.get_filename(data_dirpath,'all_enhancers_with_me2_and_interaction_stats.txt'))
+    enhancers = yzer.import_file(yzer.get_filename(data_dirpath,
+                    'all_enhancers_with_me2_and_{0}interaction_stats.txt'.format(tss_only and 'tss_' or '')))
     
     col = 'me2_ratio'
     for me2_timepoint in ('6h', '24h'):
@@ -65,14 +69,14 @@ if __name__ == '__main__':
         
             
         sets = OrderedDict()
-        sets['2x me2 in KLA {0}'.format(me2_timepoint)] = enhancers[enhancers[col] > 2]
+        sets['2x me2 in KLA {0}'.format(me2_timepoint)] = enhancers[enhancers[col] > 4]
         sets['No change me2 in KLA {0}'.format(me2_timepoint)] = enhancers[(enhancers[col] >= .5) & (enhancers[col] <= 2)]
-        sets['1/2 me2 in KLA {0}'.format(me2_timepoint)] = enhancers[enhancers[col] < .5]
+        sets['1/2 me2 in KLA {0}'.format(me2_timepoint)] = enhancers[enhancers[col] < .25]
         
         labels = [l + '\n(count: {0})'.format(len(v)) for l,v in zip(sets.keys(), sets.values())]
         
         vals = [v[kla_col] for v in sets.values()]
-        title = 'KLA 1h LFC by Ratio of Notx to KLA {0} H3K4me2 for All Enhancers'.format(me2_timepoint)
+        title = 'KLA 1h LFC by Ratio of KLA {0} to Notx H3K4me2 for All Enhancers'.format(me2_timepoint)
         ax = yzer.boxplot(vals, labels, 
                          title=title, xlabel='All distal enhancers by relative amount of H3K4me2', 
                          ylabel='log2(KLA 1h GRO-seq/notx GRO-seq)', 
@@ -85,7 +89,7 @@ if __name__ == '__main__':
         labels = [l + '\n(count: {0})'.format(len(v)) for l,v in zip(sets.keys(), sets.values())]
         
         vals = [v[kla_col] for v in sets.values()]
-        title = 'KLA 1h Log Fold Change by Ratio of Notx to KLA {0} H3K4me2'.format(me2_timepoint)
+        title = 'KLA 1h Log Fold Change by Ratio of KLA {0} to Notx H3K4me2'.format(me2_timepoint)
         ax = yzer.boxplot(vals, labels, 
                          title=title, xlabel='Interacting distal enhancers by relative amount of H3K4me2', 
                          ylabel='log2(KLA 1h GRO-seq/notx GRO-seq)', 
@@ -93,48 +97,48 @@ if __name__ == '__main__':
                          save_dir=img_dirpath)
         
         vals = [v['total_interactions'] for v in sets.values()]
-        title = 'Total Interactions with Genes by Ratio of Notx to KLA {0} H3K4me2'.format(me2_timepoint)
+        title = 'Total Interactions with Genes by Ratio of KLA {0} to Notx H3K4me2'.format(me2_timepoint)
         ax = yzer.boxplot(vals, labels, 
                          title=title, xlabel='Interacting distal enhancers by relative amount of H3K4me2', 
-                         ylabel='Count of interactions with gene TSSs in all conditions', 
+                         ylabel='Count of interactions {0}in all conditions'.format(tss_only and 'with gene TSSs ' or ''), 
                          show_outliers=False, show_plot=True, wide=False,
                          save_dir=img_dirpath)
         
         
         vals = [v['notx_interactions'] for v in sets.values()]
-        title = 'Notx Interactions with Genes by Ratio of Notx to KLA {0} H3K4me2'.format(me2_timepoint)
+        title = 'Notx Interactions with Genes by Ratio of KLA {0} to Notx H3K4me2'.format(me2_timepoint)
         ax = yzer.boxplot(vals, labels, 
                          title=title, xlabel='Interacting distal enhancers by relative amount of H3K4me2', 
-                         ylabel='Count of interactions with gene TSSs in notx', 
+                         ylabel='Count of interactions {0}in notx'.format(tss_only and 'with gene TSSs ' or ''),
                          show_outliers=False, show_plot=True, wide=False,
                          save_dir=img_dirpath)
         vals = [v['kla_30m_interactions'] for v in sets.values()]
-        title = 'KLA 30m Interactions with Genes by Ratio of Notx to KLA {0} H3K4me2'.format(me2_timepoint)
+        title = 'KLA 30m Interactions with Genes by Ratio of KLA {0} to Notx H3K4me2'.format(me2_timepoint)
         ax = yzer.boxplot(vals, labels, 
                          title=title, xlabel='Interacting distal enhancers by relative amount of H3K4me2', 
-                         ylabel='Count of interactions with gene TSSs in KLA 30m', 
+                         ylabel='Count of interactions {0}in KLA 30m'.format(tss_only and 'with gene TSSs ' or ''),
                          show_outliers=False, show_plot=True, wide=False,
                          save_dir=img_dirpath)
         vals = [v['kla_4h_interactions'] for v in sets.values()]
-        title = 'KLA 4h Interactions with Genes by Ratio of Notx to KLA {0} H3K4me2'.format(me2_timepoint)
+        title = 'KLA 4h Interactions with Genes by Ratio of KLA {0} to Notx H3K4me2'.format(me2_timepoint)
         ax = yzer.boxplot(vals, labels, 
                          title=title, xlabel='Interacting distal enhancers by relative amount of H3K4me2', 
-                         ylabel='Count of interactions with gene TSSs in KLA 4h', 
+                         ylabel='Count of interactions {0}in KLA 4h'.format(tss_only and 'with gene TSSs ' or ''),
                          show_outliers=False, show_plot=True, wide=False,
                          save_dir=img_dirpath)
 
         vals = [v['kla_30m_over_notx'] for v in sets.values()]
-        title = 'Ratio of KLA 30m to Notx Interactions by Ratio of Notx to KLA {0} H3K4me2'.format(me2_timepoint)
+        title = 'Ratio of KLA 30m to Notx Interactions by Ratio of KLA {0} to Notx H3K4me2'.format(me2_timepoint)
         ax = yzer.boxplot(vals, labels, 
                          title=title, xlabel='Interacting distal enhancers by relative amount of H3K4me2', 
-                         ylabel='Ratio of interactions with gene TSSs in KLA 30m over notx', 
+                         ylabel='Ratio of interactions {0}in KLA 30m over notx'.format(tss_only and 'with gene TSSs ' or ''),
                          show_outliers=False, show_plot=True, wide=False,
                          save_dir=img_dirpath)
         vals = [v['kla_4h_over_notx'] for v in sets.values()]
-        title = 'Ratio of KLA 4h to Notx Interactions by Ratio of Notx to KLA {0} H3K4me2'.format(me2_timepoint)
+        title = 'Ratio of KLA 4h to Notx Interactions by Ratio of KLA {0} to Notx H3K4me2'.format(me2_timepoint)
         ax = yzer.boxplot(vals, labels, 
                          title=title, xlabel='Interacting distal enhancers by relative amount of H3K4me2', 
-                         ylabel='Ratio of interactions with gene TSSs in KLA 4h over notx', 
+                         ylabel='Ratio of interactions {0}in KLA 4h over notx'.format(tss_only and 'with gene TSSs ' or ''),
                          show_outliers=False, show_plot=True, wide=False,
                          save_dir=img_dirpath)
         

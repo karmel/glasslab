@@ -18,7 +18,6 @@ if __name__ == '__main__':
     
     interactions = yzer.import_file(yzer.get_filename(data_dirpath,'transcript_pairs_refseq_with_me2.txt'))
     interactions = interactions[interactions['count'] > 1]
-    interactions = interactions[interactions['transcript_score'] >= 10]
     
     all_transcripts = yzer.import_file(yzer.get_filename(data_dirpath,'transcript_vectors.txt'))
     

@@ -14,14 +14,16 @@ if __name__ == '__main__':
     dirpath = 'karmel/Desktop/Projects/GlassLab/Notes_and_Reports/HiC/'
     dirpath = yzer.get_path(dirpath)
     data_dirpath = yzer.get_filename(dirpath, 'enhancer_sets')
-    img_dirpath = yzer.get_and_create_path(dirpath, 'novel_enhancer_me2_change')
+    img_dirpath = yzer.get_and_create_path(dirpath, 'novel_enhancer_me2_change','all_interactions')
     
-    interactions = yzer.import_file(yzer.get_filename(data_dirpath,'transcript_pairs_refseq_with_me2_inc_me2_counts.txt'))
+    interactions = yzer.import_file(yzer.get_filename(data_dirpath,'transcript_pairs_enhancer_with_anything_with_me2_inc_me2_counts.txt'))
     interactions = interactions[interactions['count'] > 1]
 
     
     interactions = interactions.fillna(0)
     
+    # Key on peak id, not enhancer id, which could be bidirectional
+    #interactions['id_2'] = interactions['h3k4me2_id']
     interactions['hash'] = interactions.apply(lambda row: '{0}.{1}'.format(row['id'],row['id_2']), axis=1)
     
     for me2_timepoint in ('6h', '24h'):
