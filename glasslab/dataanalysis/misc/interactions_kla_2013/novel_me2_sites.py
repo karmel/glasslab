@@ -20,7 +20,7 @@ if __name__ == '__main__':
     kla_col='kla_lfc'
    
     tss_only = False
-    img_dirpath = yzer.get_and_create_path(dirpath, 'novel_me2_sites', tss_only and 'genic' or 'all_interactions','ratio_4')
+    img_dirpath = yzer.get_and_create_path(dirpath, 'novel_me2_sites', tss_only and 'genic' or 'all_interactions','ratio_10')
  
     if False:
         enhancers = yzer.import_file(yzer.get_filename(data_dirpath,'all_distal_enhancers_inc_me2.txt'))
@@ -69,9 +69,9 @@ if __name__ == '__main__':
         
             
         sets = OrderedDict()
-        sets['2x me2 in KLA {0}'.format(me2_timepoint)] = enhancers[enhancers[col] > 4]
+        sets['2x me2 in KLA {0}'.format(me2_timepoint)] = enhancers[enhancers[col] > 10]
         sets['No change me2 in KLA {0}'.format(me2_timepoint)] = enhancers[(enhancers[col] >= .5) & (enhancers[col] <= 2)]
-        sets['1/2 me2 in KLA {0}'.format(me2_timepoint)] = enhancers[enhancers[col] < .25]
+        sets['1/2 me2 in KLA {0}'.format(me2_timepoint)] = enhancers[enhancers[col] < .1]
         
         labels = [l + '\n(count: {0})'.format(len(v)) for l,v in zip(sets.keys(), sets.values())]
         

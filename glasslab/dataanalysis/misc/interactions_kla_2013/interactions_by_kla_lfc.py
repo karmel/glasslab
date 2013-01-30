@@ -20,7 +20,7 @@ if __name__ == '__main__':
     kla_col='kla_lfc'
    
     tss_only = False
-    img_dirpath = yzer.get_and_create_path(dirpath, 'interactions_by_kla_lfc', tss_only and 'genic' or 'all_interactions')
+    img_dirpath = yzer.get_and_create_path(dirpath, 'interactions_by_kla_lfc', tss_only and 'genic' or 'all_interactions', 'lfc_2')
     
     # File generated in novel_me2_sites
     enhancers = yzer.import_file(yzer.get_filename(data_dirpath,
@@ -32,9 +32,9 @@ if __name__ == '__main__':
         
             
         sets = OrderedDict()
-        sets['2x GRO in KLA {0}'.format(kla_timepoint)] = enhancers[enhancers[kla_col] > 1]
+        sets['4x GRO in KLA {0}'.format(kla_timepoint)] = enhancers[enhancers[kla_col] > 2]
         sets['No change GRO in KLA {0}'.format(kla_timepoint)] = enhancers[enhancers[kla_col].abs() <= 1]
-        sets['1/2 GRO in KLA {0}'.format(kla_timepoint)] = enhancers[enhancers[kla_col] < -1]
+        sets['1/4 GRO in KLA {0}'.format(kla_timepoint)] = enhancers[enhancers[kla_col] < -2]
         
         labels = [l + '\n(count: {0})'.format(len(v)) for l,v in zip(sets.keys(), sets.values())]
         

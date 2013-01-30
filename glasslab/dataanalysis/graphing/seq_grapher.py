@@ -92,7 +92,7 @@ class SeqGrapher(TranscriptAnalyzer):
             try: x, y = x.values, y.values
             except AttributeError: pass
             x.sort()
-            y = y[data[xcolname].argsort()]
+            y = y[x.argsort()]
             m, c = numpy.polyfit(x, y, 1)
             pyplot.plot(x, x*m + c, color=color, label=label + ' (Linear fit)')
         
