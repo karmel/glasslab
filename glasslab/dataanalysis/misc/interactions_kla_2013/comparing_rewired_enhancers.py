@@ -16,19 +16,22 @@ if __name__ == '__main__':
     
     sets = OrderedDict((
              ('all', yzer.import_file(yzer.get_filename(data_dirpath,'all_vectors.cdt'))),
-             ('all_6h', yzer.import_file(yzer.get_filename(data_dirpath,'kla_6h','all_vectors.cdt'))),
-             ('rewired', yzer.import_file(yzer.get_filename(data_dirpath,'rewired_vectors.cdt')))
-             ('rewired_6h', yzer.import_file(yzer.get_filename(data_dirpath,'kla_6h','rewired_vectors.cdt')))))
+             #('all_6h', yzer.import_file(yzer.get_filename(data_dirpath,'kla_6h','all_vectors.cdt'))),
+             ('rewired', yzer.import_file(yzer.get_filename(data_dirpath,'rewired_vectors.cdt'))),
+             #('rewired_6h', yzer.import_file(yzer.get_filename(data_dirpath,'kla_6h','rewired_vectors.cdt'))),
+             ('shared', yzer.import_file(yzer.get_filename(data_dirpath,'shared_vectors.cdt'))),
+             ))
 
-    sets['rewired_changed'] = sets['rewired'][sets['rewired']['enhancer_lfc'].abs() > 1]
-    sets['rewired_up'] = sets['rewired'][sets['rewired']['enhancer_lfc'] > 1]
-    sets['rewired_down'] = sets['rewired'][sets['rewired']['enhancer_lfc'] < -1]
+    for key, val in sets.items(): 
+        sets[key + '_changed'] = sets[key][sets[key]['enhancer_lfc'].abs() > 2]
+        sets[key + '_up'] = sets[key][sets[key]['enhancer_lfc'] > 2]
+        sets[key + '_down'] = sets[key][sets[key]['enhancer_lfc'] < -2]
     
     if True:
         # Correlations
         
         for key, val in sets.iteritems(): 
-            print key
+            print key, len(val)
             print val.corr()
         
         notx_only = yzer.import_file(yzer.get_filename(data_dirpath,'notx_only_vectors.cdt'))
@@ -46,8 +49,9 @@ if __name__ == '__main__':
         # p65 occupancy
         for key, val in sets.iteritems(): 
             data = val.merge(transcripts, how='left', on='id')
+            data = data.fillna(0)
             print key
-            print data['p65_tag_count'].mean(), data['p65_tag_count'].median(), data['p65_tag_count'].quantiles(4)
+            print data['p65_tag_count'].describe()
     
     
 
