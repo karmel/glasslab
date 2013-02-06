@@ -118,7 +118,7 @@ class SeqGrapher(TranscriptAnalyzer):
             pyplot.legend(loc='upper left')
             
         # Any other operations to tack on?
-        self.other_plot()
+        self.other_plot(ax=ax)
         
         self.save_plot_with_dir(save_dir, save_name, title)
         if show_plot: self.show_plot()
@@ -165,7 +165,7 @@ class SeqGrapher(TranscriptAnalyzer):
     def ylim(self, ax, min_y, max_y):
         ax.set_ylim([min_y, max_y])
     
-    def other_plot(self):
+    def other_plot(self, *args, **kwargs):
         return True
     
     def get_colors(self, number):

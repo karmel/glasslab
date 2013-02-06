@@ -20,7 +20,7 @@ from __future__ import division
 from pandas import DataFrame, Series
 from glasslab.dataanalysis.graphing.seq_grapher import SeqGrapher
 
-kla_col='kla_6h_lfc'
+kla_col='p65_tag_count'
     
 def get_vectors_for_group(group, f_condition=None):
     notx = group[group['sequencing_run_id'] == 765].sort(['norm_count', kla_col], ascending=False)
@@ -32,7 +32,7 @@ def get_vectors_for_group(group, f_condition=None):
                     'notx_lfc': Series(notx[kla_col], index=range(len(notx))),
                     },)
     df['enhancer_id'] = group['id_2'].mean()
-    df['enhancer_lfc'] = group['kla_lfc_2'].mean()
+    df['enhancer_lfc'] = group['p65_tag_count_2'].mean()
     if f_condition: df = df[f_condition(df)]
     return df
 
@@ -41,15 +41,15 @@ if __name__ == '__main__':
     dirpath = 'karmel/Desktop/Projects/GlassLab/Notes_and_Reports/HiC/'
     dirpath = yzer.get_path(dirpath)
     data_dirpath = yzer.get_filename(dirpath, 'enhancer_sets')
-    img_dirpath = yzer.get_and_create_path(dirpath, 'enhancer_rewiring_lfc')
+    img_dirpath = yzer.get_and_create_path(dirpath, 'enhancer_rewiring_lfc','p65_tags')
     
     interactions = yzer.import_file(yzer.get_filename(data_dirpath,'transcript_pairs_refseq_with_me2.txt'))
     interactions = interactions[interactions['count'] > 1]
 
-    all_transcripts = yzer.import_file(yzer.get_filename(data_dirpath,'transcript_vectors.txt'))
+    transcripts = yzer.import_file(yzer.get_filename(data_dirpath,'transcript_vectors.txt'))
     
-    
-    transcripts = all_transcripts[['id', 'kla_lfc',  'kla_6h_lfc']]
+    transcripts['kla_6h_rpbp'] = transcripts['kla_6h_tag_count']/(transcripts['length'])*1000
+    transcripts['kla_rpbp'] = transcripts['kla_tag_count']/(transcripts['length'])*1000
         
     # Associate gene id
     interactions = interactions.merge(transcripts, how='left', on='id')

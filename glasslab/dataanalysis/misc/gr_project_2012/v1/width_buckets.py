@@ -4,7 +4,7 @@ Created on Jul 2, 2012
 @author: karmel
 '''
 from __future__ import division
-from glasslab.dataanalysis.misc.gr_project_2012.elongation import draw_elongation_profile,\
+from glasslab.dataanalysis.misc.gr_project_2012.v1.elongation import draw_elongation_profile,\
     get_rep_string, set_up_sequencing_run_ids, total_tags_per_run
 from glasslab.dataanalysis.graphing.basepair_counter import BasepairCounter
 import os
@@ -150,7 +150,7 @@ def get_tag_proportions(data, label):
 if __name__ == '__main__':
     
     grapher = BasepairCounter()
-    dirpath = 'karmel/Desktop/Projects/Classes/Rotations/Finland_2012/GR_Project/buckets_per_row'
+    dirpath = 'karmel/Desktop/Projects/Classes/Rotations/Finland_2012/GR_Project/buckets_per_row_low_basal'
     dirpath = grapher.get_path(dirpath)
     
     if True: 

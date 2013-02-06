@@ -8,9 +8,9 @@ predictive of characteristics of interest, such as pausing ratio
 or transrepression. Worth a stab.
 '''
 from __future__ import division
-from glasslab.dataanalysis.misc.gr_project_2012.width_buckets import get_data_with_bucket_score
+from glasslab.dataanalysis.misc.gr_project_2012.v1.width_buckets import get_data_with_bucket_score
 from glasslab.dataanalysis.machinelearning.logistic_classifier import LogisticClassifier
-from glasslab.dataanalysis.misc.gr_project_2012.elongation import get_rep_string,\
+from glasslab.dataanalysis.misc.gr_project_2012.v1.elongation import get_rep_string,\
     total_tags_per_run
 import os
 import sys
@@ -20,7 +20,7 @@ from random import shuffle
 
 if __name__ == '__main__':
     learner = LogisticClassifier()
-    dirpath = 'karmel/Desktop/Projects/Classes/Rotations/Finland_2012/GR_Project/classification'
+    dirpath = 'karmel/Desktop/Projects/Classes/Rotations/Finland_2012/GR_Project/classification_low_basal'
     dirpath = learner.get_path(dirpath)
     
     '''
@@ -44,16 +44,18 @@ if __name__ == '__main__':
                             'transcription_start','transcription_end'],axis=1)
     
     '''
-    grouped = learner.import_file(learner.get_filename(dirpath, 'feature_vectors.txt'))
+    all_grouped = learner.import_file(learner.get_filename(dirpath, 'feature_vectors.txt'))
     
-    if True:
+    # Filter so that we're only looking at genes with low basal expression.
+    
+    if False:
         # Can we predict pausing ratio?
         
         # Minimal ratio in KLA+Dex vs. KLA pausing
         try: min_ratio= float(sys.argv[1])
         except IndexError: min_ratio = 3
         try: force_choice = sys.argv[2].lower() == 'force'
-        except IndexError: force_choice = True
+        except IndexError: force_choice = False
         try: extra_dir = sys.argv[3]
         except IndexError: extra_dir = ''
         
@@ -67,6 +69,7 @@ if __name__ == '__main__':
         for replicate_id in ('', 1, 2, 3, 4):
             rep_str = get_rep_string(replicate_id)
             
+            grouped = all_grouped
             
             pausing_states = grouped.filter(regex=r'(kla_dex_\d_bucket_score|kla_dex_bucket_score|' +\
                                             r'kla_\d_bucket_score|kla_bucket_score)').fillna(0)
@@ -185,7 +188,7 @@ if __name__ == '__main__':
                   save_path = learner.get_filename(subdir,'plot_{0}group'.format(rep_str))\
                                          + '_check_non_trivial_decision_boundaries.png'
                   )
-    if False:
+    if True:
         # How about transrepression or derepression?
         try: force_choice = sys.argv[1].lower() == 'force'
         except IndexError: force_choice = False
@@ -198,9 +201,19 @@ if __name__ == '__main__':
         
         if not os.path.exists(subdir): os.makedirs(subdir)
         
-          
+        totals = total_tags_per_run()
         for replicate_id in ('', 1, 2, 3, 4):
             rep_str = get_rep_string(replicate_id)
+            
+            grouped = all_grouped
+            grouped['dmso_{0}tags'.format(rep_str)] = grouped['dmso_{0}gene_start_tags'.format(rep_str)] +\
+                                                        grouped['dmso_{0}gene_body_tags'.format(rep_str)]
+            grouped['dmso_{0}tags_rpkm'.format(rep_str)] = grouped['dmso_{0}tags'.format(rep_str)]*(10**3*10**6)/grouped['length']\
+                                                                /totals['dmso'][replicate_id or 0]
+            #grouped = grouped[grouped['dmso_{0}tags_rpkm'.format(rep_str)] < .33]
+            
+            grouped = grouped[grouped['kla_{0}lfc'.format(rep_str)] >= 1]
+            print len(grouped)
             
             dataset = grouped
             dataset['rep_{0}pausing_ratio'.format(rep_str)] = dataset['kla_dex_{0}bucket_score'.format(rep_str)] \
@@ -213,8 +226,8 @@ if __name__ == '__main__':
                                                           rep_str and r'.*' + rep_str + r'.*|' or ''))
             print dataset.columns
             
-            labels = targets['dex_over_kla_{0}gene_body_lfc'.format(rep_str)] >= .58
-            labels_2 = targets['kla_{0}gene_body_lfc'.format(rep_str)] <= -.58
+            labels = targets['dex_over_kla_{0}lfc'.format(rep_str)] <= -.58
+            labels_2 = targets['kla_{0}lfc'.format(rep_str)] >= 1
             
             labels = map(lambda x: int(x[0] and x[1]), zip(labels, labels_2))
             print 'Total examples, positive: ', len(dataset), sum(labels)
@@ -227,15 +240,13 @@ if __name__ == '__main__':
             best_err = 1.0
             best_c = 0
             best_chosen = []
-            possible_k = [20,]# 10, 5, 2]
+            possible_k = [20, 10, 5, 2]
             for k in possible_k:
                 if force_choice:
                     chosen = ['gr_kla_dex_tag_count', 'gr_dex_tag_count'.format(rep_str)]
                     #chosen = ['kla_{0}bucket_score'.format(rep_str), 'tag_count']
                 else:
-                    #chosen = learner.get_best_features(dataset, labels, k=k)
-                    chosen = ['gr_kla_dex_tag_count', 'gr_dex_tag_count',
-                              'rep_{0}pausing_ratio'.format(rep_str)]
+                    chosen = learner.get_best_features(dataset, labels, k=k)
                     
                 num_features = len(chosen)
                 

@@ -6,13 +6,14 @@ Created on Oct 26, 2012
 from glasslab.dataanalysis.graphing.seq_grapher import SeqGrapher
 from matplotlib import pyplot
 from glasslab.utils.functions import nonzero
+from glasslab.dataanalysis.misc.gr_project_2012.v1.elongation import total_tags_per_run
 
 if __name__ == '__main__':
     yzer = SeqGrapher()
     dirpath = 'karmel/Desktop/Projects/GlassLab/Notes_and_Reports/GR_Analysis/enhancer_classification'
     dirpath = yzer.get_path(dirpath)
     
-    consistent = True
+    consistent = False
     img_dirpath = yzer.get_and_create_path(dirpath, 'boxplots_by_expression', consistent and 'consistent' or 'rep1')
     
     data = yzer.import_file(yzer.get_filename(dirpath, 'enhancers_with_nearest_gene.txt'))
@@ -25,8 +26,13 @@ if __name__ == '__main__':
     data = data[data.filter(like='h3k4me2').max(axis=1) > min_tags]
     data = data[data['minimal_distance'] >= 1000]
     
-    #data = yzer.collapse_strands(data)
-    
+    if True:
+        # Low basal expression only
+        total_tags = total_tags_per_run()
+        data['dmso_1_rpkm'] = data['dmso_1_tag_count']*(10**3*10**6)/data['length']/total_tags['dmso'][1]
+        data = data[data['dmso_1_rpkm'] < .1]
+        img_dirpath = yzer.get_and_create_path(dirpath, 'boxplots_by_expression_low_basal', consistent and 'consistent' or 'rep1')
+        
     transcripts = yzer.import_file(yzer.get_filename(dirpath, 'transcript_vectors.txt'))
     transcripts['nearest_refseq_transcript_id'] = transcripts['id']
     data = data.merge(transcripts, how='left', on='nearest_refseq_transcript_id', suffixes=['','_trans'])

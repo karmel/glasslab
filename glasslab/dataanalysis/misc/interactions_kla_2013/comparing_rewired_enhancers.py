@@ -51,7 +51,7 @@ if __name__ == '__main__':
             data = val.merge(transcripts, how='left', on='id')
             data = data.fillna(0)
             print key
-            print data['p65_tag_count'].describe()
+            print data['h3k4me2_tag_count'].describe()
     
     
 
