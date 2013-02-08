@@ -217,7 +217,8 @@ BEGIN
 END;
 $$ LANGUAGE 'plpgsql';
 
-CREATE OR REPLACE FUNCTION glass_atlas_{0}_{1}{suffix}.calculate_scores(chr_id integer)
+
+CREATE OR REPLACE FUNCTION glass_atlas_{0}_{1}{suffix}.calculate_scores_glassatlas(chr_id integer)
 RETURNS VOID AS $$
 DECLARE
     total_runs integer;
@@ -240,20 +241,70 @@ BEGIN
         ON transcript.id = source.glass_transcript_id
         JOIN genome_reference_{0}.sequencing_run run
         ON source.sequencing_run_id = run.id
-        WHERE run.use_for_scoring = true
-            AND transcript.score IS NULL
         GROUP BY transcript.id, transcript.transcription_end, transcript.transcription_start';
     EXECUTE 'CREATE INDEX ' || temp_table || '_idx ON ' || temp_table || ' USING btree(id)';
     
-	EXECUTE 'UPDATE glass_atlas_{0}_{1}{suffix}.glass_transcript_' || chr_id || ' transcript
-	    SET score = GREATEST(0,
+    EXECUTE 'UPDATE glass_atlas_{0}_{1}{suffix}.glass_transcript_' || chr_id || ' transcript
+        SET score = GREATEST(0,
                 SQRT((temp_t.sum_tags::numeric/' || total_runs || ')*temp_t.max_tags)
-                /LEAST(GREATEST(1000, temp_t.width)::numeric/1000, 2*LOG(temp_t.width))
+                /LEAST(GREATEST(1000, temp_t.width)::numeric*LOG(2, GREATEST(200 - temp_t.width,2))/1000, 2*LOG(2, temp_t.width))
             )
-	    FROM ' || temp_table || ' temp_t
-	    WHERE transcript.id = temp_t.id';
+        FROM ' || temp_table || ' temp_t
+        WHERE transcript.id = temp_t.id';
 
-	RETURN;
+    RETURN;
+END;
+$$ LANGUAGE 'plpgsql';
+
+
+
+CREATE OR REPLACE FUNCTION glass_atlas_{0}_{1}{suffix}.calculate_scores_rpkm(chr_id integer, field text)
+RETURNS VOID AS $$
+DECLARE
+    millions_of_tags float;
+    temp_table text;
+BEGIN 
+    -- RPKM. Can be modified as necessary.
+    
+    -- Use prep tables to determine raw runs and tag counts
+    millions_of_tags := (SELECT sum(tag_count)::numeric/1000000 FROM glass_atlas_{0}_{1}_prep.glass_transcript_source);
+    
+    temp_table = 'score_table_' || chr_id || '_' || (1000*RANDOM())::int;
+    EXECUTE 'CREATE TEMP TABLE ' || temp_table || ' AS
+        SELECT 
+            transcript.id,
+            SUM(source.tag_count) as sum_tags, 
+            (transcript.transcription_end - transcript.transcription_start + 1)::numeric/1000 as kb_width
+        FROM glass_atlas_{0}_{1}{suffix}.glass_transcript_' || chr_id || ' transcript 
+        JOIN glass_atlas_{0}_{1}{suffix}.glass_transcript_source_' || chr_id || ' source
+        ON transcript.id = source.glass_transcript_id
+        JOIN genome_reference_{0}.sequencing_run run
+        ON source.sequencing_run_id = run.id
+        GROUP BY transcript.id, transcript.transcription_end, transcript.transcription_start';
+    EXECUTE 'CREATE INDEX ' || temp_table || '_idx ON ' || temp_table || ' USING btree(id)';
+    
+    EXECUTE 'UPDATE glass_atlas_{0}_{1}{suffix}.glass_transcript_' || chr_id || ' transcript
+        SET ' || field || ' = temp_t.sum_tags::numeric/temp_t.kb_width/' || millions_of_tags || '::numeric
+        FROM ' || temp_table || ' temp_t
+        WHERE transcript.id = temp_t.id';
+
+    RETURN;
+END;
+$$ LANGUAGE 'plpgsql';
+
+CREATE OR REPLACE FUNCTION glass_atlas_{0}_{1}{suffix}.calculate_scores(chr_id integer)
+RETURNS VOID AS $$
+    BEGIN
+        PERFORM glass_atlas_{0}_{1}{suffix}.calculate_scores_glassatlas(chr_id);
+    RETURN;
+END;
+$$ LANGUAGE 'plpgsql';
+
+CREATE OR REPLACE FUNCTION glass_atlas_{0}_{1}{suffix}.calculate_rpkm(chr_id integer)
+RETURNS VOID AS $$
+    BEGIN
+        PERFORM glass_atlas_{0}_{1}{suffix}.calculate_scores_rpkm(chr_id, 'rpkm');
+    RETURN;
 END;
 $$ LANGUAGE 'plpgsql';
 
@@ -336,3 +387,4 @@ $$ LANGUAGE 'plpgsql';
 
 """.format(genome, cell_type, suffix=suffix)
 
+print sql('mm9','thiomac','')
