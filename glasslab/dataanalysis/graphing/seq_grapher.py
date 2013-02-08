@@ -73,9 +73,9 @@ class SeqGrapher(TranscriptAnalyzer):
         if log:
             if log <= 1: log = 2
             pyplot.xscale('log', basex=log, nonposx='clip')
-            #pyplot.yscale('log', basey=log, nonposy='clip')
+            pyplot.yscale('log', basey=log, nonposy='clip')
             ax.xaxis.set_major_formatter(ScalarFormatter())
-            #ax.yaxis.set_major_formatter(ScalarFormatter())
+            ax.yaxis.set_major_formatter(ScalarFormatter())
         
         # Labels
         if xlabel is None: xlabel = capwords(xcolname.replace('_',' '))
@@ -422,8 +422,8 @@ class SeqGrapher(TranscriptAnalyzer):
         For multiple transcripts, show bar graphs, including rank marker.
         '''
         axis_spacer = .2
-        bar_width = .8
-        xvals_per_col = [x + axis_spacer for x in xrange(0,len(indices))]
+        bar_width = max(8/len(indices), .8)
+        xvals_per_col = [x*1.25*bar_width + axis_spacer for x in xrange(0,len(indices))]
         
         # Get bar positions for all columns, adding an extra space between groups 
         xvals = [map(lambda x: x*col_number + axis_spacer*(col_number - 1), xvals_per_col)
@@ -431,7 +431,7 @@ class SeqGrapher(TranscriptAnalyzer):
         # Unnest
         xvals = [item for sublist in xvals for item in sublist]
         
-        fig = pyplot.figure(figsize=[len(xvals)*.8,10])
+        fig = pyplot.figure(figsize=[len(xvals)*bar_width,10])
         # Set up plot
         ax = pyplot.subplot(111)
         max_x = max(xvals) + axis_spacer + bar_width

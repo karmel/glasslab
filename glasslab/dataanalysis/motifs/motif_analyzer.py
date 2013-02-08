@@ -135,26 +135,3 @@ class MotifAnalyzer(TranscriptAnalyzer):
 
     
     
-if __name__ == '__main__':
-    yzer = MotifAnalyzer()
-    
-    base_dirpath = yzer.get_path('karmel/GlassLab/Notes_and_Reports/NOD_BALBc/ThioMacs/Analysis_2012_06/')
-    dirpath = yzer.get_filename(base_dirpath, 'motifs/')
-    filename = yzer.get_filename(os.path.dirname(base_dirpath), 'balbc_nod_vectors.txt')
-    data = yzer.import_file(filename)
-    
-    bg = yzer.get_filename(dirpath, 'promoter_overlap/promoter_overlap_regions_for_homer.txt')
-    
-    data = data[data['transcript_score'] >= 10]
-    data = data[data['has_refseq'] != 0]
-    #data = data[data['has_refseq'] == 0]
-    #data = data[data['distal'] == 't']
-    #data = data[data['h3k4me2_notx_score'] > 0]
-    #data = data[data['length'] > 200]
-    #data = data[abs(data['balb_plating_notx_fc']) < 1]
-    data = data[data['balb_nod_notx_1h_fc'] <= -1]
-    
-    #data = yzer.collapse_strands(data)
-    
-    yzer.run_homer(data, 'promoter_overlap_notx_1h_nod_down', dirpath,
-                   cpus=2, center=False, reverse=False, preceding=True, size=400, length=[8, 10, 12, 15], bg=bg)
