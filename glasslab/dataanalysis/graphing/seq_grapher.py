@@ -73,9 +73,9 @@ class SeqGrapher(TranscriptAnalyzer):
         if log:
             if log <= 1: log = 2
             pyplot.xscale('log', basex=log, nonposx='clip')
-            pyplot.yscale('log', basey=log, nonposy='clip')
+            #pyplot.yscale('log', basey=log, nonposy='clip')
             ax.xaxis.set_major_formatter(ScalarFormatter())
-            ax.yaxis.set_major_formatter(ScalarFormatter())
+            #ax.yaxis.set_major_formatter(ScalarFormatter())
         
         # Labels
         if xlabel is None: xlabel = capwords(xcolname.replace('_',' '))

@@ -207,6 +207,7 @@ class GlassAtlasSqlGenerator(SqlGenerator):
             "refseq" boolean DEFAULT NULL,
             "distal" boolean DEFAULT NULL,
             "score" numeric DEFAULT NULL,
+            "rpkm" numeric DEFAULT NULL,
             "standard_error" numeric DEFAULT NULL,
             "modified" timestamp(6) NULL DEFAULT NULL,
             "created" timestamp(6) NULL DEFAULT NULL
@@ -244,6 +245,8 @@ class GlassAtlasSqlGenerator(SqlGenerator):
                 || quote_literal(NEW.transcription_end) || ', 0),'
             || coalesce(quote_literal(NEW.start_end_density),'NULL') || ','
             || coalesce(quote_literal(NEW.score),'NULL') || ','
+            || coalesce(quote_literal(NEW.rpkm),'NULL') || ','
+            || coalesce(quote_literal(NEW.standard_error),'NULL') || ','
             || quote_literal(NEW.modified) || ','
             || quote_literal(NEW.created) || ')';
             RETURN NULL;

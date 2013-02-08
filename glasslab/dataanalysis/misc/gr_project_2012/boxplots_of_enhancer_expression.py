@@ -26,18 +26,26 @@ if __name__ == '__main__':
     data = data[data.filter(like='h3k4me2').max(axis=1) > min_tags]
     data = data[data['minimal_distance'] >= 1000]
     
-    if True:
-        # Low basal expression only
-        total_tags = total_tags_per_run()
-        data['dmso_1_rpkm'] = data['dmso_1_tag_count']*(10**3*10**6)/data['length']/total_tags['dmso'][1]
-        data = data[data['dmso_1_rpkm'] < .1]
-        img_dirpath = yzer.get_and_create_path(dirpath, 'boxplots_by_expression_low_basal', consistent and 'consistent' or 'rep1')
-        
     transcripts = yzer.import_file(yzer.get_filename(dirpath, 'transcript_vectors.txt'))
     transcripts['nearest_refseq_transcript_id'] = transcripts['id']
     data = data.merge(transcripts, how='left', on='nearest_refseq_transcript_id', suffixes=['','_trans'])
     
     data = data.fillna(0)
+    
+    total_tags = total_tags_per_run()
+        
+    data['h4k8ac_kla_dex_ratio'] = nonzero(data['h4k8ac_kla_dex_tag_count'])/nonzero(data['h4k8ac_kla_tag_count'])
+    data['dmso_1_rpkm'] = data['dmso_1_tag_count_trans']*(10**3*10**6)/data['length_trans']/total_tags['dmso'][1]
+        
+    if False:
+        # Low basal expression only
+        data = data[data['dmso_1_rpkm'] > 2]
+        img_dirpath = yzer.get_and_create_path(dirpath, 'boxplots_by_expression_high_basal', consistent and 'consistent' or 'rep1')
+    if False:
+        # Lose acetyl only
+        data = data[data['h4k8ac_kla_dex_ratio'] < .75]
+        img_dirpath = yzer.get_and_create_path(dirpath, 'boxplots_by_expression_lose_ac', consistent and 'consistent' or 'rep1')
+        
     
     
     
@@ -61,9 +69,9 @@ if __name__ == '__main__':
         not_trans = dataset[(~dataset.index.isin(up_in_kla.index)) & (~dataset.index.isin(transrepressed.index))]
         
         supersets = (('All', dataset),
-                 ('Not near transrepressed genes', not_trans), 
-                 ('Up in KLA', up_in_kla),
-                 ('Near transrepressed genes',transrepressed))
+                 ('Not {0}Up in KLA Genes'.format(not suffix and 'Near ' or ''), not_trans), 
+                 ('{0}Up in KLA Genes'.format(not suffix and 'Near ' or ''), up_in_kla),
+                 ('{0}Transrepressed Genes'.format(not suffix and 'Near ' or ''),transrepressed))
         
         print len(up_in_kla), len(transrepressed), len(not_trans)
         labels = zip(*supersets)[0]
@@ -199,6 +207,45 @@ if __name__ == '__main__':
     ax = yzer.boxplot(vals, special_labels, 
                      title=title, xlabel=xlabel, 
                      ylabel='KLA Tags/DMSO Tags', 
+                     show_outliers=False, show_plot=False, wide=False
+                     )
+    pyplot.setp(ax.get_xticklabels(), fontsize=10)
+    yzer.save_plot(yzer.get_filename(img_dirpath, title + '.png'))
+    
+    # H4K8ac tag counts
+    vals = [d['h4k8ac_tag_count'.format(suffix)] for _,d in supersets] \
+            + [d['h4k8ac_kla_dex_tag_count'.format(suffix)] for _,d in supersets]
+    special_labels = ['{0}\nH4K8ac in DMSO\nin {1}'.format(label, subgroup) for label,_ in supersets] \
+                    + ['{0}\nH4K8ac in Dex+KLA\nin {1}'.format(label, subgroup) for label,_ in supersets]
+    title = 'Dex+KLA H4K8ac Tag Counts in Peaks in {0} by gene category'.format(subgroup)
+    ax = yzer.boxplot(vals, special_labels, 
+                     title=title, xlabel=xlabel, 
+                     ylabel='Tag Counts in Peaks', 
+                     show_outliers=False, show_plot=False, wide=True
+                     )
+    pyplot.setp(ax.get_xticklabels(), fontsize=10)
+    yzer.save_plot(yzer.get_filename(img_dirpath, title + '.png'))
+    
+    
+    # H4K8ac tag changes
+    vals = [nonzero(d['h4k8ac_kla_dex_tag_count'])/nonzero(d['h4k8ac_tag_count']) for _,d in supersets]
+    special_labels = ['{0}\nH4K8ac Ratio\nin {1}'.format(label, subgroup) for label,_ in supersets] 
+    title = 'Dex+KLA H4K8ac Tag Count Ratios in Peaks in {0} by gene category'.format(subgroup)
+    ax = yzer.boxplot(vals, special_labels, 
+                     title=title, xlabel=xlabel, 
+                     ylabel='Dex+KLA Tags/DMSO Tags', 
+                     show_outliers=False, show_plot=False, wide=False
+                     )
+    pyplot.setp(ax.get_xticklabels(), fontsize=10)
+    yzer.save_plot(yzer.get_filename(img_dirpath, title + '.png'))
+    
+    # H4K8ac tag changes
+    vals = [nonzero(d['h4k8ac_kla_dex_tag_count'])/nonzero(d['h4k8ac_kla_tag_count']) for _,d in supersets]
+    special_labels = ['{0}\nH4K8ac Ratio\nin {1}'.format(label, subgroup) for label,_ in supersets] 
+    title = 'Dex+KLA to KLA H4K8ac Tag Count Ratios in Peaks in {0} by gene category'.format(subgroup)
+    ax = yzer.boxplot(vals, special_labels, 
+                     title=title, xlabel=xlabel, 
+                     ylabel='Dex+KLA Tags/KLA Tags', 
                      show_outliers=False, show_plot=False, wide=False
                      )
     pyplot.setp(ax.get_xticklabels(), fontsize=10)
