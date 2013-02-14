@@ -119,7 +119,8 @@ class GlassPeak(GlassSequencingOutput):
         From a standard tab-delimited Homer peak file, create model instance.
         '''
         connection.close()
-        p_val = str(row[11]).lower().split('e')
+        try: p_val = str(row[11]).lower().split('e')
+        except IndexError: p_val = None
         return cls(chromosome=Chromosome.objects.get(name=str(row[1]).strip()),
                      start=int(row[2]),
                      end=int(row[3]),
@@ -127,8 +128,8 @@ class GlassPeak(GlassSequencingOutput):
                      length=int(row[3]) - int(row[2]),
                      tag_count=str(row[5]),
                      score=str(row[7]),
-                     p_value=str(p_val[0]),
-                     p_value_exp=len(p_val) > 1 and p_val[1] or 0,
+                     p_value=p_val and str(p_val[0]) or None,
+                     p_value_exp=p_val and len(p_val) > 1 and p_val[1] or 0,
                      fold_enrichment=str(row[10])
                      )
         

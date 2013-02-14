@@ -70,26 +70,27 @@ if __name__ == '__main__':
     if True:
         enh = data[data['distal'] == 't']
         enh = enh[enh['h3k4me2_tag_count'] > 10]
-        enh = enh[enh[['nod_notx_1h_tag_count','balb_notx_1h_tag_count']].max(axis=1) >= 10]
-        peaks = yzer.import_file(yzer.get_filename(base_dirpath, 'transcripts_me2_peaks.txt'))
-        enh = enh.merge(peaks, how='left', on='id')
+        enh = enh[enh[['nod_notx_1h_tag_count','balb_notx_1h_tag_count']].max(axis=1) >= 6]
+        peaks = yzer.import_file(yzer.get_filename(base_dirpath, 'transcript_me2_peaks.txt'))
+        enh = enh.merge(peaks, how='left', on='id', suffixes=['','_peak'])
+        enh['transcription_start'] = enh['start']
+        enh['transcription_end'] = enh['end']
+        enh['id'] = enh['peak_id']
         
+        subset = enh.copy()
+        subset = subset.groupby(['id','chr_name'], as_index=False).mean()
         if True:
-            yzer.run_homer(enh, 'me2_peaks', dirpath,
+            yzer.run_homer(subset, 'me2_peaks_6', dirpath,
                        cpus=6, center=True, reverse=False, preceding=False, size=200, length=[8, 10, 12, 15])
 
-        bg = yzer.get_filename(dirpath, 'me2_peaks/me2_peaks_regions_for_homer.txt')
+        bg = yzer.get_filename(dirpath, 'me2_peaks_6/me2_peaks_6_regions_for_homer.txt')
         
         subset = enh[enh['balb_nod_notx_1h_fc'] <= -1]
-        subset = subset.groupby('peak_id', as_index=False).mean()
-        subset['transcription_start'] = subset['start']
-        subset['transcription_end'] = subset['end']
-        yzer.run_homer(subset, 'me2_peaks_notx_1h_nod_down_15', dirpath,
+        subset = subset.groupby(['id','chr_name'], as_index=False).mean()
+        yzer.run_homer(subset, 'me2_peaks_notx_1h_nod_down_6', dirpath,
                        cpus=6, center=True, reverse=False, preceding=False, size=200, length=[8, 10, 12, 15], bg=bg)
         
         subset = enh[enh['balb_nod_notx_1h_fc'] >= 1]
-        subset = subset.groupby('peak_id', as_index=False).mean()
-        subset['transcription_start'] = subset['start']
-        subset['transcription_end'] = subset['end']
-        yzer.run_homer(subset, 'me2_peaks_notx_1h_nod_up_15', dirpath,
+        subset = subset.groupby(['id','chr_name'], as_index=False).mean()
+        yzer.run_homer(subset, 'me2_peaks_notx_1h_nod_up_6', dirpath,
                        cpus=6, center=True, reverse=False, preceding=False, size=200, length=[8, 10, 12, 15], bg=bg)

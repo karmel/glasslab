@@ -58,6 +58,14 @@ class MotifAnalyzer(TranscriptAnalyzer):
             try: data['strand'] = data['strand'].apply(int)
             except KeyError: data['strand'] = 0
             
+            # Which key should we use?
+            start_key = 'transcription_start'
+            end_key = 'transcription_end'
+            try: data[start_key]
+            except KeyError: start_key = 'start'
+            try: data[end_key]
+            except KeyError: end_key = 'end'
+
             if not center:
                 first_strand, second_strand = 0, 1
                 if reverse:
@@ -65,22 +73,22 @@ class MotifAnalyzer(TranscriptAnalyzer):
                     first_strand, second_strand = 1, 0
                 if preceding:
                     # First, expand the whole transcript on either side
-                    data['transcription_start'] = data['transcription_start'] - size
-                    data['transcription_end'] = data['transcription_end'] + size
+                    data[start_key] = data[start_key] - size
+                    data[end_key] = data[end_key] + size
                     # Then grab strand-dependent beginning and end
-                    data['transcription_end_alt'] = data[data['strand'] == first_strand]['transcription_start'] + size 
-                    data['transcription_start_alt'] = data[data['strand'] == second_strand]['transcription_end'] - size 
+                    data['transcription_end_alt'] = data[data['strand'] == first_strand][start_key] + size 
+                    data['transcription_start_alt'] = data[data['strand'] == second_strand][end_key] - size 
                 else:
-                    data['transcription_end_alt'] = data[data['strand'] == first_strand]['transcription_start'] + size 
-                    data['transcription_start_alt'] = data[data['strand'] == second_strand]['transcription_end'] - size
-                data['transcription_start'] = data['transcription_start_alt'].fillna(data['transcription_start'])
-                data['transcription_end'] = data['transcription_end_alt'].fillna(data['transcription_end'])
-            data['transcription_start'] = data['transcription_start'].apply(int)
-            data['transcription_end'] = data['transcription_end'].apply(int)
+                    data['transcription_end_alt'] = data[data['strand'] == first_strand][start_key] + size 
+                    data['transcription_start_alt'] = data[data['strand'] == second_strand][end_key] - size
+                data[start_key] = data['transcription_start_alt'].fillna(data[start_key])
+                data[end_key] = data['transcription_end_alt'].fillna(data[end_key])
+            data[start_key] = data[start_key].apply(int)
+            data[end_key] = data[end_key].apply(int)
             
              
             data.to_csv(region_filename,
-                        cols=['id', 'chr_name', 'transcription_start', 'transcription_end', 'strand'],
+                        cols=['id', 'chr_name', start_key, end_key, 'strand'],
                         header=False, index=False, sep='\t')
             # Convert to Windows line endings
             subprocess.check_call("sed ':a;N;$!ba;s/\n/\r/g' %s > %s" % (
