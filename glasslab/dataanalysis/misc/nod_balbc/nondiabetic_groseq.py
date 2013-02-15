@@ -52,30 +52,31 @@ if __name__ == '__main__':
         gene_groups = [['Clec4e','Tlr2',],
                        ['Cxcl1','Cxcl2','Il6','Ptgs2','Tnfsf9','Vegfa','Tnf',
                  'Siglec1','Mmp9',
-                 'Il10','Il1b','Cxcl10','Tlr4','Il12b',]]
-        '''
-                 'Itgb2','Itgam','Rhoa','Limk1',
-                 'Cdc42','Rac1','Rac2','Vav1','Vav2','Vav3',
-                 'Arpc1a','Arpc1b','Arpc2','Arpc3','Arpc5','Actr2','Actr3',
-                 'Cfl1','Cfl2','Dnm2','Arf1','Arf6',
-                 'Pdlim5', 'Pls3', 'Lima1', 'Vcl', 'Ctnnb1', 'Coro1c', 'Cdc42bpg', 'Flna', 'Flnc', 
-                 'Cnn2', 'Coro1a', 'Myl6', 'Cfl1', 'Csrp1', 'Srf', 'Cnn3', 'Arhgef17', 'Myh9', 'Myo18b', 'Mybpc3']
-        '''
+                 'Il10','Il1b','Cxcl10','Tlr4','Il12b',],
+                ['Cnn2','Lima1','Coro1a','Vcl','Acta2','Actb','Actg2','Actc1',
+                 'Lcp1','Jup','Tpm4','Tnni2','Zyx','Tubb3','Pfn1','Gas7','Arpc4',
+                 'Pstpip1','Bsn','Flna','Actn1','Lsp1',
+                 'Srf','Rhoj','Neurl2']]
+        
         for i, genes in enumerate(gene_groups):
+            for gene in genes[:]:
+                if not gene in refseq['gene_names'].values: 
+                    print gene
+                    genes.remove(gene)
             indices = [refseq[refseq['gene_names'] == gene].index[0] for gene in genes]
             
-            
-            sorted_by_count = refseq.fillna(0).sort_index(axis=0, by='balb_kla_1h_reads_per_base').index.copy()
-            sort_indexes = list(enumerate(sorted_by_count))
-            sort_indexes.sort(key=lambda x: x[1])
-            refseq['rank'] = zip(*sort_indexes)[0]
-             
-            yzer.bargraph_for_transcripts(refseq, indices, ['balb_nod_notx_1h_fc'],
-                                                bar_names=genes,
-                                                title='Fold Change in NOD vs. BALBc notx 1h GRO-seq',
-                                                ylabel='Fold Change in NOD vs. BALBc',
-                                                rank_label='Rank of read per base pair value in BALBc notx 1h, ascending',
-                                                show_plot=False)
-            yzer.save_plot(yzer.get_filename(img_dirpath, 'balbc_nod_notx_' + str(i) + '_fold_change_bargraph.png'))
-            yzer.show_plot()
+            for txt in ('notx','kla'):
+                sorted_by_count = refseq.fillna(0).sort_index(axis=0, by='balb_{0}_1h_reads_per_base'.format(txt)).index.copy()
+                sort_indexes = list(enumerate(sorted_by_count))
+                sort_indexes.sort(key=lambda x: x[1])
+                refseq['rank'] = zip(*sort_indexes)[0]
+                 
+                yzer.bargraph_for_transcripts(refseq, indices, ['balb_nod_{0}_1h_fc'.format(txt)],
+                                bar_names=genes,
+                                title='Fold Change in NOD vs. BALBc {0} 1h GRO-seq'.format(txt.upper()),
+                                ylabel='Fold Change in NOD vs. BALBc',
+                                rank_label='Rank of read per base pair value in BALBc {0} 1h, ascending'.format(txt.upper()),
+                                show_plot=False)
+                yzer.save_plot(yzer.get_filename(img_dirpath, 'balbc_nod_{0}_{1}_fold_change_bargraph.png'.format(txt,i)))
+                yzer.show_plot()
                 

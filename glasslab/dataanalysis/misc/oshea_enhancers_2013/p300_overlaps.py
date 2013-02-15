@@ -78,9 +78,13 @@ if __name__ == '__main__':
         yzer.run_homer(data[data['th2_tag_count'] > data['th1_tag_count']*multiple], 
                        'th2_up_{1}x_{0}_enhancers'.format(peak, multiple), motifs_dirpath,
                    cpus=6, center=True, reverse=False, preceding=False, size=200, length=[8, 10, 12, 15], bg=bg)
-        '''
+        
         yzer.run_homer(data[(data['th1_tag_count'] > data['th2_tag_count']*multiple) & (data['ctcf_tag_count'] > 0)], 
                        'th1_up_{1}x_{0}_enhancers_with_ctcf'.format(peak, multiple), motifs_dirpath,
+                   cpus=6, center=True, reverse=False, preceding=False, size=200, length=[8, 10, 12, 15], bg=bg)
+        '''
+        yzer.run_homer(data[(data['th1_tag_count'] > data['th2_tag_count']*multiple) & (data['ctcf_tag_count'] == 0)], 
+                       'th1_up_{1}x_{0}_enhancers_without_ctcf'.format(peak, multiple), motifs_dirpath,
                    cpus=6, center=True, reverse=False, preceding=False, size=200, length=[8, 10, 12, 15], bg=bg)
         
         
