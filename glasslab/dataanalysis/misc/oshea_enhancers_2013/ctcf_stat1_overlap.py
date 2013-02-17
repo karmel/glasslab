@@ -18,7 +18,7 @@ if __name__ == '__main__':
     with_stat1 = data[data['p2_tag_count'] > 0]
     without_stat1 = data[data['p2_tag_count'] == 0]
 
-    if False:
+    if True:
         ax = yzer.piechart([len(with_stat1), len(without_stat1)], 
                       ['CTCF sites with STAT1', 'CTCF sites without STAT1'], 
                       title='DP Thymocyte CTCF Sites with STAT1 in Th1 Cells', 
