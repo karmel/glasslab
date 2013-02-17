@@ -22,6 +22,7 @@ if __name__ == '__main__':
     # Filter out promoters
     th1 = th1[th1['tss_id'] == 0]
     th2 = th2[th2['tss_id'] == 0]
+    naive = naive[naive['tss_id'] == 0]
     
     # Get venn-diagram sets for th1/th2
     only_th1 = th1[th1['th2_id'] == 0]
