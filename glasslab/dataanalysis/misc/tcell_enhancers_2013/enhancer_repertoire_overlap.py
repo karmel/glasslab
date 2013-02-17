@@ -49,6 +49,7 @@ if __name__ == '__main__':
     
     
     for i, subset in enumerate(datasets):
+        if i < 2: continue
         subset['id'] = subset['{0}_id'.format(main_peak[i])]
         subset['start'] = subset['{0}_start'.format(main_peak[i])]
         subset['end'] = subset['{0}_end'.format(main_peak[i])]
