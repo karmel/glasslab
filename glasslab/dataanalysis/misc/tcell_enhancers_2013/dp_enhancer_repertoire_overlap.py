@@ -25,7 +25,7 @@ if __name__ == '__main__':
     # Get venn-diagram sets for th1/th2
     dp_only = dp[dp['naive_id'] == 0]
     naive_only = naive[naive['dp_id'] == 0]
-    shared = naive_only[naive_only['dp_id'] > 0]
+    shared = naive[naive['dp_id'] > 0]
     
     datasets = [dp_only, naive_only, shared]
     main_peak = ['dp','naive','naive']
