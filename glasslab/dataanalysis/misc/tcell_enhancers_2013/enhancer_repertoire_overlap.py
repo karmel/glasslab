@@ -42,14 +42,14 @@ if __name__ == '__main__':
     
     datasets = [only_th1_no_me2,only_th1_with_me2,only_th2_no_me2,only_th2_with_me2,
                 shared_no_me2,shared_with_me2, naive_only]
-    main_peak = ['th1','th1','th2','th2','naive','naive','naive']
+    main_peak = ['th1','th1','th2','th2','th1','th1','naive']
     names = ['only_th1_no_me2','only_th1_with_me2','only_th2_no_me2','only_th2_with_me2',
                 'shared_no_me2','shared_with_me2', 'naive_only']
     print [len(d) for d in datasets]
     
     
     for i, subset in enumerate(datasets):
-        if i < 2: continue
+        if i < 4: continue
         subset['id'] = subset['{0}_id'.format(main_peak[i])]
         subset['start'] = subset['{0}_start'.format(main_peak[i])]
         subset['end'] = subset['{0}_end'.format(main_peak[i])]
