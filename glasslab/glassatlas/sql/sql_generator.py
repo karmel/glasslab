@@ -16,9 +16,9 @@ class GlassAtlasSqlGenerator(SqlGenerator):
     staging = None
     
     def __init__(self, genome=None, cell_type=None, staging=None, user=None):
-        self.genome = genome.lower() or current_settings.GENOME.lower()
-        self.cell_type = cell_type.lower() or current_settings.CELL_TYPE.lower()
-        self.staging = staging.lower() or current_settings.STAGING
+        self.genome = genome or current_settings.GENOME.lower()
+        self.cell_type = cell_type or current_settings.CELL_TYPE.lower()
+        self.staging = staging or current_settings.STAGING
         
         self.schema_name_prefix = 'glass_atlas_{0}_{1}'.format(self.genome, self.cell_type)
         super(GlassAtlasSqlGenerator, self).__init__()
@@ -32,7 +32,7 @@ class GlassAtlasSqlGenerator(SqlGenerator):
         s += self.prep_table_main_transcript()
         s += self.table_main_source(prep_suffix)
         
-        for chr_id in current_settings.GENOME_CHOICES[current_settings.GENOME]['chromsomes']:
+        for chr_id in current_settings.GENOME_CHOICES[current_settings.GENOME]['chromosomes']:
             s += self.prep_table_chrom_transcript(chr_id)
             s += self.table_chrom_source(chr_id, prep_suffix)
         
@@ -47,7 +47,7 @@ class GlassAtlasSqlGenerator(SqlGenerator):
         s = self.schema(self.staging)
         s += self.table_main_transcript()
         s += self.table_main_source(self.staging)
-        for chr_id in current_settings.GENOME_CHOICES[current_settings.GENOME]['chromsomes']:
+        for chr_id in current_settings.GENOME_CHOICES[current_settings.GENOME]['chromosomes']:
             s += self.table_chrom_transcript(chr_id)
             s += self.table_chrom_source(chr_id, self.staging)
         
@@ -274,7 +274,7 @@ class GlassAtlasSqlGenerator(SqlGenerator):
         CREATE TABLE "{schema_name_prefix}{suffix}"."{table_name}" (
             id integer NOT NULL,
             glass_transcript_id integer,
-            {type}_transcription_region_id integer,
+            {table_name}_id integer,
             relationship "{schema_name_prefix}{suffix}"."glass_transcript_transcription_region_relationship",
             major boolean
         );
