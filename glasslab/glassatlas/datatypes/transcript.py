@@ -186,8 +186,6 @@ class TranscriptionRegionBase(TranscriptModelBase):
     def add_from_tags(cls,  tag_table):
         connection.close()
         sequencing_run = SequencingRun.objects.get(source_table=tag_table)
-        if not sequencing_run.standard: 
-            raise Exception('This is not a table marked as "standard," and will not be added to the transcript set.')
         if sequencing_run.type.strip() == 'Gro-Seq':
             cls.add_transcripts_from_groseq(tag_table, sequencing_run)
             

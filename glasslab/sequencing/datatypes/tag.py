@@ -154,7 +154,7 @@ class GlassTag(GlassSequencingOutput):
         Can't be multiprocessed; too many attempts to ANALYZE at once.
         '''
         
-        for chr_id in current_settings.GENOME_CHROMOSOMES:
+        for chr_id in current_settings.GENOME_CHOICES[current_settings.GENOME]['chromosomes']:
             table_sql = """
             CREATE TABLE "%s_%d" (
                 CHECK ( chromosome_id = %d )
@@ -204,7 +204,7 @@ class GlassTag(GlassSequencingOutput):
                cls._meta.db_table,
                current_settings.CURRENT_SCHEMA)
         execute_query(trigger_sql)
-        
+                
     @classmethod
     def translate_from_prep(cls):
         multiprocess_all_chromosomes(wrap_translate_from_prep, cls)

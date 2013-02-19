@@ -39,6 +39,8 @@ class TranscriptsFromTagsParser(GlassOptionParser):
                            help='Should transcripts be updated with either whole start_end values or just the TSS in the field set_start_end_tss?'),
                make_option('--no_extended_gaps',action='store_true', dest='no_extended_gaps',  
                            help='Should extended gaps (i.e., under RefSeq regions) be allowed?'),
+               make_option('--extension_percent',action='store', dest='extension_percent', type='string', default='.2',
+                           help='What percent of a RefSeq gene body can be automatically stitched over? Expects float, default: .2 (20%)'),
                make_option('--staging',action='store_true', dest='staging', default=False,  
                            help='Use the transcript database with the suffix _staging?'),
                make_option('--max_edge',action='store', dest='max_edge',  

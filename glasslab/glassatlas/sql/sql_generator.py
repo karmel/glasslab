@@ -519,7 +519,6 @@ class GlassAtlasSqlGenerator(SqlGenerator):
             """
         
 if __name__ == '__main__':
-    gen = GlassAtlasSqlGenerator(genome='mm9', cell_type='ThioMac', staging='')
-    print gen.table_main_interaction()
-    for chrom in xrange(1,23): print gen.table_chrom_interaction(chrom)
-    print gen.table_trigger_interaction()
+    gen = GlassAtlasSqlGenerator(genome='mm9', cell_type='CD4TCell', staging='')
+    print gen.from_tags_functions()
+    #print gen.from_prep_functions()

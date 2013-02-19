@@ -234,12 +234,6 @@ class SequencingRun(GlassModel):
     
     peak_type       = models.ForeignKey(PeakType, null=True, default=None, blank=True, help_text='Does this run produce ChIP peaks?')
     
-    standard        = models.BooleanField(default=False, 
-                                          help_text='Is this a standard run, that should affect expected scores and transcript boundaries?')
-    use_for_scoring = models.BooleanField(default=False, 
-                                          help_text='Should this run be considered when scoring transcripts?')
-    requires_reload = models.BooleanField(default=False, help_text='Should this run be reloaded with the next processing cycle?')
-    
     timepoint       = models.CharField(max_length=10, blank=True, null=True)
     wt              = models.BooleanField(default=False)    
     notx            = models.BooleanField(default=False)    

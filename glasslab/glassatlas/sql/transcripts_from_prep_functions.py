@@ -387,4 +387,4 @@ $$ LANGUAGE 'plpgsql';
 
 """.format(genome, cell_type, suffix=suffix)
 
-print sql('mm9','thiomac','')
+#print sql('mm9','cd4tcell','')

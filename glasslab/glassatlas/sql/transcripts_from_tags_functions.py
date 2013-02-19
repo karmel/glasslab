@@ -449,4 +449,4 @@ $$ LANGUAGE 'plpgsql';
 
 """.format(genome, cell_type)
 
-
+#print sql('mm9','cd4tcell')
