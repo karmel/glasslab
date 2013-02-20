@@ -10,7 +10,7 @@ from glasslab.dataanalysis.misc.cd4tcell_finland_2012.resources import compariso
 
 if __name__ == '__main__':
     yzer = SeqGrapher()
-    dirpath = 'karmel/Desktop/Projects/GlassLab/Notes_and_Reports/CD4TCells_Finland_2012'
+    dirpath = 'karmel/Desktop/Projects/GlassLab/Notes_and_Reports/CD4TCells_Finland_2012/Analysis_2013_02'
     dirpath = yzer.get_path(dirpath)
     img_dirpath = yzer.get_and_create_path(dirpath, 'with_me3', 'basic_scatterplots')
 

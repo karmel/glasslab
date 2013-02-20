@@ -237,9 +237,9 @@ class GlassTranscriptPrep(TranscriptBase):
 
 class GlassTranscript(TranscriptBase):
     distal              = models.BooleanField(help_text='Is this transcript at least 1000 bp away from RefSeq transcripts (not strand-specific)?')
-    spliced             = models.NullBooleanField(default=None, help_text='Do we have RNA-Seq confirmation?')
     standard_error      = models.FloatField(null=True, default=None)
     score               = models.FloatField(null=True, default=None)
+    rpkm                = models.FloatField(null=True, default=None)
     
     modified        = models.DateTimeField(auto_now=True)
     created         = models.DateTimeField(auto_now_add=True)

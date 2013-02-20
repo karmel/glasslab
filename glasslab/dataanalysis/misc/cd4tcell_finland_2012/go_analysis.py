@@ -9,16 +9,17 @@ from glasslab.dataanalysis.motifs.motif_analyzer import MotifAnalyzer
 
 if __name__ == '__main__':
     yzer = MotifAnalyzer()
-    dirpath = 'karmel/Desktop/Projects/GlassLab/Notes_and_Reports/CD4TCells_Finland_2012'
+    dirpath = 'karmel/Desktop/Projects/GlassLab/Notes_and_Reports/CD4TCells_Finland_2012/Analysis_2013_02'
     dirpath = yzer.get_path(dirpath)
-    go_path = yzer.get_and_create_path(dirpath, 'with_me3','go_analysis', '0_6_min_lfc')
-    curr_path = yzer.get_and_create_path(dirpath, 'with_me3', 'motif_analysis')
-
+    go_path = yzer.get_and_create_path(dirpath, 'with_me3','go_analysis', '0_8_min_lfc')
+    
     data = yzer.import_file(yzer.get_filename(dirpath, 'transcript_vectors.txt'))
     data = data.fillna(0)
     data = data[data['naive_me3_tag_count'] + data['act_me3_tag_count'] > 0]
     
     if False:
+        curr_path = yzer.get_and_create_path(dirpath, 'with_me3', 'motif_analysis')
+
         yzer.run_homer(data, 'all_refseq_preceding', curr_path, 
                 center=False, reverse=False, preceding=True, size=200,
                 cpus=6)
@@ -29,8 +30,8 @@ if __name__ == '__main__':
                 center=True, reverse=False, preceding=False, size=300,
                 cpus=6, files_already_prepped=True)
         
-    bg_preceding = yzer.get_filename(curr_path, 'all_refseq_preceding','all_refseq_preceding_regions_for_homer.txt')
-    bg = yzer.get_filename(curr_path, 'all_refseq','all_refseq_regions_for_homer.txt')
+        bg_preceding = yzer.get_filename(curr_path, 'all_refseq_preceding','all_refseq_preceding_regions_for_homer.txt')
+        bg = yzer.get_filename(curr_path, 'all_refseq','all_refseq_regions_for_homer.txt')
     
     gene_file = file(yzer.get_filename(go_path, 'differential_gene_names.txt'), 'w')          
     for rep_set in replicate_sets:
@@ -43,7 +44,7 @@ if __name__ == '__main__':
         
         
         for lfc in (1,):
-            min_lfc = .6
+            min_lfc = .8
             
             lfc_key_a = '{0}_{1}_lfc'.format(key1a, key2a)
             lfc_key_b = '{0}_{1}_lfc'.format(key1b, key2b)

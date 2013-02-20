@@ -274,13 +274,14 @@ class GlassAtlasSqlGenerator(SqlGenerator):
         CREATE TABLE "{schema_name_prefix}{suffix}"."{table_name}" (
             id integer NOT NULL,
             glass_transcript_id integer,
-            {table_name}_id integer,
+            {type}_transcription_region_id integer,
             relationship "{schema_name_prefix}{suffix}"."glass_transcript_transcription_region_relationship",
             major boolean
         );
         CREATE INDEX {table_name}_transcript_idx ON "{schema_name_prefix}{suffix}"."{table_name}" USING btree (glass_transcript_id);
         CREATE INDEX {table_name}_major_idx ON "{schema_name_prefix}{suffix}"."{table_name}" USING btree (major);
-        """.format(schema_name_prefix=self.schema_name_prefix, table_name=table_name, suffix=self.staging) \
+        """.format(schema_name_prefix=self.schema_name_prefix, 
+                   table_name=table_name, suffix=self.staging, type=region_type) \
         + self.pkey_sequence_sql(self.schema_name_prefix + self.staging, table_name)
         
         

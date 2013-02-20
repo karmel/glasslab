@@ -60,8 +60,8 @@ class TranscriptBase(ReadOnlyAdmin):
 
 class GlassTranscriptAdmin(TranscriptBase):
     list_display    = ('chromosome','transcription_start','transcription_end','strand',
-                       'transcript_length', 'truncated_score', 'spliced', 'ucsc_browser_link', 'modified')
-    list_filter     = ('chromosome','strand','spliced')
+                       'transcript_length', 'truncated_score', 'ucsc_browser_link', 'modified')
+    list_filter     = ('chromosome','strand',)
     
     save_on_top     = True
     inlines         = [GlassTranscriptSequenceInline,
