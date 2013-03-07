@@ -65,9 +65,34 @@ if __name__ == '__main__':
         subset = enh[enh['balb_nod_notx_1h_fc'] >= 1]
         yzer.run_homer(subset, 'enhancer_at_least_10_tags_notx_1h_nod_up_15', dirpath,
                        cpus=6, center=False, reverse=False, preceding=False, size=200, length=[8, 10, 12, 15], bg=bg)
+    # All non-ref
+    if True:
+        enh = data[data['refseq'] == 'f']
+        enh = enh[enh[['nod_notx_1h_tag_count','balb_notx_1h_tag_count']].max(axis=1) >= 10]
+        if True:
+            yzer.run_homer(enh, 'non_refseq', dirpath,
+                       cpus=6, center=False, reverse=False, preceding=False, size=200, length=[8, 10, 12, 15])
+
+        bg = yzer.get_filename(dirpath, 'non_refseq/non_refseq_regions_for_homer.txt')
+        
+        subset = enh[enh['balb_nod_notx_1h_fc'] <= -1]
+        yzer.run_homer(subset, 'non_refseq_nod_down_notx', dirpath,
+                       cpus=6, center=False, reverse=False, preceding=False, size=200, length=[8, 10, 12, 15], bg=bg)
+        
+        subset = enh[enh['balb_nod_notx_1h_fc'] >= 1]
+        yzer.run_homer(subset, 'non_refseq_nod_up_notx', dirpath,
+                       cpus=6, center=False, reverse=False, preceding=False, size=200, length=[8, 10, 12, 15], bg=bg)
+        
+        subset = enh[enh['balb_nod_kla_1h_fc'] <= -1]
+        yzer.run_homer(subset, 'non_refseq_nod_down_kla', dirpath,
+                       cpus=6, center=False, reverse=False, preceding=False, size=200, length=[8, 10, 12, 15], bg=bg)
+        
+        subset = enh[enh['balb_nod_kla_1h_fc'] >= 1]
+        yzer.run_homer(subset, 'non_refseq_nod_up_kla', dirpath,
+                       cpus=6, center=False, reverse=False, preceding=False, size=200, length=[8, 10, 12, 15], bg=bg)
 
     # me2
-    if True:
+    if False:
         enh = data[data['distal'] == 't']
         enh = enh[enh['h3k4me2_tag_count'] > 10]
         enh = enh[enh[['nod_notx_1h_tag_count','balb_notx_1h_tag_count']].max(axis=1) >= 6]

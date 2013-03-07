@@ -124,7 +124,7 @@ lines.markersize  : 7            # markersize, in points
 # settings for axes and ticks. Special text sizes can be defined
 # relative to font.size, using the following values: xx-small, x-small,
 # small, medium, large, x-large, xx-large, larger, or smaller
-#font.size           : 12.0
+font.size           : 18
 #font.serif          : Bitstream Vera Serif, New Century Schoolbook, Century Schoolbook L, Utopia, ITC Bookman, Bookman, Nimbus Roman No9 L, Times New Roman, Times, Palatino, Charter, serif
 font.sans-serif     : Helvetica, Bitstream Vera Sans, Lucida Grande, Verdana, Geneva, Lucid, Arial, Helvetica, Avant Garde, sans-serif
 #font.cursive        : Apple Chancery, Textile, Zapf Chancery, Sand, cursive
@@ -203,7 +203,7 @@ font.sans-serif     : Helvetica, Bitstream Vera Sans, Lucida Grande, Verdana, Ge
 #axes.edgecolor      : black   # axes edge color
 #axes.linewidth      : 1.0     # edge linewidth
 #axes.grid           : False   # display grid or not
-axes.titlesize      : 20   # fontsize of the axes title
+axes.titlesize      : 26   # fontsize of the axes title
 #axes.labelsize      : medium  # fontsize of the x any y labels
 #axes.labelweight    : normal  # weight of the x and y labels
 #axes.labelcolor     : black
@@ -325,7 +325,7 @@ figure.facecolor : white    # figure facecolor; 0.75 is scalar gray
 # the default savefig params can be different from the display params
 # Eg, you may want a higher resolution, or to make the figure
 # background white
-savefig.dpi       : 80      # figure dots per inch
+savefig.dpi       : 300      # figure dots per inch
 #savefig.facecolor : white    # figure facecolor when saving
 #savefig.edgecolor : white    # figure edgecolor when saving
 #savefig.extension : auto     # what extension to use for savefig('foo'), or 'auto'

@@ -5,6 +5,7 @@ Created on Mar 23, 2012
 '''
 from __future__ import division
 from glasslab.dataanalysis.graphing.seq_grapher import SeqGrapher
+from glasslab.utils.functions import nonzero
 
 if __name__ == '__main__':
     yzer = SeqGrapher()
@@ -23,6 +24,15 @@ if __name__ == '__main__':
     data['balb_notx_1h_reads_per_base'] = data['balb_notx_1h_tag_count']/data['length']
     data['balb_kla_1h_reads_per_base'] = data['balb_kla_1h_tag_count']/data['length']
     
+    data['balb_notx_1h_tag_count'] = nonzero(data['balb_notx_1h_tag_count'])
+    data['nod_notx_1h_tag_count_norm'] = nonzero(data['nod_notx_1h_tag_count_norm'])
+    data['balb_kla_1h_tag_count'] = nonzero(data['balb_kla_1h_tag_count'])
+    data['nod_kla_1h_tag_count_norm'] = nonzero(data['nod_kla_1h_tag_count_norm'])
+    
+    data = data[data['transcript_score'] >= 4]
+    data = data[data[['balb_notx_1h_tag_count','nod_notx_1h_tag_count_norm',
+                      'balb_kla_1h_tag_count','nod_kla_1h_tag_count_norm']].max(axis=1) >= 10]
+    
     refseq = yzer.get_refseq(data)
     
     # Remove low tag counts
@@ -33,6 +43,7 @@ if __name__ == '__main__':
         # Non-diabetic balbc vs. nod
         ax = yzer.scatterplot(refseq, 'balb_notx_1h_tag_count', 'nod_notx_1h_tag_count_norm',
                             log=True, color='blue', master_dataset=refseq,
+                            xlabel='BALBc notx 1h tag count',ylabel='NOD notx 1h tag count',
                             title='Non-Diabetic BALBc vs. NOD Notx 1h Refseq Transcripts',
                             show_2x_range=True, show_legend=False,
                             show_count=True, show_correlation=True, 
@@ -41,7 +52,48 @@ if __name__ == '__main__':
         # Non-diabetic balbc vs. nod
         ax = yzer.scatterplot(refseq, 'balb_kla_1h_tag_count', 'nod_kla_1h_tag_count_norm',
                             log=True, color='blue', master_dataset=refseq,
+                            xlabel='BALBc KLA 1h tag count',ylabel='NOD KLA 1h tag count',
                             title='Non-Diabetic BALBc vs. NOD KLA 1h Refseq Transcripts',
+                            show_2x_range=True, show_legend=False,
+                            show_count=True, show_correlation=True, 
+                            save_dir=img_dirpath, show_plot=True)
+    if False:
+        # Non-diabetic balbc vs. nod
+        ax = yzer.scatterplot(data, 'balb_notx_1h_tag_count', 'nod_notx_1h_tag_count_norm',
+                            log=True, color='blue', master_dataset=data,
+                            xlabel='BALBc notx 1h tag count',ylabel='NOD notx 1h tag count',
+                            title='Non-Diabetic BALBc vs. NOD Notx 1h All Transcripts',
+                            show_2x_range=True, show_legend=False,
+                            show_count=True, show_correlation=True, 
+                            save_dir=img_dirpath, show_plot=True)
+        
+        # Non-diabetic balbc vs. nod
+        ax = yzer.scatterplot(data, 'balb_kla_1h_tag_count', 'nod_kla_1h_tag_count_norm',
+                            log=True, color='blue', master_dataset=data,
+                            xlabel='BALBc KLA 1h tag count',ylabel='NOD KLA 1h tag count',
+                            title='Non-Diabetic BALBc vs. NOD KLA 1h All Transcripts',
+                            show_2x_range=True, show_legend=False,
+                            show_count=True, show_correlation=True, 
+                            save_dir=img_dirpath, show_plot=True)
+        
+    if False:
+        # Enhancers
+        enh = data[data['distal'] == 't']
+        enh = enh[enh['h3k4me2_tag_count'] > 10]
+        # Non-diabetic balbc vs. nod
+        ax = yzer.scatterplot(enh, 'balb_notx_1h_tag_count', 'nod_notx_1h_tag_count_norm',
+                            log=True, color='blue', master_dataset=enh,
+                            xlabel='BALBc notx 1h tag count',ylabel='NOD notx 1h tag count',
+                            title='Non-Diabetic BALBc vs. NOD Notx 1h eRNA',
+                            show_2x_range=True, show_legend=False,
+                            show_count=True, show_correlation=True, 
+                            save_dir=img_dirpath, show_plot=True)
+        
+        # Non-diabetic balbc vs. nod
+        ax = yzer.scatterplot(enh, 'balb_kla_1h_tag_count', 'nod_kla_1h_tag_count_norm',
+                            log=True, color='blue', master_dataset=enh,
+                            xlabel='BALBc KLA 1h tag count',ylabel='NOD KLA 1h tag count',
+                            title='Non-Diabetic BALBc vs. NOD KLA 1h eRNA',
                             show_2x_range=True, show_legend=False,
                             show_count=True, show_correlation=True, 
                             save_dir=img_dirpath, show_plot=True)
@@ -49,14 +101,19 @@ if __name__ == '__main__':
     
             
     if True:
-        gene_groups = [['Clec4e','Tlr2',],
+        gene_groups = [
+                       ['Srf','Cnn2','Lima1','Coro1a','Vcl','Acta2','Actb','Dhcr24','Actg2','Actc1','Lcp1','Jup','Tpm4','Tnni2','Zyx','Tubb3','Pfn1','Gas7','Arpc4','Pstpip1','Bsn','Flna','Actn1'],
+                       
+                ['Clec4e','Tlr2',],
                        ['Cxcl1','Cxcl2','Il6','Ptgs2','Tnfsf9','Vegfa','Tnf',
                  'Siglec1','Mmp9',
                  'Il10','Il1b','Cxcl10','Tlr4','Il12b',],
-                ['Cnn2','Lima1','Coro1a','Vcl','Acta2','Actb','Actg2','Actc1',
+                       ]
+        '''       ['Cnn2','Lima1','Coro1a','Vcl','Acta2','Actb','Actg2','Actc1',
                  'Lcp1','Jup','Tpm4','Tnni2','Zyx','Tubb3','Pfn1','Gas7','Arpc4',
                  'Pstpip1','Bsn','Flna','Actn1','Lsp1',
-                 'Srf','Rhoj','Neurl2']]
+                 'Srf','Rhoj','Neurl2']]'''
+                 
         
         for i, genes in enumerate(gene_groups):
             for gene in genes[:]:

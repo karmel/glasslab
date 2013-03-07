@@ -121,17 +121,18 @@ class SeqGrapher(TranscriptAnalyzer):
         self.other_plot(ax=ax)
         
         self.save_plot_with_dir(save_dir, save_name, title)
-        if show_plot: self.show_plot()
+        #if show_plot: self.show_plot()
     
         return ax
     
     def set_up_plot(self, ax=None, subplot=111, wide=False):
         # Set up plot
-        width = 10
+        size = 20
+        width = size
         if wide: width = width*(wide is True and 2 or wide)
              
         if not ax: pyplot.figure(figsize=[width*int(str(subplot)[1]), # Width for cols
-                                          10*int(str(subplot)[0])]) # Height for rows
+                                          size*int(str(subplot)[0])]) # Height for rows
         ax = pyplot.subplot(subplot)
         return ax
         
@@ -413,21 +414,22 @@ class SeqGrapher(TranscriptAnalyzer):
         self.save_plot_with_dir(save_dir, save_name, title)
         if show_plot: self.show_plot()
     
-    def bargraph_for_transcripts(self, data, indices, cols,
+    def bargraph_for_transcripts(self, data, indices=None, cols=None,
                                  bar_names=None, 
                                  title='', xlabel='', ylabel='', rank_label='',
                                  convert_log_to_fc=True, show_2x_range=True,
-                                 show_plot=True):
+                                 show_plot=True, save_dir='', save_name='', ):
         '''
         For multiple transcripts, show bar graphs, including rank marker.
         '''
-        axis_spacer = .2
-        bar_width = max(8/len(indices), .8)
-        xvals_per_col = [x*1.25*bar_width + axis_spacer for x in xrange(0,len(indices))]
+        bar_count = len(indices or data)
+        axis_spacer = .4
+        bar_width = max(8/bar_count, 1.6)
+        xvals_per_col = [x*1.25*bar_width + axis_spacer for x in xrange(0,bar_count)]
         
         # Get bar positions for all columns, adding an extra space between groups 
         xvals = [map(lambda x: x*col_number + axis_spacer*(col_number - 1), xvals_per_col)
-                    for col_number in xrange(1,len(cols)+1)] 
+                    for col_number in xrange(1,len(cols or [1])+1)] 
         # Unnest
         xvals = [item for sublist in xvals for item in sublist]
         
@@ -450,14 +452,18 @@ class SeqGrapher(TranscriptAnalyzer):
             pyplot.plot([0,max_x], 
                         [convert_log_to_fc and .5 or -1, convert_log_to_fc and .5 or -1, ], 
                         '--',color='black')
-        yvals = []
-        for col in cols:
-            if convert_log_to_fc:
-                yvals += [2**data.ix[index][col] for index in indices]
-            else:
-                yvals += [data.ix[index][col] for index in indices]
-                default_ylabel = 'Log(2) ' + default_ylabel
-                    
+            
+        if cols:
+            # Whole dataset passed; process
+            yvals = []
+            for col in cols:
+                if convert_log_to_fc:
+                    yvals += [2**data.ix[index][col] for index in indices]
+                else:
+                    yvals += [data.ix[index][col] for index in indices]
+                    default_ylabel = 'Log(2) ' + default_ylabel
+        else: yvals = data
+                        
         ax.bar(xvals, yvals, bar_width, color='#C9D9FB')
         
         pyplot.ylabel(ylabel or default_ylabel)
@@ -465,23 +471,25 @@ class SeqGrapher(TranscriptAnalyzer):
         
         bar_middles = [x + .5*bar_width for x in xvals]
         # Add ranks along right axis
-        try: 
-            r_ax = ax.twinx()
-            r_ax.plot(bar_middles, data.ix[indices]['rank'],'v',markerfacecolor='None',markeredgecolor='blue')
-            r_ax.set_ylabel('Rank')
-        except KeyError: pass
-        
+        if indices:
+            try: 
+                r_ax = ax.twinx()
+                r_ax.plot(bar_middles, data.ix[indices]['rank'],'v',markerfacecolor='None',markeredgecolor='blue')
+                r_ax.set_ylabel(rank_label or 'Rank')
+            except KeyError: pass
+            
         ax.set_xticks(bar_middles)
         ax.set_xticklabels(bar_names or cols)
         ax.set_xlim([0,max_x])
         
-        r_ax.set_ylabel(rank_label or 'Rank')
+        
         
         self.add_title(title, ax)
         
         # Any other operations to tack on?
         self.other_plot()
         
+        self.save_plot_with_dir(save_dir, save_name, title)
         if show_plot: self.show_plot()
     
         return ax
