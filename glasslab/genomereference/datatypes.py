@@ -9,16 +9,13 @@ Created on Sep 24, 2010
 
 '''
 from django.db import models
-from glasslab.utils.datatypes.basic_model import BoxField, GlassModel
-from glasslab.utils.datatypes.genome_reference import KeggPathway
-from glasslab.config import current_settings
+from glasslab.utils.datatypes.basic_model import Int8RangeField, GlassModel
 
-SCHEMA_BASE = 'genome_reference_{0}'.format(current_settings.GENOME)
-
+SCHEMA_BASE = 'genome_reference_{0}'
 
 class GenomeReferenceBase(GlassModel):
     schema_base = SCHEMA_BASE
-    class Meta:
+    class Meta(object):
         abstract = True
         
 #######################################################
@@ -31,7 +28,7 @@ class Chromosome(GenomeReferenceBase):
     name = models.CharField(max_length=25, blank=False)
     length = models.IntegerField(max_length=25, blank=False)
     
-    class Meta:
+    class Meta(object):
         db_table = '{0}"."chromosome'.format(SCHEMA_BASE)
         app_label   = 'Genome_Reference'
     
@@ -44,7 +41,7 @@ class SequenceIdentifier(GenomeReferenceBase):
     '''
     sequence_identifier = models.CharField(max_length=50, blank=False)
     
-    class Meta: 
+    class Meta(object): 
         db_table = '{0}"."sequence_identifier'.format(SCHEMA_BASE)
         app_label   = 'Genome_Reference'
     
@@ -76,24 +73,12 @@ class SequenceDetail(GenomeReferenceBase):
     ensembl_id          = models.CharField(max_length=100, blank=True)
     pfam_id             = models.CharField(max_length=100, blank=True)
     
-    class Meta: 
+    class Meta(object): 
         db_table    = '{0}"."sequence_detail'.format(SCHEMA_BASE)
         app_label   = 'Genome_Reference'
     
     def __unicode__(self): 
         return '{0} ({1})'.format(self.gene_name, self.sequence_identifier.sequence_identifier)
-
-class SequenceKeggPathway(GlassModel):
-    '''
-    Mappings of transcription regions and coding sites.
-    '''
-    sequence_identifier = models.ForeignKey(SequenceIdentifier)
-    kegg_pathway        = models.ForeignKey(KeggPathway)
-    map_location        = models.CharField(max_length=50, help_text='Mappable identifier for this sequence and pathway; can be used in Kegg URLs.')
-    
-    class Meta: 
-        db_table    = '{0}"."sequence_kegg_pathway'.format(SCHEMA_BASE)
-        app_label   = 'Genome_Reference'
 
 class NonCodingRna(GenomeReferenceBase):
     '''
@@ -103,7 +88,7 @@ class NonCodingRna(GenomeReferenceBase):
     type                = models.CharField(max_length=20)
     description         = models.CharField(max_length=100)
     
-    class Meta: 
+    class Meta(object): 
         db_table    = '{0}"."non_coding_rna'.format(SCHEMA_BASE)
         app_label   = 'Genome_Reference'
         verbose_name = 'Non coding RNA'
@@ -135,10 +120,10 @@ class SequenceTranscriptionRegion(GenomeReferenceBase):
     coding_start        = models.IntegerField(max_length=12)
     coding_end          = models.IntegerField(max_length=12)
     
-    start_end           = BoxField(null=True, default=None, help_text='This is a placeholder for the PostgreSQL box type.')
+    start_end           = Int8RangeField(null=True, default=None, help_text='This is a placeholder for the PostgreSQL range type.')
     
     table_name = 'sequence_transcription_region'
-    class Meta: 
+    class Meta(object): 
         db_table    = '{0}"."sequence_transcription_region'.format(SCHEMA_BASE)
         app_label   = 'Genome_Reference'
 
@@ -153,8 +138,8 @@ class SequenceExon(GlassModel):
     exon_start = models.IntegerField(max_length=12)
     exon_end   = models.IntegerField(max_length=12)    
     frame      = models.IntegerField(max_length=5, help_text='Number o nucleotides needed from prior exon to make a complete amino acid at the start of this exon.')
-    start_end  = BoxField(null=True, default=None, help_text='This is a placeholder for the PostgreSQL box type.')
-    class Meta: 
+    start_end  = Int8RangeField(null=True, default=None, help_text='This is a placeholder for the PostgreSQL box type.')
+    class Meta(object): 
         db_table    = '{0}"."sequence_exon'.format(SCHEMA_BASE)
         app_label   = 'Genome_Reference'
         
@@ -172,9 +157,9 @@ class NonCodingTranscriptionRegion(GenomeReferenceBase):
     transcription_end   = models.IntegerField(max_length=12)    
     score               = models.IntegerField(max_length=5)
     
-    start_end           = BoxField(null=True, default=None, help_text='This is a placeholder for the PostgreSQL box type.')
+    start_end           = Int8RangeField(null=True, default=None, help_text='This is a placeholder for the PostgreSQL range type.')
     
-    class Meta: 
+    class Meta(object): 
         db_table    = '{0}"."non_coding_transcription_region'.format(SCHEMA_BASE)
         app_label   = 'Genome_Reference'
 
@@ -192,9 +177,9 @@ class InfrastructureTranscriptionRegion(GlassModel):
     transcription_start = models.IntegerField(max_length=12)
     transcription_end   = models.IntegerField(max_length=12)
     
-    start_end           = BoxField(null=True, default=None, help_text='This is a placeholder for the PostgreSQL box type.')
+    start_end           = Int8RangeField(null=True, default=None, help_text='This is a placeholder for the PostgreSQL box type.')
     
-    class Meta: 
+    class Meta(object): 
         db_table    = '{0}"."patterned_transcription_region'.format(SCHEMA_BASE)
         app_label   = 'Genome_Reference'
 
