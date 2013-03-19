@@ -39,8 +39,7 @@ class GlassAtlasSqlGenerator(SqlGenerator):
         s += self.prep_table_trigger_transcript()
         s += self.table_trigger_source(prep_suffix)
         
-        s += self.from_tags_functions()
-
+        s += self.from_tags_functions()  
         return s
             
     def final_set(self):
@@ -88,7 +87,7 @@ class GlassAtlasSqlGenerator(SqlGenerator):
             "strand" int2 DEFAULT NULL,
             "transcription_start" int8 DEFAULT NULL,
             "transcription_end" int8 DEFAULT NULL,
-            "start_end" box DEFAULT NULL,
+            "start_end" int8range DEFAULT NULL,
             "density" float DEFAULT NULL, -- RPKM per run, essentially. But number of bp is configurable.
             "edge" float DEFAULT NULL, -- Length of the allowed edge for joining transcripts.
             "start_density" point DEFAULT NULL,
@@ -122,14 +121,15 @@ class GlassAtlasSqlGenerator(SqlGenerator):
             || quote_literal(NEW.strand) || ','
             || quote_literal(NEW.transcription_start) || ','
             || quote_literal(NEW.transcription_end) || ','
-            || 'public.make_box(' || quote_literal(NEW.transcription_start) || ', 0, ' 
-                || quote_literal(NEW.transcription_end) || ', 0)'
+            || 'int8range(' || quote_literal(NEW.transcription_start) || ', ''[]''), ' 
+                || quote_literal(NEW.transcription_end) || ')'
             || '),'
-            || 'public.make_box(' || quote_literal((NEW.start_density[1])[0]) || ', ' || quote_literal((NEW.start_density[1])[1]) || ', ' 
-                || quote_literal((NEW.start_density[0])[0]) || ', ' || quote_literal((NEW.start_density[0])[1]) || '),'
-            || 'circle(' || quote_literal(center(NEW.density_circle)) || ', ' || quote_literal(radius(NEW.density_circle)) || ')'
-            || '),'
+            || quote_literal(NEW.density) || ','
+            || quote_literal(NEW.edge) || ','
+            || 'point(' || quote_literal(NEW.transcription_start) || ', ' || quote_literal(NEW.density) || '),'
+            || 'circle(' || quote_literal(center(NEW.density_circle)) || ', ' || quote_literal(radius(NEW.density_circle)) || '),'
             || quote_literal(NEW.refseq)
+            || ')'
             ;
             RETURN NULL;
         END;
@@ -157,23 +157,21 @@ class GlassAtlasSqlGenerator(SqlGenerator):
         + self.pkey_sequence_sql(self.schema_name_prefix + suffix, table_name)
         
     def table_chrom_source(self, chr_id, suffix=''):
-        table_name = 'glass_transcript_source'
         return """
-        CREATE TABLE "{schema_name_prefix}{suffix}"."{table_name}_{chr_id}" (
+        CREATE TABLE "{schema_name_prefix}{suffix}"."glass_transcript_source_{chr_id}" (
             CHECK ( chromosome_id = {chr_id} )
-        ) INHERITS ("{schema_name_prefix}{suffix}"."{table_name}");
-        CREATE INDEX {table_name}_{chr_id}_pkey_idx ON "{schema_name_prefix}{suffix}"."{table_name}_{chr_id}" USING btree (id);
-        CREATE INDEX {table_name}_{chr_id}_transcript_idx ON "{schema_name_prefix}{suffix}"."{table_name}_{chr_id}" USING btree (glass_transcript_id);
-        CREATE INDEX {table_name}_{chr_id}_sequencing_run_idx ON "{schema_name_prefix}{suffix}"."{table_name}_{chr_id}" USING btree (sequencing_run_id);
-        """.format(schema_name_prefix=self.schema_name_prefix, chr_id=chr_id, table_name=table_name, suffix=suffix)
+        ) INHERITS ("{schema_name_prefix}{suffix}"."glass_transcript_source");
+        CREATE INDEX glass_transcript_source_{chr_id}_pkey_idx ON "{schema_name_prefix}{suffix}"."glass_transcript_source_{chr_id}" USING btree (id);
+        CREATE INDEX glass_transcript_source_{chr_id}_transcript_idx ON "{schema_name_prefix}{suffix}"."glass_transcript_source_{chr_id}" USING btree (glass_transcript_id);
+        CREATE INDEX glass_transcript_source_{chr_id}_sequencing_run_idx ON "{schema_name_prefix}{suffix}"."glass_transcript_source_{chr_id}" USING btree (sequencing_run_id);
+        """.format(schema_name_prefix=self.schema_name_prefix, chr_id=chr_id, suffix=suffix)
         
     def table_trigger_source(self, suffix=''):
-        table_name = 'glass_transcript_source'
         return """
-        CREATE OR REPLACE FUNCTION {schema_name_prefix}{suffix}.{table_name}_insert_trigger()
+        CREATE OR REPLACE FUNCTION {schema_name_prefix}{suffix}.glass_transcript_source_insert_trigger()
         RETURNS TRIGGER AS $$
         BEGIN
-            EXECUTE 'INSERT INTO {schema_name_prefix}{suffix}.{table_name}_' || NEW.chromosome_id || ' VALUES ('
+            EXECUTE 'INSERT INTO {schema_name_prefix}{suffix}.glass_transcript_source_' || NEW.chromosome_id || ' VALUES ('
             || quote_literal(NEW.id) || ','
             || quote_literal(NEW.chromosome_id) || ','
             || quote_literal(NEW.glass_transcript_id) || ','
@@ -188,10 +186,10 @@ class GlassAtlasSqlGenerator(SqlGenerator):
         LANGUAGE 'plpgsql';
         
         -- Trigger function for inserts on main table
-        CREATE TRIGGER {table_name}_trigger
-            BEFORE INSERT ON "{schema_name_prefix}{suffix}"."{table_name}"
-            FOR EACH ROW EXECUTE PROCEDURE {schema_name_prefix}{suffix}.{table_name}_insert_trigger();
-        """.format(schema_name_prefix=self.schema_name_prefix, table_name=table_name, suffix=suffix)
+        CREATE TRIGGER glass_transcript_source_trigger
+            BEFORE INSERT ON "{schema_name_prefix}{suffix}"."glass_transcript_source"
+            FOR EACH ROW EXECUTE PROCEDURE {schema_name_prefix}{suffix}.glass_transcript_source_insert_trigger();
+        """.format(schema_name_prefix=self.schema_name_prefix, suffix=suffix)
         
     def table_main_transcript(self):
         table_name = 'glass_transcript'
@@ -202,8 +200,8 @@ class GlassAtlasSqlGenerator(SqlGenerator):
             "strand" int2 DEFAULT NULL,
             "transcription_start" int8 DEFAULT NULL,
             "transcription_end" int8 DEFAULT NULL,
-            "start_end" box DEFAULT NULL,
-            "start_end_tss" box DEFAULT NULL,
+            "start_end" int8range DEFAULT NULL,
+            "start_end_tss" int8range DEFAULT NULL,
             "refseq" boolean DEFAULT NULL,
             "distal" boolean DEFAULT NULL,
             "score" numeric DEFAULT NULL,
@@ -241,9 +239,11 @@ class GlassAtlasSqlGenerator(SqlGenerator):
             || quote_literal(NEW.strand) || ','
             || quote_literal(NEW.transcription_start) || ','
             || quote_literal(NEW.transcription_end) || ','
-            || 'public.make_box(' || quote_literal(NEW.transcription_start) || ', 0, ' 
-                || quote_literal(NEW.transcription_end) || ', 0),'
-            || coalesce(quote_literal(NEW.start_end_density),'NULL') || ','
+            || 'int8range(' || quote_literal(NEW.transcription_start) || ', ''[]''),' 
+                || quote_literal(NEW.transcription_end) || '),'
+            || 'NULL,' 
+            || coalesce(quote_literal(NEW.refseq),'NULL') || ','
+            || coalesce(quote_literal(NEW.distal),'NULL') || ','
             || coalesce(quote_literal(NEW.score),'NULL') || ','
             || coalesce(quote_literal(NEW.rpkm),'NULL') || ','
             || coalesce(quote_literal(NEW.standard_error),'NULL') || ','
