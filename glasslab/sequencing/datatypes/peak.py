@@ -6,13 +6,13 @@ Created on Sep 27, 2010
 from django.db import models, connection
 from glasslab.genomereference.datatypes import Chromosome, \
     SequencingRun, PeakType
-from glasslab.utils.datatypes.basic_model import BoxField
+from glasslab.utils.datatypes.basic_model import Int8RangeField, DynamicTable
 from glasslab.utils.database import execute_query
 from glasslab.config import current_settings
 from glasslab.sequencing.datatypes.tag import GlassSequencingOutput
    
        
-class GlassPeak(GlassSequencingOutput):
+class GlassPeak(DynamicTable, GlassSequencingOutput):
     '''
     From MACS::
         
