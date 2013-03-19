@@ -18,22 +18,25 @@ import subprocess
 import traceback
 
 from django.db import connection, transaction
-from glasslab.sequencing.datatypes.tag import GlassTag
 from multiprocessing import Pool
 from glasslab.config import current_settings
 import shutil
 from glasslab.sequencing.pipeline.add_short_reads import check_input, _print,\
     create_schema
-from glasslab.utils.misc.convert_for_upload import TagFileConverter
+from glasslab.utils.convert_for_upload import TagFileConverter
 from glasslab.utils.database import execute_query_without_transaction
 
 class FastqOptionParser(GlassOptionParser):
     options = [
+               make_option('-g', '--genome',action='store', type='string', dest='genome', default='mm9', 
+                           help='Currently supported: mm8, mm8r, mm9, hg18, hg18r, dm3'),
+               make_option('-c', '--cell_type',action='store', type='string', dest='cell_type', 
+                           help='Cell type for this run?'),
                make_option('-f', '--file_name',action='store', type='string', dest='file_name', 
                            help='Path to SAM, BAM, or Bowtie file for processing.'),
                make_option('-o', '--output_dir',action='store', type='string', dest='output_dir'),
-               make_option('-g', '--genome',action='store', type='string', dest='genome', default='mm9', 
-                           help='Currently supported: mm8, mm8r, mm9, hg18, hg18r'),
+               make_option('-p','--processes',action='store', dest='processes', default=None,  
+                           help='How many processes can be used?'),
                make_option('--project_name',action='store', type='string', dest='project_name',  
                            help='Optional name to be used as file prefix for created files.'),
                
@@ -52,7 +55,7 @@ class FastqOptionParser(GlassOptionParser):
                
                ]
     
-def split_tag_file(options, file_name, tag_file_name):
+def split_tag_file(options, file_name, tag_file_path):
     '''
     Trying to upload a single file all at once into the table often means we lose the DB
     connection. Split the large file here to allow more manageable looping.
@@ -62,7 +65,7 @@ def split_tag_file(options, file_name, tag_file_name):
         os.mkdir(output_dir)
     
     output_prefix = os.path.join(output_dir, '%s_' % file_name)
-    split_command = 'split -a 4 -l 100000 %s %s' % (tag_file_name, output_prefix)
+    split_command = 'split -a 4 -l 100000 %s %s' % (tag_file_path, output_prefix)
     try: subprocess.check_call(split_command, shell=True)
     except Exception:
         raise Exception('Exception encountered while trying to split bowtie file. Traceback:\n%s'
@@ -114,35 +117,34 @@ def translate_prep_columns(file_name):
     GlassTag.create_parent_table(file_name)
     GlassTag.create_partition_tables()
     GlassTag.translate_from_prep()
-    GlassTag.add_record_of_tags(stats_file=getattr(options,'bowtie_stats_file',None))    
+    
 def add_indices():
     # Execute after all the ends have been calculated,
     # as otherwise the insertion of ends takes far too long.
     GlassTag.add_indices()
     execute_query_without_transaction('VACUUM ANALYZE "%s";' % (GlassTag._meta.db_table))
     GlassTag.set_refseq()
-        
-if __name__ == '__main__':    
-    run_from_command_line = True # Useful for debugging in Eclipse
+    GlassTag.add_record_of_tags()
     
+if __name__ == '__main__':    
     parser = FastqOptionParser()
     options, args = parser.parse_args()
 
-    # Allow for easy running from Eclipse
-    if not run_from_command_line:
-        options.do_bowtie = False
-        options.file_name = '/Volumes/Unknowme/kallison/Sequencing/GroSeq/Nathan_NCoR_KO_2010_10_08/tags/ncor_ko_kla_1h/ncor_ko_kla_1h_bowtie.map'
-        options.output_dir = '/Volumes/Unknowme/kallison/Sequencing/GroSeq/Nathan_NCoR_KO_2010_10_08/tags/ncor_ko_kla_1h'
-        options.project_name = 'ncor_ko_kla_1h_2'
-        
     file_name = check_input(options)
-    
+    parser.set_genome(options)
+    cell_type, cell_base = parser.set_cell(options)
+
+    if options.processes:
+        current_settings.ALLOWED_PROCESSES = int(options.processes)
+        
+    from glasslab.sequencing.datatypes.tag import GlassTag
+
     if not options.skip_tag_table:
-        # First, convert the mapped file to the desired format.
-        converter = TagFileConverter()
-        converted_file = converter.guess_file_type(options.file_name, options.input_file_type)
-            
         if not options.prep_table:
+            # First, convert the mapped file to the desired format.
+            converter = TagFileConverter()
+            converted_file = converter.guess_file_type(options.file_name, options.input_file_type)
+            
             _print('Creating schema if necessary.')
             create_schema()
             _print('Uploading tag file into table.')
@@ -157,8 +159,8 @@ if __name__ == '__main__':
         _print('Adding indices.')
         GlassTag.set_table_name('tag_' + file_name)
         add_indices()
+        GlassTag.delete_prep_table()
     else:
         _print('Skipping creation of tag table')
         GlassTag.set_table_name('tag_' + file_name)
         GlassTag.set_refseq()
-        
