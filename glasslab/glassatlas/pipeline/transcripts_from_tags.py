@@ -3,19 +3,18 @@ Created on Nov 8, 2010
 
 @author: karmel
 '''
-from glasslab.glassatlas.datatypes.transcript import CellTypeBase
 from glasslab.sequencing.datatypes.tag import GlassTag
-from glasslab.utils.scripting import GlassOptionParser
 from optparse import make_option
 from glasslab.config import current_settings
-from glasslab.utils.database import restart_server, discard_temp_tables
+from glasslab.utils.database import discard_temp_tables
+from glasslab.utils.scripting import GlassOptionParser
 
 class TranscriptsFromTagsParser(GlassOptionParser):
     options = [
                make_option('-g', '--genome',action='store', type='string', dest='genome', default='mm9', 
-                           help='Currently supported: mm8, mm8r, mm9, hg18, hg18r'),
+                           help='Currently supported: mm8, mm8r, mm9, hg18, hg18r, dm3'),
                make_option('-c', '--cell_type',action='store', type='string', dest='cell_type', 
-                           help='Cell type for this run? Options are: %s' % ','.join(CellTypeBase.get_correlations().keys())),
+                           help='Cell type for this run?'),
                make_option('-t', '--tag_table',action='store', type='string', dest='tag_table', 
                            help='Table name from which to load tags. Appended to schema if schema is included. Otherwise used as is.'),
                make_option('-s', '--schema_name',action='store', type='string', dest='schema_name',  
@@ -51,16 +50,11 @@ if __name__ == '__main__':
     parser = TranscriptsFromTagsParser()
     options, args = parser.parse_args()
     
-    run_from_cammand_line = True 
-    if not run_from_cammand_line:
-        options.schema_name = 'thiomac_groseq_nathan_2010_10'
-        options.tag_table = 'tag_ncor_ko_kla_1h'
-    
     if options.processes:
         current_settings.ALLOWED_PROCESSES = int(options.processes)
     
-    if options.cell_type: current_settings.CELL_TYPE = options.cell_type
-    cell_base = CellTypeBase().get_cell_type_base(current_settings.CELL_TYPE)()
+    parser.set_genome(options)
+    cell_type, cell_base = parser.set_cell(options)
     
     allow_extended_gaps = True
     if options.no_extended_gaps: allow_extended_gaps = False
@@ -71,10 +65,9 @@ if __name__ == '__main__':
         GlassTag._meta.db_table = options.schema_name and '%s"."%s' % (options.schema_name, options.tag_table) \
                                     or options.tag_table
         cell_base.glass_transcript.add_from_tags(GlassTag._meta.db_table)
-        #cell_base.glass_transcript.force_vacuum_prep()
-        #print 'Restarting server...'
-        #restart_server()
     
+    if options.max_edge is not None: current_settings.MAX_EDGE = options.max_edge
+          
     if options.stitch_processes:
         curr_processes = current_settings.ALLOWED_PROCESSES 
         current_settings.ALLOWED_PROCESSES = int(options.stitch_processes)
@@ -83,7 +76,7 @@ if __name__ == '__main__':
                         allow_extended_gaps=allow_extended_gaps, 
                         extension_percent=options.extension_percent, 
                         set_density=options.set_density)
-        restart_server()
+        
     elif options.set_density:
         cell_base.glass_transcript.set_density(allow_extended_gaps=allow_extended_gaps,
                                                extension_percent=options.extension_percent)
@@ -104,4 +97,3 @@ if __name__ == '__main__':
         cell_base.filtered_glass_transcript.generate_bed_file(options.output_dir)
         
     discard_temp_tables()
-    
