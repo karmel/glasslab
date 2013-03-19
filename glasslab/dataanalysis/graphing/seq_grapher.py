@@ -121,13 +121,13 @@ class SeqGrapher(TranscriptAnalyzer):
         self.other_plot(ax=ax)
         
         self.save_plot_with_dir(save_dir, save_name, title)
-        #if show_plot: self.show_plot()
+        if show_plot: self.show_plot()
     
         return ax
     
     def set_up_plot(self, ax=None, subplot=111, wide=False):
         # Set up plot
-        size = 20
+        size = 10
         width = size
         if wide: width = width*(wide is True and 2 or wide)
              

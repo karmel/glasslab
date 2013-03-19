@@ -7,7 +7,7 @@ from __future__ import division
 from django.db import models, connection
 from glasslab.genomereference.datatypes import Chromosome, SequencingRun
 from glasslab.config import current_settings
-from glasslab.utils.datatypes.basic_model import DynamicTable, BoxField
+from glasslab.utils.datatypes.basic_model import DynamicTable, Int8RangeField
 from glasslab.utils.database import execute_query
 from glasslab.glassatlas.datatypes.transcript import multiprocess_all_chromosomes,\
     wrap_errors
@@ -19,29 +19,10 @@ def wrap_set_refseq(cls, chr_list): wrap_errors(cls._set_refseq, chr_list)
 def wrap_insert_matching_tags(cls, chr_list): wrap_errors(cls._insert_matching_tags, chr_list)
 def wrap_add_indices(cls, chr_list): wrap_errors(cls._add_indices, chr_list)        
     
-class GlassSequencingOutput(DynamicTable):
+class GlassSequencingOutput(object):
     '''
-    Parent class for tags and peaks.
+    Special methods for tags and peaks.
     '''    
-    class Meta: abstract = True
-    
-    @classmethod
-    def get_bowtie_stats(cls, stats_file=None):
-        # If possible, retrieve bowtie stats
-        total_tags, percent_mapped = None, None
-        try:
-            f = file(stats_file)
-            for i,line in enumerate(f.readlines()):
-                if i > 4: raise Exception # Something is wrong with this file
-                if line.find('reads with at least one reported alignment') >= 0:
-                    pieces = line.split()
-                    total_tags = int(re.search('([\d]+)',pieces[-2:][0]).group(0))
-                    percent_mapped = str(float(re.search('([\d\.]+)',pieces[-1:][0]).group(0)))
-                    break
-        except Exception: 
-            total_tags, percent_mapped = cls.objects.count(), None
-        return total_tags, percent_mapped
-    
     @classmethod
     def parse_attributes_from_name(cls):
         '''
@@ -70,7 +51,7 @@ class GlassSequencingOutput(DynamicTable):
         
         return wt, notx, kla, other_conditions, timepoint
     
-class GlassTag(GlassSequencingOutput):
+class GlassTag(DynamicTable, GlassSequencingOutput):
     '''
     Denormalized version of tag input::
         
@@ -86,7 +67,7 @@ class GlassTag(GlassSequencingOutput):
     start                   = models.IntegerField(max_length=12)
     end                     = models.IntegerField(max_length=12)
     
-    start_end               = BoxField(max_length=255, help_text='This is a placeholder for the PostgreSQL box type.', null=True)
+    start_end               = Int8RangeField(max_length=255, help_text='This is a placeholder for the PostgreSQL range type.', null=True)
     
     refseq                  = models.NullBooleanField(default=None)
     
@@ -111,6 +92,13 @@ class GlassTag(GlassSequencingOutput):
     @classmethod 
     def set_prep_table(cls, name): 
         cls.prep_table = '%s"."%s' % (current_settings.CURRENT_SCHEMA, name)
+    
+    @classmethod        
+    def delete_prep_table(cls):
+        table_sql = """
+        DROP TABLE "{0}" CASCADE;
+        """.format(cls.prep_table)
+        execute_query(table_sql)
         
     @classmethod                
     def create_parent_table(cls, name):
@@ -127,7 +115,7 @@ class GlassTag(GlassSequencingOutput):
             strand smallint default NULL,
             "start" bigint,
             "end" bigint,
-            start_end box,
+            start_end int8range,
             refseq boolean default false
         );
         CREATE SEQUENCE "%s_id_seq"
@@ -179,8 +167,8 @@ class GlassTag(GlassSequencingOutput):
                 IF NEW.start_end IS NULL THEN
                     start_end_string := 'NULL';
                 ELSE
-                    start_end_string := 'public.make_box(' || quote_literal(NEW.start) || ', 0, ' 
-                    || quote_literal(NEW."end") || ', 0)';
+                    start_end_string := 'int8range(' || quote_literal(NEW.start) || ',' 
+                    || quote_literal(NEW."end") || ', ''[]'')';
                 END IF;
                 EXECUTE 'INSERT INTO "%s_' || NEW.chromosome_id || '" VALUES ('
                 || quote_literal(NEW.id) || ','
@@ -204,7 +192,7 @@ class GlassTag(GlassSequencingOutput):
                cls._meta.db_table,
                current_settings.CURRENT_SCHEMA)
         execute_query(trigger_sql)
-                
+        
     @classmethod
     def translate_from_prep(cls):
         multiprocess_all_chromosomes(wrap_translate_from_prep, cls)
@@ -220,7 +208,7 @@ class GlassTag(GlassSequencingOutput):
             SELECT * FROM (
                 SELECT {chr_id}, (CASE WHEN prep.strand_char = '-' THEN 1 ELSE 0 END), 
                 prep."start", (prep."start" + char_length(prep.sequence_matched)),
-                public.make_box(prep."start", 0, (prep."start" + char_length(prep.sequence_matched)), 0),
+                int8range(prep."start", (prep."start" + char_length(prep.sequence_matched)), '[]'),
                 NULL::boolean
             FROM "{1}" prep
             JOIN "{2}" chr ON chr.name = prep.chromosome
@@ -229,7 +217,7 @@ class GlassTag(GlassSequencingOutput):
                    Chromosome._meta.db_table,
                    chr_id=chr_id)
             execute_query(update_query)
-                        
+                            
     @classmethod
     def set_refseq(cls):
         multiprocess_all_chromosomes(wrap_set_refseq, cls)
@@ -237,7 +225,8 @@ class GlassTag(GlassSequencingOutput):
     @classmethod
     def _set_refseq(cls, chr_list):
         '''
-        Create type box field for faster interval searching with the PostgreSQL box.
+        Set refseq status for segmentation during stitching later on by 
+        overlapping with consolodated refseq transcripts.
         '''
         for chr_id in chr_list:
             print 'Setting Refseq status for chromosome {0}'.format(chr_id)
@@ -247,7 +236,7 @@ class GlassTag(GlassSequencingOutput):
 
             UPDATE "{0}_{1}" tag 
             SET refseq = true 
-            FROM glass_atlas_{2}_refseq.glass_transcript_{1} ref
+            FROM glass_atlas_{2}_refseq_prep.glass_transcript_{1} ref
             WHERE ref.start_end && tag.start_end
             AND ref.strand = tag.strand
             AND tag.refseq IS NULL;

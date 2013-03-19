@@ -101,21 +101,20 @@ if __name__ == '__main__':
     
             
     if True:
-        gene_groups = [
-                       ['Srf','Cnn2','Lima1','Coro1a','Vcl','Acta2','Actb','Dhcr24','Actg2','Actc1','Lcp1','Jup','Tpm4','Tnni2','Zyx','Tubb3','Pfn1','Gas7','Arpc4','Pstpip1','Bsn','Flna','Actn1'],
+        gene_groups = {
+                    #'tlr2_targets': ['Tlr2', 'Il10','Cxcl10','Il12b','Ccl5','Tlr4'],
+                    'clec4e_targets_notx': ['Cxcl1', 'Cxcl2','Ptgs2','Tnf','Il1b'],
+                    'clec4e_targets_kla': ['Cxcl1', 'Cxcl2','Ptgs2','Tnf','Il1b','Il6','Il12b',''],
+                       }         
+        '''
+        'srf_targets': ['Srf','Cnn2','Lima1','Coro1a','Vcl','Acta2','Actb','Dhcr24','Actg2','Actc1','Lcp1','Jup','Tpm4','Tnni2','Zyx','Tubb3','Pfn1','Gas7','Arpc4','Pstpip1','Bsn','Flna','Actn1'],
                        
-                ['Clec4e','Tlr2',],
-                       ['Cxcl1','Cxcl2','Il6','Ptgs2','Tnfsf9','Vegfa','Tnf',
+                'clec4e_tlr2': ['Clec4e','Tlr2',],
+                       'inflammatory_genes': ['Cxcl1','Cxcl2','Il6','Ptgs2','Tnfsf9','Vegfa','Tnf',
                  'Siglec1','Mmp9',
                  'Il10','Il1b','Cxcl10','Tlr4','Il12b',],
-                       ]
-        '''       ['Cnn2','Lima1','Coro1a','Vcl','Acta2','Actb','Actg2','Actc1',
-                 'Lcp1','Jup','Tpm4','Tnni2','Zyx','Tubb3','Pfn1','Gas7','Arpc4',
-                 'Pstpip1','Bsn','Flna','Actn1','Lsp1',
-                 'Srf','Rhoj','Neurl2']]'''
-                 
-        
-        for i, genes in enumerate(gene_groups):
+        '''
+        for i, genes in gene_groups.items():
             for gene in genes[:]:
                 if not gene in refseq['gene_names'].values: 
                     print gene
@@ -135,5 +134,5 @@ if __name__ == '__main__':
                                 rank_label='Rank of read per base pair value in BALBc {0} 1h, ascending'.format(txt.upper()),
                                 show_plot=False)
                 yzer.save_plot(yzer.get_filename(img_dirpath, 'balbc_nod_{0}_{1}_fold_change_bargraph.png'.format(txt,i)))
-                yzer.show_plot()
+                #yzer.show_plot()
                 
