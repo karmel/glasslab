@@ -124,11 +124,7 @@ lines.markersize  : 6            # markersize, in points
 # settings for axes and ticks. Special text sizes can be defined
 # relative to font.size, using the following values: xx-small, x-small,
 # small, medium, large, x-large, xx-large, larger, or smaller
-<<<<<<< HEAD
 font.size           : 14
-=======
-font.size           : 24
->>>>>>> 765392bd30b5f90593bb2c0375936e4b9e6fa2d8
 #font.serif          : Bitstream Vera Serif, New Century Schoolbook, Century Schoolbook L, Utopia, ITC Bookman, Bookman, Nimbus Roman No9 L, Times New Roman, Times, Palatino, Charter, serif
 font.sans-serif     : Helvetica, Bitstream Vera Sans, Lucida Grande, Verdana, Geneva, Lucid, Arial, Helvetica, Avant Garde, sans-serif
 #font.cursive        : Apple Chancery, Textile, Zapf Chancery, Sand, cursive
@@ -207,11 +203,7 @@ font.sans-serif     : Helvetica, Bitstream Vera Sans, Lucida Grande, Verdana, Ge
 #axes.edgecolor      : black   # axes edge color
 #axes.linewidth      : 1.0     # edge linewidth
 #axes.grid           : False   # display grid or not
-<<<<<<< HEAD
 axes.titlesize      : 20   # fontsize of the axes title
-=======
-axes.titlesize      : 36   # fontsize of the axes title
->>>>>>> 765392bd30b5f90593bb2c0375936e4b9e6fa2d8
 #axes.labelsize      : medium  # fontsize of the x any y labels
 #axes.labelweight    : normal  # weight of the x and y labels
 #axes.labelcolor     : black
