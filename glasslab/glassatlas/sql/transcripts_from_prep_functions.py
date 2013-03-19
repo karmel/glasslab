@@ -5,10 +5,10 @@ Created on Nov 12, 2010
 
 Prep table functions, extracted for ease of reading.
 '''
-
 def sql(genome, cell_type, suffix):
     return """
-CREATE OR REPLACE FUNCTION glass_atlas_{0}_{1}{suffix}.draw_transcript_edges(chr_id integer)
+
+CREATE OR REPLACE FUNCTION glass_atlas_{0}_{1}{suffix}.draw_transcript_edges(chr_id integer, min_one_run_tags integer)
 RETURNS VOID AS $$
 DECLARE
     strand integer;
@@ -20,7 +20,7 @@ BEGIN
     LOOP
         last_trans := NULL;
         FOR trans IN 
-            SELECT * FROM glass_atlas_{0}_{1}{suffix}.get_close_transcripts(chr_id, strand)
+            SELECT * FROM glass_atlas_{0}_{1}{suffix}.get_close_transcripts(chr_id, strand, min_one_run_tags)
         LOOP
             -- Initialize the transcript to be saved if necessary
             IF last_trans IS NULL THEN 
@@ -50,7 +50,7 @@ BEGIN
 END;
 $$ LANGUAGE 'plpgsql';
 
-CREATE OR REPLACE FUNCTION glass_atlas_{0}_{1}{suffix}.get_close_transcripts(chr_id integer, strand integer)
+CREATE OR REPLACE FUNCTION glass_atlas_{0}_{1}{suffix}.get_close_transcripts(chr_id integer, strand integer, min_one_run_tags integer)
 RETURNS SETOF glass_atlas_{0}_{1}{suffix}.glass_transcript AS $$
 DECLARE
     above_thresh_table text;
@@ -70,7 +70,7 @@ BEGIN
                 WHERE t.strand = ' || strand || '
                 GROUP BY t.id, t.strand, t.transcription_start, t.transcription_end, t.refseq, t.density, t.edge  
                 -- Omit one-tag-wonders and one-run wonders unless they have at least 5 tags
-                HAVING avg(s.tag_count) > 1 AND (count(s.sequencing_run_id) > 1 OR avg(s.tag_count) > 5)
+                HAVING avg(s.tag_count) > 1 AND (count(s.sequencing_run_id) > 1 OR avg(s.tag_count) >= ' || min_one_run_tags || ')
             ';
     EXECUTE 'CREATE INDEX ' || above_thresh_table || '_density_circle_idx ON ' || above_thresh_table || ' USING gist(density_circle)';
     EXECUTE 'CREATE INDEX ' || above_thresh_table || '_start_density_idx ON ' || above_thresh_table || ' USING gist(start_density)';
@@ -113,8 +113,7 @@ BEGIN
             start_end, refseq, modified, created) 
         VALUES (' || rec.chromosome_id || ',' || rec.strand || ','
         || rec.transcription_start || ',' || rec.transcription_end || ',' 
-        || ' public.make_box(' || rec.transcription_start || ', 0' 
-            || ',' ||  rec.transcription_end || ', 0),'
+        || ' int8range(' || rec.transcription_start || ',' ||  rec.transcription_end || ', ''[]''),'
          || rec.refseq || ', NOW(), NOW()) RETURNING *' INTO transcript;
     RETURN transcript;
 END;
@@ -150,10 +149,6 @@ CREATE OR REPLACE FUNCTION glass_atlas_{0}_{1}{suffix}.insert_associated_transcr
 RETURNS VOID AS $$
 DECLARE
     region_types text[] := ARRAY['sequence','non_coding'];
-        -- ,'conserved','patterned','duped'];
-        -- As of May 2012, we are excluding some of the region types,
-        -- because they are rarely used yet time-intensive to add.
-        -- Duplicate regions are less necessary now that tags are uniquely mapped.
     counter integer;
     table_type text;
 BEGIN
@@ -165,14 +160,15 @@ BEGIN
         || table_type || ' (glass_transcript_id, '
         || table_type || '_transcription_region_id, relationship, major)
             (SELECT trans.id, reg.id, 
-                (CASE WHEN reg.start_end ~= trans.start_end THEN 
+                (CASE WHEN reg.start_end = trans.start_end THEN 
                 glass_atlas_{0}_{1}{suffix}.glass_transcript_transcription_region_relationship(''is equal to'') 
                 WHEN reg.start_end <@ trans.start_end THEN 
                 glass_atlas_{0}_{1}{suffix}.glass_transcript_transcription_region_relationship(''contains'') 
                 WHEN reg.start_end @> trans.start_end THEN 
                 glass_atlas_{0}_{1}{suffix}.glass_transcript_transcription_region_relationship(''is contained by'') 
                 ELSE glass_atlas_{0}_{1}{suffix}.glass_transcript_transcription_region_relationship(''overlaps with'') END),
-                (CASE WHEN width(reg.start_end # trans.start_end) > width(reg.start_end)::numeric/2 THEN true
+                (CASE WHEN (upper(reg.start_end * trans.start_end) - lower(reg.start_end * trans.start_end)) 
+                    > (upper(reg.start_end) - lower(reg.start_end))::numeric/2 THEN true
                 ELSE false END)
             FROM glass_atlas_{0}_{1}{suffix}.glass_transcript_' || chr_id || ' trans
             JOIN genome_reference_{0}.' || table_type || '_transcription_region reg
@@ -216,7 +212,6 @@ BEGIN
     RETURN;
 END;
 $$ LANGUAGE 'plpgsql';
-
 
 CREATE OR REPLACE FUNCTION glass_atlas_{0}_{1}{suffix}.calculate_scores_glassatlas(chr_id integer)
 RETURNS VOID AS $$
@@ -283,12 +278,12 @@ BEGIN
         GROUP BY transcript.id, transcript.transcription_end, transcript.transcription_start';
     EXECUTE 'CREATE INDEX ' || temp_table || '_idx ON ' || temp_table || ' USING btree(id)';
     
-    EXECUTE 'UPDATE glass_atlas_{0}_{1}{suffix}.glass_transcript_' || chr_id || ' transcript
-        SET ' || field || ' = temp_t.sum_tags::numeric/temp_t.kb_width/' || millions_of_tags || '::numeric
-        FROM ' || temp_table || ' temp_t
-        WHERE transcript.id = temp_t.id';
+	EXECUTE 'UPDATE glass_atlas_{0}_{1}{suffix}.glass_transcript_' || chr_id || ' transcript
+	    SET ' || field || ' = temp_t.sum_tags::numeric/temp_t.kb_width/' || millions_of_tags || '::numeric
+	    FROM ' || temp_table || ' temp_t
+	    WHERE transcript.id = temp_t.id';
 
-    RETURN;
+	RETURN;
 END;
 $$ LANGUAGE 'plpgsql';
 
@@ -383,8 +378,5 @@ BEGIN
 END;
 $$ LANGUAGE 'plpgsql';
 
-
-
 """.format(genome, cell_type, suffix=suffix)
 
-#print sql('mm9','cd4tcell','')
