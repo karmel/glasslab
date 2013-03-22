@@ -38,14 +38,15 @@ if __name__ == '__main__':
     
         for key, val_set  in pairs.iteritems():
             
-            val_set = val_set[(val_set[kla_col + '_2'].abs() >= .58)]
+            #val_set = val_set[(val_set[kla_col + '_2'].abs() >= .58)]
             print key, len(val_set)
             print val_set.corr()
             
-            if False:
+            if True:
                 val_set = val_set.sort(columns=kla_col + '_2', ascending=True)
-                f = open(yzer.get_filename(dirpath, 'changing_only_enh', '{0}_for_{1}_pairs.txt'.format(kla_col, key)),'w')
-                val_set.to_csv(f, sep='\t', header=False, index=True)
+                f = open(yzer.get_filename(dirpath,'gene_enhancer_lfc',  '{0}_for_{1}_pairs.cdt'.format(kla_col, key)),'w')
+                val_set['weight'] = 1.0
+                val_set.to_csv(f, sep='\t', header=False, index=True, cols=['weight',kla_col + '_2', kla_col])
                 
                 ax = yzer.scatterplot(val_set, 
                      xcolname=kla_col + '_2', ycolname=kla_col, log=False, color='blue', 

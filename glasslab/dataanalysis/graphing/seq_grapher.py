@@ -6,7 +6,7 @@ Created on Mar 20, 2012
 Miscellaneous methods for graphing tag count plots.
 '''
 from __future__ import division
-from matplotlib import pyplot
+from matplotlib import pyplot, font_manager
 from string import capwords
 from matplotlib.ticker import ScalarFormatter
 from glasslab.dataanalysis.base.datatypes import TranscriptAnalyzer
@@ -15,6 +15,9 @@ import math
 from matplotlib.font_manager import FontProperties
 
 class SeqGrapher(TranscriptAnalyzer):
+    fig_size = 10
+    disable_show_plot = False
+    
     def scatterplot(self, data, xcolname, ycolname, 
                     subplot=111, log=False, color='blue',
                     master_dataset=None,
@@ -127,26 +130,30 @@ class SeqGrapher(TranscriptAnalyzer):
     
     def set_up_plot(self, ax=None, subplot=111, wide=False):
         # Set up plot
-        size = 10
-        width = size
+        width = self.fig_size
         if wide: width = width*(wide is True and 2 or wide)
              
         if not ax: pyplot.figure(figsize=[width*int(str(subplot)[1]), # Width for cols
-                                          size*int(str(subplot)[0])]) # Height for rows
+                                          self.fig_size*int(str(subplot)[0])]) # Height for rows
         ax = pyplot.subplot(subplot)
         return ax
         
     def show_count_scatterplot(self, data, ax, text_shift=0, text_color='black'):
-        pyplot.text(.75, .125+text_shift, 'Total count: %d' % len(data),
+        # Scale for font size-- move left to avoid spilling over right axis
+        size_scalar = min(1, 24/font_manager.FontManager().get_default_size())
+        pyplot.text(size_scalar*.75, .125+text_shift, 'Total count: %d' % len(data),
                         color=text_color,
                         transform=ax.transAxes)
         
     def show_correlation_scatterplot(self, data, xcolname, ycolname, ax, text_shift=0, text_color='black'):
-        pyplot.text(.75, .1+text_shift, 'r = %.4f' % data[xcolname].corr(data[ycolname]),
+        # Scale for font size-- move left and down to avoid overlap with count
+        size_scalar = min(1, 24/font_manager.FontManager().get_default_size())
+        pyplot.text(size_scalar*.75, size_scalar*(.1+text_shift), 'r = %.4f' % data[xcolname].corr(data[ycolname]),
                     color=text_color,
                     transform=ax.transAxes)
             
-    def show_plot(self): pyplot.show()
+    def show_plot(self): 
+        if not self.disable_show_plot: pyplot.show()
     def save_plot(self, filename): pyplot.savefig(filename)
     def save_plot_with_dir(self, save_dir='', save_name='', title=''):
         if save_dir: self.save_plot(self.get_filename(save_dir, save_name or (title.replace(' ','_') + '.png')))

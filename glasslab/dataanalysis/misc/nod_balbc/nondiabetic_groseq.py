@@ -9,6 +9,8 @@ from glasslab.utils.functions import nonzero
 
 if __name__ == '__main__':
     yzer = SeqGrapher()
+    yzer.fig_size = 15
+    yzer.disable_show_plot = True
     
     dirpath = 'karmel/Desktop/Projects/GlassLab/Notes_and_Reports/NOD_BALBc/ThioMacs/Analysis_2013_02/'
     dirpath = yzer.get_path(dirpath)
@@ -39,10 +41,10 @@ if __name__ == '__main__':
     refseq = refseq[refseq['transcript_score'] >= 4]
     
 
-    if False:
+    if True:
         # Non-diabetic balbc vs. nod
         ax = yzer.scatterplot(refseq, 'balb_notx_1h_tag_count', 'nod_notx_1h_tag_count_norm',
-                            log=True, color='blue', master_dataset=refseq,
+                            log=True, color='blue', 
                             xlabel='BALBc notx 1h tag count',ylabel='NOD notx 1h tag count',
                             title='Non-Diabetic BALBc vs. NOD Notx 1h Refseq Transcripts',
                             show_2x_range=True, show_legend=False,
@@ -51,7 +53,7 @@ if __name__ == '__main__':
         
         # Non-diabetic balbc vs. nod
         ax = yzer.scatterplot(refseq, 'balb_kla_1h_tag_count', 'nod_kla_1h_tag_count_norm',
-                            log=True, color='blue', master_dataset=refseq,
+                            log=True, color='blue', 
                             xlabel='BALBc KLA 1h tag count',ylabel='NOD KLA 1h tag count',
                             title='Non-Diabetic BALBc vs. NOD KLA 1h Refseq Transcripts',
                             show_2x_range=True, show_legend=False,
@@ -60,7 +62,7 @@ if __name__ == '__main__':
     if False:
         # Non-diabetic balbc vs. nod
         ax = yzer.scatterplot(data, 'balb_notx_1h_tag_count', 'nod_notx_1h_tag_count_norm',
-                            log=True, color='blue', master_dataset=data,
+                            log=True, color='blue', 
                             xlabel='BALBc notx 1h tag count',ylabel='NOD notx 1h tag count',
                             title='Non-Diabetic BALBc vs. NOD Notx 1h All Transcripts',
                             show_2x_range=True, show_legend=False,
@@ -69,20 +71,23 @@ if __name__ == '__main__':
         
         # Non-diabetic balbc vs. nod
         ax = yzer.scatterplot(data, 'balb_kla_1h_tag_count', 'nod_kla_1h_tag_count_norm',
-                            log=True, color='blue', master_dataset=data,
+                            log=True, color='blue', 
                             xlabel='BALBc KLA 1h tag count',ylabel='NOD KLA 1h tag count',
                             title='Non-Diabetic BALBc vs. NOD KLA 1h All Transcripts',
                             show_2x_range=True, show_legend=False,
                             show_count=True, show_correlation=True, 
                             save_dir=img_dirpath, show_plot=True)
         
-    if False:
+    if True:
         # Enhancers
         enh = data[data['distal'] == 't']
         enh = enh[enh['h3k4me2_tag_count'] > 10]
+        
+        # For prettier plotting
+        enh = enh[enh['balb_notx_1h_tag_count'] < 8000]
         # Non-diabetic balbc vs. nod
         ax = yzer.scatterplot(enh, 'balb_notx_1h_tag_count', 'nod_notx_1h_tag_count_norm',
-                            log=True, color='blue', master_dataset=enh,
+                            log=True, color='blue', 
                             xlabel='BALBc notx 1h tag count',ylabel='NOD notx 1h tag count',
                             title='Non-Diabetic BALBc vs. NOD Notx 1h eRNA',
                             show_2x_range=True, show_legend=False,
@@ -91,7 +96,7 @@ if __name__ == '__main__':
         
         # Non-diabetic balbc vs. nod
         ax = yzer.scatterplot(enh, 'balb_kla_1h_tag_count', 'nod_kla_1h_tag_count_norm',
-                            log=True, color='blue', master_dataset=enh,
+                            log=True, color='blue', 
                             xlabel='BALBc KLA 1h tag count',ylabel='NOD KLA 1h tag count',
                             title='Non-Diabetic BALBc vs. NOD KLA 1h eRNA',
                             show_2x_range=True, show_legend=False,
@@ -100,7 +105,7 @@ if __name__ == '__main__':
         
     
             
-    if True:
+    if False:
         gene_groups = {
                     #'tlr2_targets': ['Tlr2', 'Il10','Cxcl10','Il12b','Ccl5','Tlr4'],
                     'clec4e_targets_notx': ['Cxcl1', 'Cxcl2','Ptgs2','Tnf','Il1b'],

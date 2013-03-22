@@ -6,7 +6,7 @@ Created on Nov 8, 2010
 from django.contrib import admin
 from glasslab.genomereference.datatypes import SequenceIdentifier,\
     SequenceDetail, SequenceTranscriptionRegion, SequenceExon,\
-    SequenceKeggPathway, NonCodingTranscriptionRegion, NonCodingRna
+    NonCodingTranscriptionRegion, NonCodingRna
 from glasslab.config import current_settings
 from glasslab.atlasviewer.shared.admin import ReadOnlyInline,\
     make_all_fields_readonly, ReadOnlyAdmin
@@ -19,10 +19,6 @@ class SequenceDetailInline(ReadOnlyInline):
 class SequenceTranscriptionRegionInline(ReadOnlyInline):
     model = SequenceTranscriptionRegion
     readonly_fields = make_all_fields_readonly(model, include_all=True)
-
-class SequenceKeggPathwayInline(ReadOnlyInline):
-    model = SequenceKeggPathway
-    readonly_fields = make_all_fields_readonly(model)
     
 class SequenceIdentifierAdmin(ReadOnlyAdmin):
     list_display    = ('sequence_identifier', 'gene_name', 'ucsc_browser_link')
@@ -31,7 +27,6 @@ class SequenceIdentifierAdmin(ReadOnlyAdmin):
     
     inlines         = [SequenceDetailInline,
                        SequenceTranscriptionRegionInline,
-                       SequenceKeggPathwayInline
                        ]
     
     def gene_name(self, obj):

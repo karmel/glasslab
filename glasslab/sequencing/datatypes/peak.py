@@ -28,7 +28,7 @@ class GlassPeak(DynamicTable, GlassSequencingOutput):
     start           = models.IntegerField(max_length=12)
     end             = models.IntegerField(max_length=12)
     
-    start_end       = BoxField(max_length=255, help_text='This is a placeholder for the PostgreSQL box type.') 
+    start_end       = Int8RangeField(max_length=255, help_text='This is a placeholder for the PostgreSQL range type.') 
     
     length          = models.IntegerField(max_length=12)
     summit          = models.IntegerField(max_length=12)
@@ -262,7 +262,7 @@ class HomerPeak(GlassSequencingOutput):
     start           = models.IntegerField(max_length=12)
     end             = models.IntegerField(max_length=12)
     
-    start_end       = BoxField(max_length=255, help_text='This is a placeholder for the PostgreSQL box type.') 
+    start_end       = Int8RangeField(max_length=255, help_text='This is a placeholder for the PostgreSQL range type.') 
     
     peak_score      = models.IntegerField(max_length=12)
     distance_to_tss = models.IntegerField(max_length=12)
