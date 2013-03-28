@@ -41,7 +41,7 @@ if __name__ == '__main__':
     refseq = refseq[refseq['transcript_score'] >= 4]
     
 
-    if True:
+    if False:
         # Non-diabetic balbc vs. nod
         ax = yzer.scatterplot(refseq, 'balb_notx_1h_tag_count', 'nod_notx_1h_tag_count_norm',
                             log=True, color='blue', 
@@ -78,7 +78,7 @@ if __name__ == '__main__':
                             show_count=True, show_correlation=True, 
                             save_dir=img_dirpath, show_plot=True)
         
-    if True:
+    if False:
         # Enhancers
         enh = data[data['distal'] == 't']
         enh = enh[enh['h3k4me2_tag_count'] > 10]
@@ -105,19 +105,19 @@ if __name__ == '__main__':
         
     
             
-    if False:
+    if True:
+        yzer.fig_size = 10
         gene_groups = {
-                    #'tlr2_targets': ['Tlr2', 'Il10','Cxcl10','Il12b','Ccl5','Tlr4'],
+                    'tlr2_targets': ['Tlr2', 'Il10','Cxcl10','Il12b','Ccl5','Tlr4'],
                     'clec4e_targets_notx': ['Cxcl1', 'Cxcl2','Ptgs2','Tnf','Il1b'],
-                    'clec4e_targets_kla': ['Cxcl1', 'Cxcl2','Ptgs2','Tnf','Il1b','Il6','Il12b',''],
+                    #'clec4e_targets_kla': ['Cxcl1', 'Cxcl2','Ptgs2','Tnf','Il1b','Il6','Il12b',''],
+                    #'srf_targets': ['Srf','Cnn2','Lima1','Coro1a','Vcl','Acta2','Actb','Dhcr24','Actg2','Actc1','Lcp1','Jup','Tpm4','Tnni2','Zyx','Tubb3','Pfn1','Gas7','Arpc4','Pstpip1','Bsn','Flna','Actn1'],
+                    #'inflammatory_genes': ['Cxcl1','Cxcl2','Il6','Ptgs2','Tnfsf9','Vegfa','Tnf', 'Siglec1','Mmp9', 'Il10','Il1b','Cxcl10','Tlr4','Il12b',]
                        }         
         '''
-        'srf_targets': ['Srf','Cnn2','Lima1','Coro1a','Vcl','Acta2','Actb','Dhcr24','Actg2','Actc1','Lcp1','Jup','Tpm4','Tnni2','Zyx','Tubb3','Pfn1','Gas7','Arpc4','Pstpip1','Bsn','Flna','Actn1'],
                        
                 'clec4e_tlr2': ['Clec4e','Tlr2',],
-                       'inflammatory_genes': ['Cxcl1','Cxcl2','Il6','Ptgs2','Tnfsf9','Vegfa','Tnf',
-                 'Siglec1','Mmp9',
-                 'Il10','Il1b','Cxcl10','Tlr4','Il12b',],
+                       ,
         '''
         for i, genes in gene_groups.items():
             for gene in genes[:]:
@@ -134,9 +134,10 @@ if __name__ == '__main__':
                  
                 yzer.bargraph_for_transcripts(refseq, indices, ['balb_nod_{0}_1h_fc'.format(txt)],
                                 bar_names=genes,
-                                title='Fold Change in NOD vs. BALBc {0} 1h GRO-seq'.format(txt.upper()),
+                                title='NOD vs. BALBc {0} 1h GRO-seq'.format(txt=='kla' and txt.upper() or txt.capitalize()),
                                 ylabel='Fold Change in NOD vs. BALBc',
-                                rank_label='Rank of read per base pair value in BALBc {0} 1h, ascending'.format(txt.upper()),
+                                rank_label='Rank of read per base pair value\nin BALBc {0} 1h, ascending'.format(
+                                                                    txt=='kla' and txt.upper() or txt.capitalize()),
                                 show_plot=False)
                 yzer.save_plot(yzer.get_filename(img_dirpath, 'balbc_nod_{0}_{1}_fold_change_bargraph.png'.format(txt,i)))
                 #yzer.show_plot()

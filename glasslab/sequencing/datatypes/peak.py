@@ -58,7 +58,7 @@ class GlassPeak(DynamicTable, GlassSequencingOutput):
             chromosome_id int4,
             "start" int8,
             "end" int8,
-            start_end box,
+            start_end int8range,
             "length" int4,
             summit int8,
             tag_count decimal(8,2) default NULL,
@@ -106,7 +106,7 @@ class GlassPeak(DynamicTable, GlassSequencingOutput):
         return cls(chromosome=Chromosome.objects.get(name=str(row[0]).strip()),
                      start=int(row[1]),
                      end=int(row[2]),
-                     start_end=(int(row[1]), 0, int(row[2]), 0),
+                     start_end=(int(row[1]), int(row[2])),
                      length=int(row[3]),
                      summit=int(row[4]),
                      tag_count=str(row[5]),
@@ -124,7 +124,7 @@ class GlassPeak(DynamicTable, GlassSequencingOutput):
         return cls(chromosome=Chromosome.objects.get(name=str(row[1]).strip()),
                      start=int(row[2]),
                      end=int(row[3]),
-                     start_end=(int(row[2]), 0, int(row[3]), 0),
+                     start_end=(int(row[2]), int(row[3])),
                      length=int(row[3]) - int(row[2]),
                      tag_count=str(row[5]),
                      score=str(row[7]),
@@ -145,7 +145,7 @@ class GlassPeak(DynamicTable, GlassSequencingOutput):
         return cls(chromosome=Chromosome.objects.get(name=str(row[1]).strip()),
                      start=int(row[2]),
                      end=int(row[3]),
-                     start_end=(int(row[2]), 0, int(row[3]), 0),
+                     start_end=(int(row[2]), int(row[3])),
                      length=int(row[3]) - int(row[2]),
                      tag_count=str(row[5]),
                      raw_tag_count=str(row[9]),
@@ -166,7 +166,7 @@ class GlassPeak(DynamicTable, GlassSequencingOutput):
         return cls(chromosome=Chromosome.objects.get(name=str(row[0]).strip()),
                      start=int(row[1]),
                      end=int(row[2]),
-                     start_end=(int(row[1]), 0, int(row[2]), 0),
+                     start_end=(int(row[1]), int(row[2])),
                      length=int(row[2]) - int(row[1]),
                      tag_count=str(row[3]),
                      p_value=p_val[0],
@@ -183,7 +183,7 @@ class GlassPeak(DynamicTable, GlassSequencingOutput):
         return cls(chromosome=Chromosome.objects.get(name=str(row[0]).strip()),
                      start=int(row[1]),
                      end=int(row[2]),
-                     start_end=(int(row[1]), 0, int(row[2]), 0),
+                     start_end=(int(row[1]), int(row[2])),
                      length=int(row[2]) - int(row[1]),
                      score=str(row[4]),
                      )
@@ -228,16 +228,13 @@ class GlassPeak(DynamicTable, GlassSequencingOutput):
         Should be called only after all tags have been added.
         ''' 
         connection.close()
-        total_tags, percent_mapped = cls.get_bowtie_stats(stats_file)
         wt, notx, kla, other_conditions, timepoint = cls.parse_attributes_from_name()
         s, created = SequencingRun.objects.get_or_create(source_table=cls._meta.db_table,
                                         defaults={'name': cls.name, 
-                                                  'total_tags': total_tags,
                                                   'description': description,
                                                   'cell_type': current_settings.CELL_TYPE,
                                                   'type': type,
                                                   'peak_type': peak_type or cls.peak_type(),
-                                                  'percent_mapped': percent_mapped,
                                                   'wt': wt,
                                                   'notx': notx,
                                                   'kla': kla,
@@ -245,8 +242,6 @@ class GlassPeak(DynamicTable, GlassSequencingOutput):
                                                   'timepoint': timepoint, }
                                                )
         if not created: 
-            s.total_tags = total_tags
-            s.percent_mapped = percent_mapped
             s.wt, s.notx, s.kla, s.other_conditions = wt, notx, kla, other_conditions 
             s.timepoint = timepoint  
             s.save() 
@@ -294,7 +289,7 @@ class HomerPeak(GlassSequencingOutput):
             strand int2,
             "start" int8,
             "end" int8,
-            start_end box,
+            start_end int8range,
             "peak_score" int4,
             "distance_to_tss" int4,
             annotation varchar(255),
@@ -348,7 +343,7 @@ class HomerPeak(GlassSequencingOutput):
                      strand=str(row[4]).strip() == '-' and 1 or 0,
                      start=row[2] and int(row[2]) or None,
                      end=row[3] and int(row[3]) or None,
-                     start_end=(int(row[2]), 0, int(row[3]), 0),
+                     start_end=(int(row[2]), int(row[3])),
                      peak_score=row[5] and int(row[5]) or None,
                      annotation=str(row[7]).strip(),
                      detailed_annotation=str(row[8]).strip(),

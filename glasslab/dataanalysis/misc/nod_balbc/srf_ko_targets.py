@@ -34,14 +34,14 @@ if __name__ == '__main__':
     cyto_all = data[data['gene_names'].isin(cytoskeleton_part)]
     
     vals = [d['balb_nod_notx_1h_fc'] for d in (srf_upreg, srf_repressed, actin_srf, cyto_srf, cyto_all)]
-    labels = ['SRF Dependent Genes', 'Genes Repressed by SRF', 
-              'SRF Dependent Actin Genes', 'SRF Dependent Cytoskeleton Genes',
-              'GO:0044430 Cytoskeleton Part']
+    labels = ['SRF Dependent', 'Repressed by SRF', 
+              'SRF Dependent:\nActin', 'SRF Dependent:\nCytoskeleton',
+              'GO:0044430\nCytoskeleton Part']
     labels = [l + '\n(count: {0})'.format(len(v)) for l,v in zip(labels, vals)]
-    title = 'Balbc vs NOD Log-fold Change in SRF Target Genes'
+    title = 'Log-Fold Change in SRF Target Genes'
     if True:
         ax = yzer.boxplot(vals, labels, 
                          title=title, xlabel='Gene Group', 
-                         ylabel='log2(NOD notx 1h GRO-seq/BALBc notx 1h GRO-seq)', 
+                         ylabel='log2(NOD notx 1h GRO-seq/\nBALBc notx 1h GRO-seq)', 
                          show_outliers=False, show_plot=True, wide=True,
                          save_dir=img_dirpath)

@@ -440,7 +440,7 @@ class SeqGrapher(TranscriptAnalyzer):
         # Unnest
         xvals = [item for sublist in xvals for item in sublist]
         
-        fig = pyplot.figure(figsize=[len(xvals)*bar_width,10])
+        fig = pyplot.figure(figsize=[max(len(xvals)*bar_width,self.fig_size), self.fig_size])
         # Set up plot
         ax = pyplot.subplot(111)
         max_x = max(xvals) + axis_spacer + bar_width
@@ -483,6 +483,7 @@ class SeqGrapher(TranscriptAnalyzer):
                 r_ax = ax.twinx()
                 r_ax.plot(bar_middles, data.ix[indices]['rank'],'v',markerfacecolor='None',markeredgecolor='blue')
                 r_ax.set_ylabel(rank_label or 'Rank')
+                
             except KeyError: pass
             
         ax.set_xticks(bar_middles)

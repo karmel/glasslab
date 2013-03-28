@@ -47,7 +47,7 @@ if __name__ == '__main__':
         vals = [2**val for val in vals]
         yzer.bargraph_for_transcripts(vals, None, None,
                         bar_names=labels,
-                        title='Fold Change in NOD vs. BALBc NOTX GRO-seq: ThioMac and BMDC',
+                        title='NOD vs. BALBc NOTX GRO-seq: ThioMac and BMDC',
                         ylabel='Fold Change in NOD vs. BALBc',
                         show_plot=True, save_dir=img_dirpath)
         

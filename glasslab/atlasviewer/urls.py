@@ -1,24 +1,22 @@
-from django.conf.urls.defaults import *
+from django.conf.urls.defaults import patterns, include, url
 from django.contrib import admin
 from django.conf import settings
+from django.http.response import HttpResponseRedirect
 admin.autodiscover()
 
 
-urlpatterns = patterns('',
-    # Media
-    (r'^site_media/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.STATIC_DOC_ROOT}),
+urlpatterns = patterns(
+        'django.contrib.staticfiles.views', url(r'^site_media/(?P<path>.*)$', 'serve'),
 )
 
 urlpatterns += patterns('django.views.generic.simple',
     # Example:
     # (r'^atlasviewer/', include('atlasviewer.foo.urls')),
-    ('^$', 'redirect_to', {'url': '/admin/'}),
+    url(r'^$', lambda x: HttpResponseRedirect('/admin/')),
     
-    (r'^admin/doc/', include('django.contrib.admindocs.urls')),
-    (r'^admin/', include(admin.site.urls)),
-    (r'^accounts/', include(admin.site.urls)),
+    url(r'^admin/', include(admin.site.urls)),
     
     # Transcript app
-    (r'^transcript/', include('glasslab.atlasviewer.transcript.urls')),
+    url(r'^transcript/', include('glasslab.atlasviewer.transcript.urls')),
 
 )
