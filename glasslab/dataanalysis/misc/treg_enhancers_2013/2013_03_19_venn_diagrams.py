@@ -67,4 +67,3 @@ if __name__ == '__main__':
             yzer.run_homer(subset, 'four_way_venn_' + k, motif_dirpath,
                        cpus=6, center=True, reverse=False, preceding=False, size=200, length=[8, 10, 12, 15])
 
-        '''
