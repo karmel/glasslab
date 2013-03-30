@@ -1,5 +1,5 @@
 '''
-Created on Feb 12, 2013
+Created on Mar 28, 2013
 
 @author: karmel
 '''
@@ -9,25 +9,40 @@ from glasslab.dataanalysis.motifs.motif_analyzer import MotifAnalyzer
 if __name__ == '__main__':
     yzer = MotifAnalyzer()
     
-    data_dirpath = 'karmel/Desktop/Projects/GlassLab/Data/Sequencing/ChipSeq/CD4TCell/2013_03_19'
-    motif_dirpath = 'karmel/Desktop/Projects/GlassLab/Notes_and_Reports/CD4TCells/TReg_enhancers/motifs/2013_03_19'
-    data_dirpath = yzer.get_path(data_dirpath)
-    motif_dirpath = yzer.get_path(motif_dirpath)
+    dirpath = 'karmel/Desktop/Projects/GlassLab/Notes_and_Reports/CD4TCells/TReg_enhancers/2013_03_19'
+    dirpath = yzer.get_path(dirpath)
+    motif_dirpath = yzer.get_filename(dirpath, 'motifs')
     
-    
-    for cell_type in ('Naive','TReg'):
-        for antibody in ('H3K4me2','H3K27Ac'):
-            filename = yzer.get_filename(data_dirpath, 
-                                         'FoxP3-GFP-CD4TCell-{0}-{1}-MNase-13-03-19'.format(cell_type,
-                                                                                            antibody),
-                                         'regions.txt')
-            data = yzer.import_file(filename, skiprows=39)
-            data = data.fillna(0)
-            data['id'] = data['#PeakID']
-            data['chr_name'] = data['chr']
-            data['strand'] = (data['strand'] == '-').apply(int)
+    for antibody in ('me2','ac'):
+        treg = yzer.import_file(yzer.get_filename(dirpath, 
+                                    'treg_with_naive_{0}.txt'.format(antibody))).fillna(0)
+        naive = yzer.import_file(yzer.get_filename(dirpath,
+                                    'naive_with_treg_{0}.txt'.format(antibody))).fillna(0)
+        
+        # Filter out promoters
+        treg = treg[treg['tss_id'] == 0]
+        naive = naive[naive['tss_id'] == 0]
+        
+        # Get venn-diagram sets for foxp3/me2
+        only_treg = treg[treg['naive_id'] == 0]
+        only_naive = naive[naive['treg_id'] == 0]
+        shared = treg[treg['naive_id'] > 0]
+        print len(only_treg), len(only_naive), len(shared)
+        
+        datasets = [treg, naive, only_treg, only_naive, shared]
+        main_peak = ['treg','naive','treg','naive','treg']
+        names = [x.format(antibody) for x in ('all_treg_{0}_enhancers',
+                                              'all_naive_{0}_enhancers',
+                                              'only_treg_{0}_enhancers',
+                                              'only_naive_{0}_enhancers',
+                                              'shared_{0}_enhancers')]
+        for i, subset in enumerate(datasets):
+            if i > 1: continue
+            subset['id'] = subset['{0}_id'.format(main_peak[i])]
+            subset['start'] = subset['{0}_start'.format(main_peak[i])]
+            subset['end'] = subset['{0}_end'.format(main_peak[i])]
+            
+            yzer.run_homer(subset, names[i], motif_dirpath,
+                       cpus=6, center=True, reverse=False, preceding=False, size=200, length=[8, 10, 12, 15])
 
-            if True:
-                yzer.run_homer(data, 'all_{0}_{1}'.format(cell_type,antibody), motif_dirpath,
-                           cpus=6, center=True, reverse=False, preceding=False, size=200, length=[8, 10, 12, 15])
     
