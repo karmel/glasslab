@@ -59,7 +59,7 @@ if __name__ == '__main__':
             print k, len(subset)
             
             if k in celltypes or len(subset) < 1000: continue
-            first_peak = k.split('_')[0]
+            first_peak = k=='all' and 'naive' or k.split('_')[0]
             subset['id'] = subset[first_peak + '_id']
             subset['start'] = subset[first_peak + '_start']
             subset['end'] = subset[first_peak + '_end']
