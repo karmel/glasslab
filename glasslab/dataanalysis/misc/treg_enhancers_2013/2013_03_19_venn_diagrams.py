@@ -51,8 +51,15 @@ if __name__ == '__main__':
                             data['_'.join(names)] = data[celltype][(data[celltype]\
                                                     [[c + '_id' for c in names]].min(axis=1) > 0)\
                                                     & (data[celltype][fourth[0] + '_id'] == 0)]
+        
         data['all'] = data['treg'][data['treg']\
                                    [[c + '_id' for c in celltypes]].min(axis=1) > 0]
+        
+        # Special cases
+        # Treg and Th1 shared and not shared, regardless of others
+        data['treg_th1_shared'] = data['treg'][data['treg']['th1_id'] > 0]
+        data['treg_not_th1'] = data['treg'][data['treg']['th1_id'] == 0]
+        data['th1_not_treg'] = data['th1'][data['th1']['treg_id'] == 0]
         
         for k in sorted(data.keys()):
             subset = data[k] 
@@ -64,6 +71,7 @@ if __name__ == '__main__':
             subset['start'] = subset[first_peak + '_start']
             subset['end'] = subset[first_peak + '_end']
             
-            yzer.run_homer(subset, 'four_way_venn_' + k, motif_dirpath,
-                       cpus=6, center=True, reverse=False, preceding=False, size=200, length=[8, 10, 12, 15])
+            if k in ('treg_th1_shared','treg_not_th1','th1_not_treg'):
+                yzer.run_homer(subset, 'four_way_venn_' + k, motif_dirpath,
+                           cpus=6, center=True, reverse=False, preceding=False, size=200, length=[8, 10, 12, 15])
 
