@@ -156,7 +156,9 @@ class SeqGrapher(TranscriptAnalyzer):
         if not self.disable_show_plot: pyplot.show()
     def save_plot(self, filename): pyplot.savefig(filename)
     def save_plot_with_dir(self, save_dir='', save_name='', title=''):
-        if save_dir: self.save_plot(self.get_filename(save_dir, save_name or (title.replace(' ','_') + '.png')))
+        if save_dir: 
+            self.save_plot(self.get_filename(save_dir, 
+                        save_name or (title.replace(' ','_').replace('\n','_') + '.png')))
         
     
     def add_title(self, title, ax):

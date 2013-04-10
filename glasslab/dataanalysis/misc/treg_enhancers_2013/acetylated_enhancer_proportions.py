@@ -18,9 +18,9 @@ if __name__ == '__main__':
     for antibody in ('me2',):
         data = {}
         celltypes = ['treg','naive','th1','th2']
-        for celltype in celltypes:
+        for celltype in celltypes[:1]:
             data[celltype] = yzer.import_file(yzer.get_filename(dirpath, 
-                                    '{0}_{1}_versus_others.txt'.format(celltype, 
+                                    '{0}_{1}_versus_others_with_ac.txt'.format(celltype, 
                                                                      antibody))).fillna(0)
                 
             # Filter out promoters
@@ -60,13 +60,27 @@ if __name__ == '__main__':
         # Treg and Th1 shared and not shared, regardless of others
         data['treg_th1_shared'] = data['treg'][data['treg']['th1_id'] > 0]
         data['treg_not_th1'] = data['treg'][data['treg']['th1_id'] == 0]
-        data['th1_not_treg'] = data['th1'][data['th1']['treg_id'] == 0]
+        #data['th1_not_treg'] = data['th1'][data['th1']['treg_id'] == 0]
         
         for k in sorted(data.keys()):
-            subset = data[k] 
-            print k, len(subset)
+            subset = data[k]
+            total = len(subset)
+            acetylated = len(subset[subset['ac_id'] > 0])
+            acetylated_naive = len(subset[subset['naive_ac_id'] > 0])
+            acetylated_both = len(subset[(subset['ac_id'] > 0) & (subset['naive_ac_id'] > 0)])
+            summary = '''{k}:
+            Total enh: {0}
+            Acetylated in Treg: {1} ({2}%)
+            Acetylated in Naive: {3} ({4}%)
+            Acetylated in Both: {5} ({6}%)
+            '''.format(total,
+                       acetylated, (acetylated/total)*100,
+                       acetylated_naive, (acetylated_naive/total)*100,
+                       acetylated_both, (acetylated_both/total)*100,
+                       k=k)
+            print summary
         
-        if True:
+        if False:
             for k in sorted(data.keys()):    
                 if k in celltypes or len(subset) < 1000: continue
                 
