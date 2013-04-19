@@ -4,7 +4,8 @@ Created on Feb 12, 2013
 @author: karmel
 
 Note that set 1 of Rudensky's Foxp3 chip has 2x as many peaks,
-but he seems to use set 2 in the paper.
+but he seems to use set 2 in the paper (?). Here we use
+summed tags and peaks found in that.
 '''
 from __future__ import division
 from glasslab.dataanalysis.motifs.motif_analyzer import MotifAnalyzer
@@ -102,11 +103,11 @@ if __name__ == '__main__':
                              save_dir=graph_dirpath,
                              show_plot=False)
             
-        if False:
+        if True:
             data['with_foxp3'] = data['treg'][data['treg']['foxp3_tag_count'] >= min_score]
             data['without_foxp3'] = data['treg'][data['treg']['foxp3_tag_count'] < min_score]
             
-            for k in ('with_foxp3', 'without_foxp3'):
+            for k in ('with_foxp3', ):
                 first_peak = 'treg'
                 subset = data[k]
                 subset['id'] = subset[first_peak + '_id']
@@ -114,5 +115,5 @@ if __name__ == '__main__':
                 subset['end'] = subset[first_peak + '_end']
                 
                 yzer.run_homer(subset, first_peak + '_' + k, motif_dirpath,
-                           cpus=6, center=True, reverse=False, preceding=False, size=200, length=[8, 10, 12, 15])
+                           cpus=6, center=True, reverse=False, preceding=False, size=500, length=[8, 10, 12, 15])
     

@@ -25,12 +25,12 @@ if __name__ == '__main__':
     merged = data.merge(homer_data, how='inner',on='sequence_identifier')
     merged = merged.fillna(1)
     
-    if False:
+    if True:
         ax = yzer.scatterplot(merged, 
                      xcolname='homer_tag_count', ycolname='sum', log=True,  
-                     title='RefSeq Tag Count via Homer and the Glass Atlas', 
+                     title='RefSeq Tag Count via Homer and Vespucci', 
                      xlabel='Tag Count in Homer',
-                     ylabel='Tag Count in the Glass Atlas',  
+                     ylabel='Tag Count in Vespucci',  
                      show_2x_range=True, plot_regression=False, set_limits=True,
                      show_count=True, show_correlation=True, show_legend=False, 
                      save_dir=img_dirpath, show_plot=True)

@@ -67,7 +67,8 @@ if __name__ == '__main__':
             print k, len(subset)
         
         if True:
-            for k in sorted(data.keys()):    
+            for k in sorted(data.keys(), reverse=True):
+                subset = data[k]    
                 if k in celltypes or len(subset) < 1000: continue
                 
                 if k in ('treg_th1_shared','treg_not_th1','th1_not_treg'): continue
