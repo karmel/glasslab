@@ -17,6 +17,7 @@ from matplotlib.font_manager import FontProperties
 class SeqGrapher(TranscriptAnalyzer):
     fig_size = 10
     disable_show_plot = False
+    legend_location = 'upper left'
     
     def scatterplot(self, data, xcolname, ycolname, 
                     subplot=111, log=False, color='blue',
@@ -118,7 +119,7 @@ class SeqGrapher(TranscriptAnalyzer):
         if show_correlation: self.show_correlation_scatterplot(master_dataset, xcolname, ycolname, ax, text_shift, text_color)
         
         if show_legend:
-            pyplot.legend(loc='upper left')
+            pyplot.legend(loc=self.legend_location)
             
         # Any other operations to tack on?
         self.other_plot(ax=ax)
@@ -392,7 +393,7 @@ class SeqGrapher(TranscriptAnalyzer):
         self.add_title(title, ax)
         
         if show_legend:
-            pyplot.legend(loc='upper left')
+            pyplot.legend(loc=self.legend_location)
         
         # Any other operations to tack on?
         self.other_plot()
@@ -418,7 +419,7 @@ class SeqGrapher(TranscriptAnalyzer):
         font_p = FontProperties()
         if small_legend:
             font_p.set_size(10)
-        pyplot.legend(loc='lower left', prop=font_p)
+        pyplot.legend(loc=self.legend_location, prop=font_p)
         
         self.save_plot_with_dir(save_dir, save_name, title)
         if show_plot: self.show_plot()
