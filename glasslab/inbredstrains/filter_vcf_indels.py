@@ -14,8 +14,8 @@ def filter_variants(file_name, output_file=None):
     output = output_file or (file_name + '.clean')
     o1 = file(output, 'w')
     
-    strains = (14, 19, 21) # BALB, DBA, NOD
-    inc_reference = (16, 14, 19, 21)
+    strains = (14, ) #, 21, 19) # BALB, NOD, DBA
+    inc_reference = (16, 14, 21) #, 19)
     
     format_field_count = 9
     for line in f:
@@ -59,9 +59,9 @@ def write_line(fields, output):
 if __name__ == '__main__':
     import sys
     if len(sys.argv) > 1: file_name = sys.argv[1]
-    else: file_name = '/Users/karmel/Downloads/20110602-callable-dinox-indels.vcf'
+    else: file_name = '/Users/karmel/GlassLab/Notes_and_Reports/Inbred_strains/SNP_data/20110602-callable-dinox-indels.vcf'
     if len(sys.argv) > 2: output_file = sys.argv[2]
-    else: output_file = '/Users/karmel/Downloads/four_strain_indels.vcf'
+    else: output_file = '/Users/karmel/GlassLab/Notes_and_Reports/Inbred_strains/SNP_data/three_strain_indels.vcf'
     
     filter_variants(file_name, output_file)
 

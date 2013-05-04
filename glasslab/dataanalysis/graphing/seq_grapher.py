@@ -13,18 +13,20 @@ from glasslab.dataanalysis.base.datatypes import TranscriptAnalyzer
 import numpy
 import math
 from matplotlib.font_manager import FontProperties
+from numpy.lib.polynomial import poly1d
 
 class SeqGrapher(TranscriptAnalyzer):
     fig_size = 10
     disable_show_plot = False
     legend_location = 'upper left'
+    legend_columns = 1
     
     def scatterplot(self, data, xcolname, ycolname, 
                     subplot=111, log=False, color='blue',
                     master_dataset=None,
                     title='', xlabel=None, ylabel=None,
                     label='', add_noise=False,
-                    show_points=True, set_limits=False,
+                    show_points=True, set_limits=False, square=False,
                     show_2x_range=True, plot_regression=False,
                     show_count = True, show_correlation=True,
                     text_shift=0, text_color='black', 
@@ -61,6 +63,11 @@ class SeqGrapher(TranscriptAnalyzer):
         if set_limits:
             self.xlim(ax, min(data[xcolname]), max(data[xcolname]))
             self.ylim(ax, min(data[ycolname]), max(data[ycolname]))
+        if square:
+            min_val = min(min(data[xcolname]), min(data[ycolname]))
+            max_val = max(max(data[xcolname]), max(data[ycolname]))
+            self.xlim(ax, min_val, max_val)
+            self.ylim(ax, min_val, max_val)
         # Add some noise to prevent overlap?
         if add_noise:
             xcol = data[xcolname]*(1 + .01*numpy.random.randn(len(data[xcolname])))
@@ -95,10 +102,10 @@ class SeqGrapher(TranscriptAnalyzer):
             # Reduce Pandas Series to Numpy arrays to avoid indexing problems, if necessary
             try: x, y = x.values, y.values
             except AttributeError: pass
-            x.sort()
             y = y[x.argsort()]
+            x.sort()
             m, c = numpy.polyfit(x, y, 1)
-            pyplot.plot(x, x*m + c, color=color, label=label + ' (Linear fit)')
+            pyplot.plot(x, m*x+c, color=color, label=label + ' (Linear fit)')
         
         # Show lines at two-fold change?
         if show_2x_range:
@@ -118,8 +125,8 @@ class SeqGrapher(TranscriptAnalyzer):
         if show_count: self.show_count_scatterplot(master_dataset, ax, text_shift, text_color)
         if show_correlation: self.show_correlation_scatterplot(master_dataset, xcolname, ycolname, ax, text_shift, text_color)
         
-        if show_legend:
-            pyplot.legend(loc=self.legend_location)
+        if show_legend: self.legend()
+            
             
         # Any other operations to tack on?
         self.other_plot(ax=ax)
@@ -176,6 +183,9 @@ class SeqGrapher(TranscriptAnalyzer):
     def ylim(self, ax, min_y, max_y):
         ax.set_ylim([min_y, max_y])
     
+    def legend(self):
+        pyplot.legend(loc=self.legend_location, ncol=self.legend_columns)
+        
     def other_plot(self, *args, **kwargs):
         return True
     
@@ -279,7 +289,7 @@ class SeqGrapher(TranscriptAnalyzer):
     def boxplot(self, data,
                     bar_names=None, subplot=111, wide=False,
                     title='', xlabel=None, ylabel=None,
-                    show_outliers=True, save_dir='', save_name='', 
+                    show_outliers=False, save_dir='', save_name='', 
                     show_plot=True, ax=None):
         '''
         Draw a boxplot for passed data.
@@ -329,7 +339,7 @@ class SeqGrapher(TranscriptAnalyzer):
         
         self.add_axis_labels(xlabel, ylabel)
         self.add_title(title, ax)
-        if show_legend: pyplot.legend()
+        if show_legend: self.legend()
         
         #pyplot.ylim(0,100)
         # Any other operations to tack on?
@@ -392,8 +402,7 @@ class SeqGrapher(TranscriptAnalyzer):
         self.add_axis_labels(xlabel, ylabel)
         self.add_title(title, ax)
         
-        if show_legend:
-            pyplot.legend(loc=self.legend_location)
+        if show_legend: self.legend()
         
         # Any other operations to tack on?
         self.other_plot()
@@ -419,7 +428,7 @@ class SeqGrapher(TranscriptAnalyzer):
         font_p = FontProperties()
         if small_legend:
             font_p.set_size(10)
-        pyplot.legend(loc=self.legend_location, prop=font_p)
+        self.legend()
         
         self.save_plot_with_dir(save_dir, save_name, title)
         if show_plot: self.show_plot()

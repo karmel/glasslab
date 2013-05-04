@@ -2,6 +2,8 @@
 Created on Mar 11, 2013
 
 @author: karmel
+
+Note: Made font.weight = bold and axes.titlesize = 24, font.size = 16 in matplotlibrc
 '''
 from __future__ import division
 from glasslab.dataanalysis.graphing.seq_grapher import SeqGrapher
@@ -12,9 +14,9 @@ if __name__ == '__main__':
     dirpath = 'karmel/Desktop/Projects/GlassLab/Notes_and_Reports/Glass Atlas/Demo-data'
     dirpath = yzer.get_path(dirpath)
     
-    img_dirpath = yzer.get_and_create_path(dirpath, 'refseq_to_homer')
+    img_dirpath = yzer.get_and_create_path(dirpath, 'refseq_to_homer/large_gap_500bp')
     
-    data = yzer.import_file(yzer.get_filename(dirpath,'refseq_tag_counts.txt'))
+    data = yzer.import_file(yzer.get_filename(dirpath,'refseq_tag_counts_500bp.txt'))
     data['sum'] = nonzero(data['sum'].fillna(0))
     
     homer_data = yzer.import_file(yzer.get_filename(dirpath,'RNA_GroSeq_CountsGenes.txt'))

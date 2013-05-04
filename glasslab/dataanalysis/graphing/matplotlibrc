@@ -117,7 +117,7 @@ lines.markersize  : 6            # markersize, in points
 #font.family         : sans-serif
 #font.style          : normal
 #font.variant        : normal
-#font.weight         : medium
+font.weight         : bold
 #font.stretch        : normal
 # note that font.size controls default text sizes.  To configure
 # special text sizes tick labels, axes, labels, title, etc, see the rc
@@ -203,7 +203,7 @@ font.sans-serif     : Helvetica, Bitstream Vera Sans, Lucida Grande, Verdana, Ge
 #axes.edgecolor      : black   # axes edge color
 #axes.linewidth      : 1.0     # edge linewidth
 #axes.grid           : False   # display grid or not
-axes.titlesize      : 20   # fontsize of the axes title
+axes.titlesize      : 24   # fontsize of the axes title
 #axes.labelsize      : medium  # fontsize of the x any y labels
 #axes.labelweight    : normal  # weight of the x and y labels
 #axes.labelcolor     : black
