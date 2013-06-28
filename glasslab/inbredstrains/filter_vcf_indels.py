@@ -14,8 +14,12 @@ def filter_variants(file_name, output_file=None):
     output = output_file or (file_name + '.clean')
     o1 = file(output, 'w')
     
-    strains = (14, ) #, 21, 19) # BALB, NOD, DBA
+    strains = (14, 21, ) #19) # BALB, NOD, DBA
     inc_reference = (16, 14, 21) #, 19)
+    
+    # We want to include data for Balb, nod, and bl6, but only for snps
+    # that differ between balb and bl6
+    must_be_different = (14, ) # BALB
     
     format_field_count = 9
     for line in f:
@@ -42,11 +46,17 @@ def filter_variants(file_name, output_file=None):
                         # This is a legit indel; keep to write to file
                         fields_to_write.append(strain_of_interest)
                 except IndexError: pass
+            
+            # We only want to continue if the required strains are different
+            differences_missing = set(must_be_different) - set(fields_to_write)
                 
-            # We only want to write indels to file if they passed the threshold; otherwise, include a '.'
-            # Info field (index 8) in this file is screwed up; leave out and insert a '.'
-            if fields_to_write:
-                # We remove the info field because the allele counts are all off, since we removed many mice strains
+            # We only want to write indels to file if they passed the threshold; 
+            # otherwise, include a '.'
+            # Info field (index 8) in this file is screwed up; 
+            # leave out and insert a '.'
+            if fields_to_write and not differences_missing:
+                # We remove the info field because the allele counts are all 
+                # off, since we removed many mice strains
                 write_line(fields[:format_field_count] + \
                            [i in fields_to_write and fields[i] or '0/0' for i in inc_reference], o1)
 
