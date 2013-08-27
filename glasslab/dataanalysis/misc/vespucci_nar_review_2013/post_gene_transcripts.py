@@ -7,7 +7,6 @@ Note: Made font.weight = bold and axes.titlesize = 24 in matplotlibrc
 '''
 from __future__ import division
 from glasslab.dataanalysis.graphing.seq_grapher import SeqGrapher
-from glasslab.utils.functions import pandas_min
 from glasslab.dataanalysis.misc.demoatlas.rpkm_to_score import PrettyAxisGrapher
 
 

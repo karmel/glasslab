@@ -514,3 +514,8 @@ class SeqGrapher(TranscriptAnalyzer):
     
         return ax
     
+    def plot(self, *args, **kwargs):
+        '''
+        Just pass to pyplot.
+        '''
+        return pyplot.plot(*args, **kwargs)
