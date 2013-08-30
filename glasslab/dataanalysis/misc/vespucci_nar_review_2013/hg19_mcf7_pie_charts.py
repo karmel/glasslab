@@ -39,6 +39,6 @@ Remainder    14,620'''
     yzer.legend_columns = 2
     yzer.piechart(map(lambda s: int(s.replace(',','')), pie2[1]), 
                   pie2[0], 
-                  title='Unannotated MCF-7 Transcripts with Score >= 1', 
+                  title='Unannotated MCF-7 Transcripts\nwith Score >= 1', 
                   save_dir=img_dirpath, 
                   show_plot=True)
