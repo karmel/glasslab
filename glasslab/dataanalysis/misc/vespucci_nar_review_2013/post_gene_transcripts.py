@@ -47,6 +47,7 @@ if __name__ == '__main__':
             subset['percent_covered'] = (subset['transcription_end'] - subset['transcription_start'] + 1)\
                         /(subset['transcription_end(2)'] - subset['transcription_start(2)'] + 1)
             print 'Total: ', len(subset)
+            print 'Percentage: ', len(subset)/len(refseq)
             print 'mRNA: ', sum(subset['type'] == 'mRNA'), sum(subset['type'] == 'mRNA')/len(subset)
             print 'rRNA: ', sum(subset['type'] != 'mRNA'), sum(subset['type'] != 'mRNA')/len(subset)
         # Note that some transcripts encompass two very close refseq genes; we're filtering those out for now.

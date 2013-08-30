@@ -76,7 +76,8 @@ if __name__ == '__main__':
         
         
     # Final-- use log100
-    score_col = 'log100' 
+    data = yzer.import_file(yzer.get_filename(dirpath,'score_to_rpkm.txt'))
+    score_col = 'score' 
     yzer.draw_diagonal = True
     ax = yzer.scatterplot(data, 
                  xcolname='rpkm', ycolname=score_col, log=True,  
