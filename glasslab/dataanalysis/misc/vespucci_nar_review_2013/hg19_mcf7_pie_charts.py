@@ -16,8 +16,8 @@ if __name__ == '__main__':
     img_dirpath = yzer.get_and_create_path(dirpath, 'hg19_mcf7_pie_charts')
     
     yzer.legend_location = 'lower left'
-    pie1 = '''Annotated by RefSeq and/or ncRNA.org    14,857
-Unannotated    76,696'''
+    pie1 = '''Annotated by RefSeq and/or ncRNA.org    14,309
+Unannotated    71,513'''
     pie1 = [row.split('    ') for row in pie1.split('\n')]
     pie1 = zip(*pie1)
     yzer.piechart(map(lambda s: int(s.replace(',','')), pie1[1]), 
@@ -26,14 +26,14 @@ Unannotated    76,696'''
                   save_dir=img_dirpath, 
                   show_plot=True)
     
-    pie2 = '''Promoter-associated RNA    7,003
-Antisense of RefSeq    8,548
-Post-TTS, same-strand    5,890
-Other RefSeq Proximal    12,653
-Distal with H3K4me2    2,326
-Distal within 2kbp of H3K4me2    6,222
-Distal remainder with LINE    16,800
-Remainder    17,254'''
+    pie2 = '''Promoter-associated RNA    7,145
+Antisense of RefSeq    7,946
+Post-TTS, same-strand    6,052
+Other RefSeq Proximal    11,582
+Distal with H3K4me2    2,352
+Distal within 2kbp of H3K4me2    5,524
+Distal remainder with LINE    16,292
+Remainder    14,620'''
     pie2 = [row.split('    ') for row in pie2.split('\n')]
     pie2 = zip(*pie2)
     yzer.legend_columns = 2
