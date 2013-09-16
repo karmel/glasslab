@@ -15,29 +15,28 @@ if __name__ == '__main__':
     dirpath = yzer.get_path(dirpath)
     img_dirpath = yzer.get_and_create_path(dirpath, 'figure_3_pie_charts')
     
-    yzer.legend_location = 'lower left'
-    pie1 = '''Annotated by RefSeq and/or ncRNA.org    14,119
-Unannotated    28,376'''
+    yzer.legend_location = 'lower right'
+    pie1 = '''Annotated by RefSeq and/or ncRNA.org    12,827
+Unannotated    21,916'''
     pie1 = [row.split('    ') for row in pie1.split('\n')]
     pie1 = zip(*pie1)
     yzer.piechart(map(lambda s: int(s.replace(',','')), pie1[1]), 
                   pie1[0], 
-                  title='Transcripts with Score >= 1', 
+                  title='Transcripts with Score >= 1\n', 
                   save_dir=img_dirpath, 
                   show_plot=True)
     
-    pie2 = '''Promoter-associated RNA    5,458
-Antisense of RefSeq    3,812
-Post-TTS, same-strand    6,568
-Other RefSeq Proximal    2,664
+    pie2 = '''Promoter-associated RNA    5,216
+Antisense of RefSeq    2,955
+Other RefSeq Proximal    3,871
 Distal with H3K4me1    6,211
-Distal within 2kbp of H3K4me1    867
+Distal w/in 2kbp of H3K4me1    867
 Remainder    2,796'''
     pie2 = [row.split('    ') for row in pie2.split('\n')]
     pie2 = zip(*pie2)
-    yzer.legend_columns = 2
+    #yzer.legend_columns = 2
     yzer.piechart(map(lambda s: int(s.replace(',','')), pie2[1]), 
                   pie2[0], 
-                  title='Unannotated Transcripts with Score >= 1', 
+                  title='Unannotated Transcripts with Score >= 1\n', 
                   save_dir=img_dirpath, 
                   show_plot=True)

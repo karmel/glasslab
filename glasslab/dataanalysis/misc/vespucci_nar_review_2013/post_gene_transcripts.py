@@ -3,7 +3,7 @@ Created on May 2, 2013
 
 @author: karmel
 
-Note: Made font.weight = bold and axes.titlesize = 24 in matplotlibrc
+Note: Made font.weight = normal and axes.titlesize = 24 in matplotlibrc
 '''
 from __future__ import division
 from glasslab.dataanalysis.graphing.seq_grapher import SeqGrapher
@@ -104,7 +104,7 @@ if __name__ == '__main__':
         print (len(high_exp_with)+len(high_exp_none))/len(refseq)
         print len(high_exp_with)/(len(high_exp_with)+len(high_exp_none))
         
-    if False:
+    if True:
         # Cleaned up for figures.
         
         # 5a
