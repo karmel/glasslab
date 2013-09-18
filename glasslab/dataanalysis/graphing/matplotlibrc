@@ -117,7 +117,7 @@ lines.markersize  : 6            # markersize, in points
 #font.family         : sans-serif
 #font.style          : normal
 #font.variant        : normal
-#font.weight         : bold
+font.weight         : bold
 #font.stretch        : normal
 # note that font.size controls default text sizes.  To configure
 # special text sizes tick labels, axes, labels, title, etc, see the rc

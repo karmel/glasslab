@@ -16,22 +16,21 @@ if __name__ == '__main__':
     img_dirpath = yzer.get_and_create_path(dirpath, 'hg19_mcf7_pie_charts')
     
     yzer.legend_location = 'lower left'
-    pie1 = '''Annotated by RefSeq and/or ncRNA.org    14,309
-Unannotated    71,513'''
+    pie1 = '''Annotated by RefSeq and/or ncRNA.org    14,022
+Unannotated    67,046'''
     pie1 = [row.split('    ') for row in pie1.split('\n')]
     pie1 = zip(*pie1)
     yzer.piechart(map(lambda s: int(s.replace(',','')), pie1[1]), 
                   pie1[0], 
-                  title='MCF-7 Transcripts with Score >= 1', 
+                  title='Hah et al MCF-7 Transcripts\nwith Score >= 1', 
                   save_dir=img_dirpath, 
                   show_plot=True)
     
-    pie2 = '''Promoter-associated RNA    7,145
-Antisense of RefSeq    7,946
-Post-TTS, same-strand    6,052
-Other RefSeq Proximal    11,582
+    pie2 = '''Promoter-associated RNA    7,055
+Antisense of RefSeq    7,539
+Other RefSeq Proximal    13,664
 Distal with H3K4me2    2,352
-Distal within 2kbp of H3K4me2    5,524
+Distal w/in 2kbp of H3K4me2    5,524
 Distal remainder with LINE    16,292
 Remainder    14,620'''
     pie2 = [row.split('    ') for row in pie2.split('\n')]
@@ -39,6 +38,6 @@ Remainder    14,620'''
     yzer.legend_columns = 2
     yzer.piechart(map(lambda s: int(s.replace(',','')), pie2[1]), 
                   pie2[0], 
-                  title='Unannotated MCF-7 Transcripts\nwith Score >= 1', 
+                  title='Hah et al Unannotated MCF-7 Transcripts\nwith Score >= 1', 
                   save_dir=img_dirpath, 
                   show_plot=True)
