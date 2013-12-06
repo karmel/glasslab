@@ -22,7 +22,7 @@ class MotifAnalyzer(TranscriptAnalyzer):
                   center=True, reverse=False, preceding=False,
                   size=None, length=None, number_of_motifs=20,
                   bg='', genome='mm9', cpus=1,
-                  files_already_prepped=False):
+                  files_already_prepped=False, mock=False):
         '''
         Run HOMER on passed set of transcripts, assuming a transcription_start,
         transcription_end, and chr_name.
@@ -33,7 +33,8 @@ class MotifAnalyzer(TranscriptAnalyzer):
                             files_already_prepped=files_already_prepped)
         
         self.run_homer_with_pos_file(homer_filename, fullpath, center, size,
-                                     length, number_of_motifs, bg, genome, cpus)
+                                     length, number_of_motifs, bg, genome, cpus, 
+                                     mock=mock)
         
     
     def prep_files_for_homer(self, data_orig, project_name, dirpath,
@@ -86,9 +87,10 @@ class MotifAnalyzer(TranscriptAnalyzer):
             data[start_key] = data[start_key].apply(int)
             data[end_key] = data[end_key].apply(int)
             
-             
-            data.to_csv(region_filename,
-                        cols=['id', 'chr_name', start_key, end_key, 'strand'],
+            
+            # Pandas keeps pulling wrong columns? Subsetting data explicitly.
+            data_subset = data[['id', 'chr_name', start_key, end_key, 'strand']]
+            data_subset.to_csv(region_filename,
                         header=False, index=False, sep='\t')
             # Convert to Windows line endings
             subprocess.check_call("sed ':a;N;$!ba;s/\n/\r/g' %s > %s" % (
@@ -100,7 +102,7 @@ class MotifAnalyzer(TranscriptAnalyzer):
         
     def run_homer_with_pos_file(self, homer_filename, dirpath,
                                 center=True, size=None, length=None, number_of_motifs=10,
-                                bg='', genome='mm9', cpus=1):
+                                bg='', genome='mm9', cpus=1, mock=False):
         
         
         if not size: size = self.default_size
@@ -123,7 +125,7 @@ class MotifAnalyzer(TranscriptAnalyzer):
                                         genome, fullpath,
                                         size, length, cpus, number_of_motifs, bg)
         print command
-        subprocess.check_call(command, shell=True)
+        if not mock: subprocess.check_call(command, shell=True)
         
         print 'Successfully executed command %s' % command
         
