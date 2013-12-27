@@ -54,22 +54,27 @@ class SuperFinder(object):
         
         return data
     
-    def sort_by_reads_per_bp(self, data):
+    def reads_per_bp(self, data):
         '''
-        Calculate reads per basepair in each peak, and sort ascending.
-        Assign rank for use later.
+        Calculate reads per basepair in each peak, according to Methods text.
         '''
         data['reads_per_bp'] = data['tag_count']/(data['end'] - data['start'] + 1)
-        data['rank'] = data['reads_per_bp'].rank(method='first') 
+        return data
+    
+    def sort_by_reads(self, data, column='reads_per_bp'):
+        '''
+        Assign rank according to specified column and sort ascending.
+        '''
+        data['rank'] = data[column].rank(method='first') 
         data = data.sort('rank')
         return data
     
-    def normalize(self, data):
+    def normalize(self, data, column='reads_per_bp'):
         '''
-        Normalize both reads_per_bp and rank such that the range is 0 to 1.
+        Normalize both the reads and rank such that the range is 0 to 1.
         '''
-        for col in ('reads_per_bp', 'rank'):
-            data[col + '_norm'] = (data[col] - data[col].min())/ data[col].max()
+        for col in (column, 'rank'):
+            data[col + '_norm'] = (data[col] - data[col].min())/data[col].max()
             
         return data
     
@@ -83,7 +88,7 @@ class SuperFinder(object):
         
         return data
     
-    def pairwise_slopes(self, data):
+    def pairwise_slopes(self, data, column='reads_per_bp'):
         '''
         Calculate the slope between every pair of points (rank, reads_per_bp)
         '''
@@ -93,8 +98,8 @@ class SuperFinder(object):
             # from the dataframe the rows we want in order.
             idx, next_idx = data.index[x], data.index[x+1]
             run = data.ix[next_idx]['rank_norm'] - data.ix[idx]['rank_norm']
-            rise = data.ix[next_idx]['avg_reads_per_bp_norm'] \
-                    - data.ix[idx]['avg_reads_per_bp_norm']
+            rise = data.ix[next_idx]['avg_{}_norm'.format(column)] \
+                    - data.ix[idx]['avg_{}_norm'.format(column)]
             data.set_value(idx, 'slope', rise/run)
         
         return data
@@ -111,49 +116,58 @@ class SuperFinder(object):
         supers = data[data['rank_norm'] >= min_rank]
         return supers
     
-    def output_supers(self, data, filename):
+    def output_supers(self, data, filename, column='reads_per_bp'):
         output_file, _ = os.path.splitext(filename)
-        output_file = output_file + '_supers.txt'
+        output_file = '{}_{}_supers.txt'.format(output_file, column)
         
         data = data[['chr', 'start', 'end', 
                      'reads_per_bp', 'tag_count', 
                      'merged_ids']]
-        data = data.sort(['reads_per_bp'], ascending=False)
+        data = data.sort([column], ascending=False)
         
         data.to_csv(output_file, sep='\t',  
                     header=True, index=True)
 
 
-    def plot(self, data, supers, filename):
+    def plot(self, data, supers, filename, 
+             column='reads_per_bp_norm',
+             ylabel='Reads per million per basepair (norm)'):
         output_file, _ = os.path.splitext(filename)
-        output_file = output_file + '_supers.png'
+        output_file = '{}_{}_supers.png'.format(output_file, column)
         
-        pyplot.plot(data['rank_norm'], data['reads_per_bp_norm'], 
+        pyplot.plot(data['rank_norm'], data[column], 
                     label='Raw')
-        pyplot.plot(data['rank_norm'], data['avg_reads_per_bp_norm'], 
+        pyplot.plot(data['rank_norm'], data['avg_' + column], 
                     label='Moving Avg (window = {})'.format(self.moving_window))
         
         min_rank = supers['rank_norm'].min()
-        pyplot.plot([min_rank, min_rank], [0,1], label='Cut-off')
+        pyplot.plot([min_rank, min_rank], [0,1], 
+                    label='Cut-off ({} enhancers, {} super)'.format(
+                                        len(data), len(supers)))
         
         pyplot.title('Super-enhancer Indentification')
         pyplot.xlabel('Rank (norm)')
-        pyplot.ylabel('Reads per million per basepair (norm)')
+        pyplot.ylabel(ylabel)
         pyplot.legend()
         
         pyplot.savefig(output_file)
         pyplot.show()
         
-    def find_superenhancers(self, filename):
+    def find_superenhancers(self, filename, 
+                            column='reads_per_bp',
+                            ylabel='Reads per million per basepair (norm)'):
         data = finder.import_file(filename, index_col=0)
-        data = finder.sort_by_reads_per_bp(data)
-        data = finder.normalize(data)
-        data = finder.moving_average(data, 'reads_per_bp_norm')
-        data = finder.pairwise_slopes(data)
+        data = finder.reads_per_bp(data)
+        data = finder.sort_by_reads(data, column=column)
+        data = finder.normalize(data, column=column)
+        data = finder.moving_average(data, column=column + '_norm')
+        data = finder.pairwise_slopes(data, column=column)
         data = finder.moving_average(data, 'slope')
         supers = finder.find_breakpoint(data)
-        finder.output_supers(supers, filename)
-        finder.plot(data, supers, filename)
+        finder.output_supers(supers, filename, column=column)
+        finder.plot(data, supers, filename, 
+                    column=column + '_norm',
+                    ylabel=ylabel)
     
 if __name__ == '__main__':
     
@@ -162,5 +176,10 @@ if __name__ == '__main__':
     except IndexError: filename = '/Users/karmel/GlassLab/Notes_and_Reports/Super-Enhancers/whyte_2012/th1_tbet_peaks_merged.txt'
     
     finder = SuperFinder()
-    finder.find_superenhancers(filename)
+    finder.find_superenhancers(filename,
+                               column='reads_per_bp',
+                               ylabel='Reads per million per basepair (norm)')
+    finder.find_superenhancers(filename,
+                               column='tag_count',
+                               ylabel='Reads per million (norm)')
     
