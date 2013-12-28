@@ -31,29 +31,17 @@ In order to do the same here, we need to:
  
 '''
 from __future__ import division
-from pandas.io import parsers
 import sys
 import os
 from pandas.stats.moments import rolling_mean
 from matplotlib import pyplot
+from glasslab.superenhancers.base import PeakFinder
 
 
-class SuperFinder(object):
+class SuperFinder(PeakFinder):
     m = 1
     moving_window = 100
         
-    def import_file(self, filename, separator='\t', header=True, 
-                    index_col=None, skiprows=None):
-        if header: header_row = 0
-        else: header_row = None
-        data = parsers.read_csv(filename, 
-                                sep=separator, 
-                                header=header_row, 
-                                index_col=index_col,
-                                skiprows=skiprows)
-        
-        return data
-    
     def reads_per_bp(self, data):
         '''
         Calculate reads per basepair in each peak, according to Methods text.
@@ -168,6 +156,8 @@ class SuperFinder(object):
         finder.plot(data, supers, filename, 
                     column=column + '_norm',
                     ylabel=ylabel)
+        
+        return data
     
 if __name__ == '__main__':
     

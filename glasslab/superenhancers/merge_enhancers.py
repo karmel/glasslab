@@ -21,26 +21,14 @@ changes.
 
 '''
 from __future__ import division
-from pandas.io import parsers
 import sys
 from pandas.core.frame import DataFrame
 import os
 from collections import OrderedDict
+from glasslab.superenhancers.base import PeakFinder
 
-class PeakMerger(object):
+class PeakMerger(PeakFinder):
     distance = 12500
-    
-    def import_file(self, filename, separator='\t', header=True, 
-                    index_col=None, skiprows=None):
-        if header: header_row = 0
-        else: header_row = None
-        data = parsers.read_csv(filename, 
-                                sep=separator, 
-                                header=header_row, 
-                                index_col=index_col,
-                                skiprows=skiprows)
-        
-        return data
     
     def sort_by_chr_bp(self, data):
         '''
@@ -95,7 +83,15 @@ class PeakMerger(object):
         
         data.to_csv(output_file, sep='\t',  
                     header=True, index=True)
+    
+    def find_merged_peaks(self, filename):
+        data = merger.import_file(filename, skiprows=39)
+        data = merger.sort_by_chr_bp(data)
+        data = merger.merge_peaks(data)
+        merger.output_peaks(data, filename)
+        
         return data
+        
     
 if __name__ == '__main__':
     
@@ -104,11 +100,7 @@ if __name__ == '__main__':
     except IndexError: filename = '/Users/karmel/GlassLab/Notes_and_Reports/Super-Enhancers/whyte_2012/th1_tbet_peaks.txt'
     
     merger = PeakMerger()
-    
-    data = merger.import_file(filename, skiprows=39)
-    data = merger.sort_by_chr_bp(data)
-    data = merger.merge_peaks(data)
-    data = merger.output_peaks(data, filename)
+    data = merger.find_merged_peaks(filename)
     
     
     
