@@ -47,6 +47,7 @@ class PeakMerger(PeakFinder):
         
         merged = []
         for _, row in data.iterrows():
+            if 'random' in row['chr']: continue
             if current_chr != row['chr']:
                 # Restart counting.
                 current_chr = row['chr']
@@ -85,7 +86,8 @@ class PeakMerger(PeakFinder):
                     header=True, index=True)
     
     def find_merged_peaks(self, filename):
-        data = merger.import_file(filename, skiprows=39)
+        header_line= merger.find_header(filename)
+        data = merger.import_file(filename, skiprows=header_line)
         data = merger.sort_by_chr_bp(data)
         data = merger.merge_peaks(data)
         merger.output_peaks(data, filename)
