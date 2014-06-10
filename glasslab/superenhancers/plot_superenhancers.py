@@ -100,9 +100,7 @@ class ChromosomePlotter(PeakFinder):
                 yticks.append(center)
                 
                 # Only label the topmost row with the chromosome.
-                # Add sample to each row
-                label = i == (len(self.datasets) - 1) and (chrom + ': ') or ''
-                label += self.names[i]
+                label = i == (len(self.xranges[chrom]) - 1) and chrom or ''
                 yticklabels.append(label)
                 
                 # Increment ystart for next iteration
@@ -145,6 +143,14 @@ class ChromosomePlotter(PeakFinder):
         ax.set_yticklabels(yticklabels)
         ax.set_xticks([])
         
+        # Add key at the bottom of the plot
+        colors = self.get_colors(len(self.names))
+        offset = .02
+        for i, name in enumerate(self.names):
+            pyplot.figtext(offset + .1, .08, name, 
+                           color=colors[i], weight='bold')
+            offset += .2
+
         ax.set_title('Chromosomal Locations of Super-enhancers')
         save_name = '_'.join(self.names) + '_chr_locations.png'
         pyplot.savefig(os.path.join(self.path, save_name))
