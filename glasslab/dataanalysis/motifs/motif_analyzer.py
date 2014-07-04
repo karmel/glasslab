@@ -118,16 +118,15 @@ class MotifAnalyzer(TranscriptAnalyzer):
         fullpath = self.get_filename(dirpath, 'homer_motifs_size_%s_len_%s' % (
                                         size.replace(',', '_'), length.replace(',', '-'))
                                 )
-        self.make_directory(fullpath)
+        if not mock: self.make_directory(fullpath)
         
         command = '%sfindMotifsGenome.pl %s %s "%s" -size %s -len %s -p %d -S %d %s' % (
                                         self.homer_bin, self.sanitize_filename(homer_filename),
                                         genome, fullpath,
                                         size, length, cpus, number_of_motifs, bg)
-        print command
         if not mock: subprocess.check_call(command, shell=True)
         
-        print 'Successfully executed command %s' % command
+        print 'Successfully executed command:\n%s' % command
         
     def make_directory(self, fullpath, check_exists=True):
         if check_exists: self.check_exists(fullpath)
