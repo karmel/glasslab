@@ -41,7 +41,7 @@ if __name__ == '__main__':
                                 'De novo with Batf'])
         
         
-    if True:
+    if False:
         peptide, ab = 'K99A', 'me2'
         pep_dirpath = yzer.get_filename(dirpath, 
                             '{}_{}'.format(peptide, ab))
@@ -63,7 +63,7 @@ if __name__ == '__main__':
                      bar_names=['Established', 'De novo',
                                 'Established with REL motif',
                                 'De novo with REL motif'])
-    if True:
+    if False:
         peptide, ab = 'NoPep', 'me2'
         pep_dirpath = yzer.get_filename(dirpath, 
                             '{}_{}'.format(peptide, ab))
@@ -86,3 +86,24 @@ if __name__ == '__main__':
                                 'Established with REL motif',
                                 'De novo with REL motif'])
         
+    if True:
+        peptide, ab = 'NoPep', 'ac'
+        pep_dirpath = yzer.get_filename(dirpath, 
+                            '{}_{}'.format(peptide, ab))
+            
+        filename = yzer.get_filename(pep_dirpath, 
+                        '{}_{}_enhancers_with_rel.txt'.format(peptide, ab))
+
+        data = yzer.import_file(filename)
+        data = data.fillna(0)
+        
+        with_rel = data[data['rel_id'] > 0]
+        
+        yzer.boxplot([with_rel['tag_count'], 
+                      with_rel['k99a_tag_count'],
+                      with_rel['pcc_tag_count'],
+                      ],
+                     bar_names=['NoPep H3K27Ac', 'K99A H3K27Ac',
+                                'PCC H3K27Ac',],
+                     xlabel='', ylabel='Tag count',
+                     title='H3K27Ac Tag Counts at REL motifs in CD4-Null EnNoPephancers')
