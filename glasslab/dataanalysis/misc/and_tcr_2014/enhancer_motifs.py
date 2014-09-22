@@ -9,10 +9,10 @@ from glasslab.dataanalysis.motifs.motif_analyzer import MotifAnalyzer
 if __name__ == '__main__':
     yzer = MotifAnalyzer()
     
-    dirpath = 'karmel/Desktop/Projects/GlassLab/Notes_and_Reports/AND_TCR/Analysis/Chips1_2_3/Motifs'
+    dirpath = 'karmel/Desktop/Projects/GlassLab/Notes_and_Reports/AND_TCR/Analysis/IDR/Motifs'
     dirpath = yzer.get_path(dirpath)
     
-    for ab in ('me2', 'ac'):
+    for ab in ('me2', ): #'ac'):
         for peptide in ('K99A','NoPep','PCC'):
             pep_dirpath = yzer.get_filename(dirpath, 
                             '{}_{}'.format(peptide, ab))
@@ -25,14 +25,14 @@ if __name__ == '__main__':
                 data = data.fillna(0)
                 
     
-                if False:
+                if True:
                     yzer.run_homer(data, 
                         'all', pep_dirpath,
                         cpus=8, center=True, reverse=False, preceding=False, 
                         size=200, length=[8, 10, 12], mock=True)
                 
         
-                if False:
+                if True:
                     subset = data[(data['id(2)'] == 0) & (data['id(3)'] == 0)]
                     yzer.run_homer(subset, 
                             'only', pep_dirpath,
@@ -58,7 +58,7 @@ if __name__ == '__main__':
                             cpus=8, center=True, reverse=False, preceding=False, 
                             size=200, length=[8, 10, 12], mock=True)
 
-                if False and peptide != 'NoPep':
+                if True and peptide != 'NoPep':
                     # Newly active PCC and K99A
                     subset = data[data['no_pep_tag_count'] == 0]
                     

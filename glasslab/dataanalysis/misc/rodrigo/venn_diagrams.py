@@ -1,0 +1,49 @@
+'''
+Created on Sep 20, 2014
+
+@author: karmel
+'''
+from glasslab.dataanalysis.graphing.seq_grapher import SeqGrapher
+
+
+if __name__ == '__main__':
+    yzer = SeqGrapher()
+
+    dirpath = 'karmel/Desktop/Projects/GlassLab/Notes_and_Reports/' +\
+        'Miscellaneous_Collaborations/Rodrigo_CD8s_2014_09/Enhancers'
+    dirpath = yzer.get_path(dirpath)
+
+    if True:
+        atac = yzer.get_filename(
+            dirpath, 'naive_atac', 'naive_atac_enhancers.txt')
+        me2 = yzer.get_filename(
+            dirpath, 'naive_h3k4me2', 'naive_h3k4me2_enhancers.txt')
+        ac = yzer.get_filename(
+            dirpath, 'naive_h3k27ac', 'naive_h3k27ac_enhancers.txt')
+
+        atac = yzer.import_file(atac).fillna(0)
+        me2 = yzer.import_file(me2).fillna(0)
+
+        # Hinge on H3K4me2, as that is the broadest peak.
+        # That way, if, say, two ATAC peaks are contained in one histone peak,
+        # it will only get counted once.
+
+        atac_only = atac[(atac['naive_h3k4me2_tag_count'] == 0)]
+        atac_me2 = atac[(atac['naive_h3k4me2_tag_count'] > 0)]
+        me2_only = me2[(me2['naive_atac_tag_count'] == 0)]
+        me2_atac = me2[(me2['naive_atac_tag_count'] > 0)]
+
+        print('ATAC only: ', len(atac_only))
+        print('ATAC with H3K4me2: ', len(atac_me2))
+        print('H3K4me2 only: ', len(me2_only))
+        print('H3K4me2 with ATAC: ', len(me2_atac))
+
+        yzer.piechart([len(atac_only), len(atac_me2)],
+                      ['ATAC only', 'ATAC with H3K4me2'],
+                      title='ATAC-seq region overlaps',
+                      save_dir=yzer.get_and_create_path(dirpath, 'Figures'))
+
+        yzer.piechart([len(me2_only), len(me2_atac)],
+                      ['H3K4me2 only', 'H3K4me2 with ATAC'],
+                      title='H3K4me2 overlaps',
+                      save_dir=yzer.get_and_create_path(dirpath, 'Figures'))

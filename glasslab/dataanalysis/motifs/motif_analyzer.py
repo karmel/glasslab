@@ -126,13 +126,13 @@ class MotifAnalyzer(TranscriptAnalyzer):
                                         size, length, cpus, number_of_motifs, bg)
         if not mock: subprocess.check_call(command, shell=True)
         
-        print 'Successfully executed command:\n%s' % command
+        print('Successfully executed command:\n' + command)
         
     def make_directory(self, fullpath, check_exists=True):
         if check_exists: self.check_exists(fullpath)
         
         try: os.mkdir(fullpath)
-        except OSError, e: 
+        except OSError as e: 
             if check_exists: raise e
     
     def check_exists(self, fullpath):
