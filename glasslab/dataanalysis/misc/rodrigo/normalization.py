@@ -36,9 +36,11 @@ if __name__ == '__main__':
     overlapping_naive_tags = sum(
         lcmv_me2_unique['naive_h3k4me2_tag_count'].fillna(0))
     naive_fraction = overlapping_naive_tags / total_naive_tags
-    print(naive_fraction)
+
     lcmv_me2['tag_count'] = lcmv_me2['tag_count'] * naive_fraction * \
         total_naive_tags / total_lcmv_tags
 
     output_file = yzer.get_filename(dirpath, 'lcmv_h3k4me2_peaks_norm.txt')
     lcmv_me2.to_csv(output_file, sep='\t', header=True, index=False)
+
+    print(naive_fraction * total_naive_tags / total_lcmv_tags)

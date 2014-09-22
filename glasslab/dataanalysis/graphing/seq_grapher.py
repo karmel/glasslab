@@ -6,15 +6,17 @@ Created on Mar 20, 2012
 Miscellaneous methods for graphing tag count plots.
 '''
 from __future__ import division
-from matplotlib import pyplot, font_manager
-from string import capwords
-from matplotlib.ticker import ScalarFormatter
-from glasslab.dataanalysis.base.datatypes import TranscriptAnalyzer
-import numpy
+
 import math
+from string import capwords
+
+from matplotlib import pyplot, font_manager
 from matplotlib.font_manager import FontProperties
+from matplotlib.ticker import ScalarFormatter
+import numpy
 from numpy.lib.polynomial import poly1d
 
+from glasslab.dataanalysis.base.datatypes import TranscriptAnalyzer
 class SeqGrapher(TranscriptAnalyzer):
     fig_size = 10
     disable_show_plot = False
@@ -204,7 +206,7 @@ class SeqGrapher(TranscriptAnalyzer):
             # Split needed number into three; for first seg, hold red steady.
             # Then green for the second segment, then blue.
             segments = max(int(math.ceil(number/3)),1)
-            ascent = [x/(segments+1) for x in xrange(0,segments+2)][1:-1]
+            ascent = [x/(segments+1) for x in range(0,segments+2)][1:-1]
             colors_r = [1]*segments + ascent[::-1] + [0]*segments
             colors_g = ascent + [1]*segments + ascent[::-1]
             colors_b = [0]*segments + ascent + [1]*segments
@@ -242,7 +244,7 @@ class SeqGrapher(TranscriptAnalyzer):
         
         axis_spacer = .2
         bar_width = .8
-        xvals = [x + axis_spacer for x in xrange(0,len(cols))]
+        xvals = [x + axis_spacer for x in range(0,len(cols))]
         
         default_ylabel = 'Fold Change'
         if convert_log_to_fc:
@@ -298,15 +300,17 @@ class SeqGrapher(TranscriptAnalyzer):
             [[1,2,3,4,1,2,3,4],
             [4,5,6,7,4,5,6,7],
             ...]
-        
         '''
         ax = self.set_up_plot(ax, subplot, wide=wide)
         
-        if show_outliers: symbol = '+'
-        else: symbol = ''
+        if show_outliers: 
+            symbol = '+'
+        else: 
+            symbol = ''
         bp = pyplot.boxplot(data, sym=symbol)
         
-        if bar_names: ax.set_xticklabels(bar_names)
+        if bar_names: 
+            ax.set_xticklabels(bar_names)
         
         self.add_axis_labels(xlabel, ylabel)
         self.add_title(title, ax)
@@ -444,11 +448,11 @@ class SeqGrapher(TranscriptAnalyzer):
         bar_count = len(indices or data)
         axis_spacer = .4
         bar_width = max(8/bar_count, 1.6)
-        xvals_per_col = [x*1.25*bar_width + axis_spacer for x in xrange(0,bar_count)]
+        xvals_per_col = [x*1.25*bar_width + axis_spacer for x in range(0,bar_count)]
         
         # Get bar positions for all columns, adding an extra space between groups 
         xvals = [map(lambda x: x*col_number + axis_spacer*(col_number - 1), xvals_per_col)
-                    for col_number in xrange(1,len(cols or [1])+1)] 
+                    for col_number in range(1,len(cols or [1])+1)] 
         # Unnest
         xvals = [item for sublist in xvals for item in sublist]
         
