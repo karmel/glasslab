@@ -28,7 +28,13 @@ if __name__ == '__main__':
 
     total_lcmv_tags = sum(lcmv_me2['tag_count'].fillna(0))
     total_naive_tags = sum(naive_me2['tag_count'].fillna(0))
-    overlapping_naive_tags = sum(lcmv_me2['naive_h3k4me2_tag_count'].fillna(0))
+
+    # Some of the overlapping peaks in the LCMV file are duplicated
+    # (ie, there is more than one LCMV peak mapping to the same large
+    # naive peak). Make sure to remove dupes before getting the tag total.
+    lcmv_me2_unique = lcmv_me2.drop_duplicates('id(6)')
+    overlapping_naive_tags = sum(
+        lcmv_me2_unique['naive_h3k4me2_tag_count'].fillna(0))
     naive_fraction = overlapping_naive_tags / total_naive_tags
     print(naive_fraction)
     lcmv_me2['tag_count'] = lcmv_me2['tag_count'] * naive_fraction * \
