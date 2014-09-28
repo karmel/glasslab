@@ -163,7 +163,9 @@ class SeqGrapher(TranscriptAnalyzer):
                     transform=ax.transAxes)
             
     def show_plot(self): 
-        if not self.disable_show_plot: pyplot.show()
+        if not self.disable_show_plot: 
+            pyplot.show()
+        pyplot.close()
     def save_plot(self, filename): pyplot.savefig(filename)
     def save_plot_with_dir(self, save_dir='', save_name='', title=''):
         if save_dir: 
@@ -176,8 +178,8 @@ class SeqGrapher(TranscriptAnalyzer):
         ax.title.set_y(1.02)   
         
     def add_axis_labels(self, xlabel, ylabel):
-        pyplot.xlabel(xlabel, labelpad=10)
-        pyplot.ylabel(ylabel, labelpad=10)
+        pyplot.xlabel(xlabel or '', labelpad=10)
+        pyplot.ylabel(ylabel or '', labelpad=10)
         
     def xlim(self, ax, min_x, max_x):
         ax.set_xlim([min_x, max_x])
