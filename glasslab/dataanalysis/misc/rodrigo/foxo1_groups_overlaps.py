@@ -37,8 +37,13 @@ if __name__ == '__main__':
     wt_only = wt_data[
         wt_data['foxo1_ko_naive_atac_tag_count'] < min_thresh]
 
+    fold = 2
     both = wt_data[
-        wt_data['foxo1_ko_naive_atac_tag_count'] >= min_thresh]
+        (wt_data['foxo1_ko_naive_atac_tag_count']
+         * fold >= wt_data['tag_count']) &
+        (wt_data['tag_count'] * fold >=
+         wt_data['foxo1_ko_naive_atac_tag_count'])
+    ]
 
     ko_only = ko_data[
         ko_data['naive_atac_tag_count'] < min_thresh]
@@ -100,7 +105,7 @@ if __name__ == '__main__':
                      show_plot=False)
 
     # TCF1
-    if True:
+    if False:
         for i, gp in enumerate(groups):
             yzer.piechart([sum(gp['tcf1_tag_count'] >= min_thresh),
                            sum(gp['tcf1_tag_count'] < min_thresh)],
