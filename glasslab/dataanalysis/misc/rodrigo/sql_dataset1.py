@@ -12,8 +12,13 @@ from glasslab.utils.database import get_engine, dataframe_from_query
 if __name__ == '__main__':
     yzer = MotifAnalyzer()
 
+    promoters = False
     dirpath = 'karmel/Desktop/Projects/GlassLab/Notes_and_Reports/' +\
-        'Miscellaneous_Collaborations/Rodrigo_CD8s_2014_09/Enhancers'
+        'Miscellaneous_Collaborations/Rodrigo_CD8s_2014_09/'
+    if promoters:
+        dirpath += 'Promoters'
+    else:
+        dirpath += 'Enhancers'
     dirpath = yzer.get_path(dirpath)
 
     # Get DB engine
@@ -53,9 +58,8 @@ if __name__ == '__main__':
     left outer join genome_reference_mm10.sequence_transcription_region reg
     on p1.chromosome_id = reg.chromosome_id
     and p1.start_end && reg.start_site_1000
-    where reg.id is NULL;
-    
-    '''
+    where reg.id is {} NULL;
+    '''.format(promoters and 'NOT' or '')
 
         # Set up output dir
         sample_prefix = sample_name(cond, seq, breed)
