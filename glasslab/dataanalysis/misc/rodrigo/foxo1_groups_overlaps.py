@@ -100,7 +100,7 @@ if __name__ == '__main__':
                      show_plot=False)
 
     # TCF1
-    if True:
+    if False:
         for i, gp in enumerate(groups):
             yzer.piechart([sum(gp['tcf1_tag_count'] >= min_thresh),
                            sum(gp['tcf1_tag_count'] < min_thresh)],
@@ -115,3 +115,15 @@ if __name__ == '__main__':
                           title='Co-occurrence with Tcf1 and Foxo1- ' +
                           labels[i],
                           save_dir=save_path, show_plot=True)
+
+    if True:
+        yzer.boxplot([gp['tag_count'] for gp in groups],
+                     labels,
+                     title='Tags in ATAC-seq regions by group',
+                     ylabel='Tag count',
+                     save_dir=save_path, show_plot=False)
+        yzer.boxplot([gp['end'] - gp['start'] for gp in groups],
+                     labels,
+                     title='Width of ATAC-seq regions by group',
+                     ylabel='Width in basepairs of ATAC-seq region',
+                     save_dir=save_path, show_plot=False)

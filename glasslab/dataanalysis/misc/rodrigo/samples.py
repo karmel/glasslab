@@ -16,7 +16,7 @@ def sample_name(condition, seq_type, breed):
 
 
 def get_threshold(seq):
-    if seq.lower() == 'h3k4me2':
+    if seq.lower() in ('h3k4me2', 'atac'):
         return 20
     else:
         return 10

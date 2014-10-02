@@ -57,6 +57,7 @@ if __name__ == '__main__':
 
         # ATAC peaks that don't change with KO of Foxo1
         foxo1_independent = data[
+            (data['tag_count'] * fold >= data['foxo1_ko_naive_atac_tag_count']) &
             (data['foxo1_ko_naive_atac_tag_count'] * fold >= data['tag_count'])]
         yzer.run_homer(foxo1_independent,
                        'foxo1_independent', sample_dirpath,

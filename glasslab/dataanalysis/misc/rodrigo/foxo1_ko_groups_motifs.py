@@ -54,12 +54,3 @@ if __name__ == '__main__':
                        cpus=10, center=True, reverse=False, preceding=False,
                        size=200, length=[8, 10, 12], mock=True)
         print('ko_dependent', len(ko_dependent))
-
-        # ATAC peaks that don't change without KO of Foxo1
-        ko_independent = data[
-            (data['naive_atac_tag_count'] * fold >= data['tag_count'])]
-        yzer.run_homer(ko_independent,
-                       'ko_independent', sample_dirpath,
-                       cpus=10, center=True, reverse=False, preceding=False,
-                       size=200, length=[8, 10, 12], mock=True)
-        print('ko_independent', len(ko_independent))
