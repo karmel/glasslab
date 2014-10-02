@@ -89,5 +89,6 @@ if __name__ == '__main__':
         # Get data
         data = dataframe_from_query(sql, engine)
 
-        output_file = yzer.get_path(sample_path, curr_name + '_enhancers.txt')
+        output_file = yzer.get_filename(
+            sample_path, curr_name + '_enhancers.txt')
         data.to_csv(output_file, sep='\t', header=True, index=False)

@@ -68,6 +68,6 @@ if __name__ == '__main__':
         # Get data
         data = dataframe_from_query(sql, engine)
 
-        output_file = yzer.get_path(
+        output_file = yzer.get_filename(
             sample_dirpath, sample_prefix + '_enhancers.txt')
         data.to_csv(output_file, sep='\t', header=True, index=False)
