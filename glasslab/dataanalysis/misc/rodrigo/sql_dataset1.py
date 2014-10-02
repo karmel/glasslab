@@ -29,14 +29,14 @@ if __name__ == '__main__':
     for i, (cond, seq, breed) in enumerate(SAMPLES):
         others = SAMPLES[:i] + SAMPLES[i + 1:]
         sql = '''select distinct on (p1.id) 
-    p1.*, chr."name" as chr_name,
-    p1.tag_count as {}{}_{}_tag_count,
-    '''.format(breed, cond, seq)
+    chr."name" as chr_name, p1."start", p1."end", p1.tag_count,
+    p1.*,
+    '''
         selects, joins = [], []
         for j, (oth_cond, oth_seq, oth_breed) in enumerate(others):
             counter = j + 2
-            selects.append('''p{counter}.tag_count as {}{}_{}_tag_count,
-    p{counter}.*'''.format(oth_breed, oth_cond, oth_seq, counter=counter))
+            selects.append('''p{counter}.tag_count as {}{}_{}_tag_count
+    '''.format(oth_breed, oth_cond, oth_seq, counter=counter))
             joins.append('''left outer join 
     chipseq.peak_{}cd8tcell_{}_{} p{counter}
     on p1.chromosome_id = p{counter}.chromosome_id
@@ -45,7 +45,7 @@ if __name__ == '__main__':
 
         sql += ',\n'.join(selects)
         sql += ''',
-    tcf1.tag_count as tcf1_tag_count, tcf1.*
+    tcf1.tag_count as tcf1_tag_count
     from chipseq.peak_{}cd8tcell_{}_{} p1
     join genome_reference_mm10.chromosome chr 
     on p1.chromosome_id = chr.id
