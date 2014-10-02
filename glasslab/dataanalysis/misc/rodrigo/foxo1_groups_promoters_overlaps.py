@@ -10,7 +10,7 @@ if __name__ == '__main__':
     yzer = SeqGrapher()
 
     dirpath = 'karmel/Desktop/Projects/GlassLab/Notes_and_Reports/' +\
-        'Miscellaneous_Collaborations/Rodrigo_CD8s_2014_09/Enhancers'
+        'Miscellaneous_Collaborations/Rodrigo_CD8s_2014_09/Promoters'
     dirpath = yzer.get_path(dirpath)
 
     cond, seq, breed = ('naive', 'atac', '')
@@ -21,9 +21,9 @@ if __name__ == '__main__':
     ko_dirpath = yzer.get_filename(dirpath, ko_prefix)
 
     wt_filename = yzer.get_filename(wt_dirpath,
-                                    wt_prefix + '_enhancers.txt')
+                                    wt_prefix + '_promoters.txt')
     ko_filename = yzer.get_filename(ko_dirpath,
-                                    ko_prefix + '_enhancers.txt')
+                                    ko_prefix + '_promoters.txt')
 
     wt_data = yzer.import_file(wt_filename)
     wt_data = wt_data.fillna(0)
@@ -49,12 +49,12 @@ if __name__ == '__main__':
         ko_data['naive_atac_tag_count'] < min_thresh]
 
     save_path = yzer.get_and_create_path(
-        dirpath, 'Figures', 'Foxo1_group_overlaps')
+        dirpath, 'Figures', 'Foxo1_group_promoters_overlaps')
 
     groups = [wt_only, both, ko_only]
     labels = ['WT only', 'WT and KO', 'Foxo1 KO only']
 
-    if False:
+    if True:
         yzer.boxplot([gp['naive_foxo1_tag_count'] for gp in groups],
                      labels,
                      title='Foxo1 tags in ATAC-seq regions by group',
@@ -65,18 +65,8 @@ if __name__ == '__main__':
                      title='LCMV d12 Foxo1 tags in ATAC-seq regions by group',
                      ylabel='Foxo1 peak tag count', save_dir=save_path,
                      show_plot=False)
-        yzer.boxplot([gp['naive_h3k4me2_tag_count'] for gp in groups],
-                     labels,
-                     title='H3K4me2 tags in ATAC-seq regions by group',
-                     ylabel='H3K4me2 region count', save_dir=save_path,
-                     show_plot=False)
-        yzer.boxplot([gp['lcmv_d12_h3k4me2_tag_count'] for gp in groups],
-                     labels,
-                     title='LCMV d12 H3K4me2 tags in ATAC-seq regions by group',
-                     ylabel='H3K4me2 region count', save_dir=save_path,
-                     show_plot=False)
 
-    if False:
+    if True:
         for i, gp in enumerate(groups):
             yzer.piechart([sum(gp['naive_foxo1_tag_count'] >= min_thresh),
                            sum(gp['naive_foxo1_tag_count'] < min_thresh)],
@@ -96,7 +86,7 @@ if __name__ == '__main__':
                            ylabel='Number of peaks',
                            save_dir=save_path, show_plot=False)
 
-    if False:
+    if True:
         yzer.boxplot([gp[gp['naive_foxo1_tag_count'] > 0]['naive_foxo1_tag_count']
                       for gp in groups],
                      labels,
@@ -105,7 +95,7 @@ if __name__ == '__main__':
                      show_plot=False)
 
     # TCF1
-    if False:
+    if True:
         for i, gp in enumerate(groups):
             yzer.piechart([sum(gp['tcf1_tag_count'] >= min_thresh),
                            sum(gp['tcf1_tag_count'] < min_thresh)],
@@ -120,15 +110,3 @@ if __name__ == '__main__':
                           title='Co-occurrence with Tcf1 and Foxo1- ' +
                           labels[i],
                           save_dir=save_path, show_plot=True)
-
-    if True:
-        yzer.boxplot([gp['tag_count'] for gp in groups],
-                     labels,
-                     title='Tags in ATAC-seq regions by group',
-                     ylabel='Tag count',
-                     save_dir=save_path, show_plot=False)
-        yzer.boxplot([gp['end'] - gp['start'] for gp in groups],
-                     labels,
-                     title='Width of ATAC-seq regions by group',
-                     ylabel='Width in basepairs of ATAC-seq region',
-                     save_dir=save_path, show_plot=False)
