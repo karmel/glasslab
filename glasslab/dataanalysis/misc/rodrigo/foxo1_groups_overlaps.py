@@ -31,8 +31,10 @@ if __name__ == '__main__':
     ko_data = ko_data.fillna(0)
 
     min_thresh = get_threshold(seq)
-    wt_data = wt_data[wt_data['tag_count'] >= min_thresh]
-    ko_data = ko_data[ko_data['tag_count'] >= min_thresh]
+    wt_data = wt_data[(wt_data['tag_count'] >= min_thresh)
+                      & (wt_data['chr_name'] != 'chrM')]
+    ko_data = ko_data[(ko_data['tag_count'] >= min_thresh)
+                      & (ko_data['chr_name'] != 'chrM')]
 
     wt_only = wt_data[
         wt_data['foxo1_ko_naive_atac_tag_count'] < min_thresh]
@@ -54,7 +56,7 @@ if __name__ == '__main__':
     groups = [wt_only, both, ko_only]
     labels = ['WT only', 'WT and KO', 'Foxo1 KO only']
 
-    if False:
+    if True:
         yzer.boxplot([gp['naive_foxo1_tag_count'] for gp in groups],
                      labels,
                      title='Foxo1 tags in ATAC-seq regions by group',
@@ -76,7 +78,7 @@ if __name__ == '__main__':
                      ylabel='H3K4me2 region count', save_dir=save_path,
                      show_plot=False)
 
-    if False:
+    if True:
         for i, gp in enumerate(groups):
             yzer.piechart([sum(gp['naive_foxo1_tag_count'] >= min_thresh),
                            sum(gp['naive_foxo1_tag_count'] < min_thresh)],
@@ -96,7 +98,7 @@ if __name__ == '__main__':
                            ylabel='Number of peaks',
                            save_dir=save_path, show_plot=False)
 
-    if False:
+    if True:
         yzer.boxplot([gp[gp['naive_foxo1_tag_count'] > 0]['naive_foxo1_tag_count']
                       for gp in groups],
                      labels,
@@ -105,7 +107,7 @@ if __name__ == '__main__':
                      show_plot=False)
 
     # TCF1
-    if False:
+    if True:
         for i, gp in enumerate(groups):
             yzer.piechart([sum(gp['tcf1_tag_count'] >= min_thresh),
                            sum(gp['tcf1_tag_count'] < min_thresh)],
