@@ -12,7 +12,7 @@ from glasslab.utils.database import get_engine, dataframe_from_query
 if __name__ == '__main__':
     yzer = MotifAnalyzer()
 
-    promoters = True
+    promoters = False
     dirpath = 'karmel/Desktop/Projects/GlassLab/Notes_and_Reports/' +\
         'Miscellaneous_Collaborations/Rodrigo_CD8s_2014_09/'
     if promoters:
