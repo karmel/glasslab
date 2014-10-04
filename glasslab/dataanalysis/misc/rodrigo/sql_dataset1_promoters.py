@@ -12,13 +12,8 @@ from glasslab.utils.database import get_engine, dataframe_from_query
 if __name__ == '__main__':
     yzer = MotifAnalyzer()
 
-    promoters = True
     dirpath = 'karmel/Desktop/Projects/GlassLab/Notes_and_Reports/' +\
-        'Miscellaneous_Collaborations/Rodrigo_CD8s_2014_09/'
-    if promoters:
-        dirpath += 'Promoters'
-    else:
-        dirpath += 'Enhancers'
+        'Miscellaneous_Collaborations/Rodrigo_CD8s_2014_09/Promoters'
     dirpath = yzer.get_path(dirpath)
 
     # Get DB engine
@@ -57,9 +52,13 @@ if __name__ == '__main__':
     and p1.start_end && tcf1.start_end
     left outer join genome_reference_mm10.sequence_transcription_region reg
     on p1.chromosome_id = reg.chromosome_id
-    and p1.start_end && reg.start_site_1000
-    where reg.id is {} NULL;
-    '''.format(promoters and 'NOT' or '')
+    and p1.start_end && int8range(reg.strand*(reg.transcription_end - 100) + 
+            abs(reg.strand - 1)*(reg.transcription_start - 100), 
+        reg.strand*(reg.transcription_end + 100) + 
+            abs(reg.strand - 1)*(reg.transcription_start + 100))
+    where reg.id is NOT NULL
+    AND p1.tag_count >= 20;
+    '''
 
         # Set up output dir
         sample_prefix = sample_name(cond, seq, breed)
@@ -69,5 +68,5 @@ if __name__ == '__main__':
         data = dataframe_from_query(sql, engine)
 
         output_file = yzer.get_filename(
-            sample_dirpath, sample_prefix + '_enhancers.txt')
+            sample_dirpath, sample_prefix + '_promoters.txt')
         data.to_csv(output_file, sep='\t', header=True, index=False)
