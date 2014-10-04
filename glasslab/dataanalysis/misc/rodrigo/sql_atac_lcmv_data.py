@@ -30,9 +30,11 @@ if __name__ == '__main__':
     celltypes = ('klrghi', 'klrglo')
     breeds = ('', 'foxo1_ko_')
 
-    samples = []
-    short_names = []
+    breed_sets = []
     for breed in breeds:
+        samples = []
+        short_names = []
+
         for tp in timepoints:
             if tp == 0:
                 samples.append('{}cd8tcell_atac_lcmv_{}d'.format(
@@ -45,50 +47,67 @@ if __name__ == '__main__':
                         breed, ct, tp))
                     short_names.append('{}{}_d{}'.format(
                         breed, ct, tp))
+        breed_sets.append([samples, short_names])
 
     # Run and save output from sql queries
-    for i, sample in enumerate(samples):
-        curr_name = short_names[i]
-        others = samples[:i] + samples[i + 1:]
-        oth_names = short_names[:i] + short_names[i + 1:]
-        sql = '''-- {}
-    select distinct on (p1.id)
-    chr."name" as chr_name, p1."start", p1."end", p1.tag_count,
-    p1.*,
-    '''.format(sample)
-        selects, joins = [], []
-        for j, other_sample in enumerate(others):
-            counter = j + 2
+    for k, (samples, short_names) in enumerate(breed_sets):
+        oth_breed = breed_sets[1 - k]
+        for i, sample in enumerate(samples):
+            curr_name = short_names[i]
+            others = samples[:i] + samples[i + 1:]
+            oth_names = short_names[:i] + short_names[i + 1:]
+            sql = '''-- {}
+        select distinct on (p1.id)
+        chr."name" as chr_name, p1."start", p1."end", p1.tag_count,
+        p1.*,
+        '''.format(sample)
+            selects, joins = [], []
+            for j, other_sample in enumerate(others):
+                counter = j + 2
+                selects.append(
+                    '''p{counter}.tag_count as {}_tag_count'''.format(
+                        oth_names[j], counter=counter))
+                joins.append('''
+        left outer join
+        chipseq.peak_{} p{counter}
+        on p1.chromosome_id = p{counter}.chromosome_id
+        and p1.start_end && p{counter}.start_end
+        '''.format(other_sample, counter=counter))
+
+            # Add in the corresponding sample in the other breed:
+            counter += 1
             selects.append(
                 '''p{counter}.tag_count as {}_tag_count'''.format(
-                    oth_names[j], counter=counter))
+                    oth_breed[1][i], counter=counter))
             joins.append('''
-    left outer join
-    chipseq.peak_{} p{counter}
-    on p1.chromosome_id = p{counter}.chromosome_id
-    and p1.start_end && p{counter}.start_end
-    '''.format(other_sample, counter=counter))
+        left outer join
+        chipseq.peak_{} p{counter}
+        on p1.chromosome_id = p{counter}.chromosome_id
+        and p1.start_end && p{counter}.start_end
+        '''.format(oth_breed[0][i], counter=counter))
 
-        sql += ',\n'.join(selects)
-        sql += '''
-    from chipseq.peak_{} p1
-    join genome_reference_mm10.chromosome chr 
-    on p1.chromosome_id = chr.id
-    '''.format(sample)
-        sql += ''.join(joins)
-        sql += '''
-    left outer join genome_reference_mm10.sequence_transcription_region reg
-    on p1.chromosome_id = reg.chromosome_id
-    and p1.start_end && reg.start_site_1000
-    where reg.id is NULL;
-    '''
-        print(sql)
-        # Set up output dir
-        sample_path = yzer.get_and_create_path(dirpath, curr_name)
+            # Put it all together
+            sql += ',\n'.join(selects)
+            sql += '''
+        from chipseq.peak_{} p1
+        join genome_reference_mm10.chromosome chr 
+        on p1.chromosome_id = chr.id
+        '''.format(sample)
+            sql += ''.join(joins)
+            sql += '''
+        left outer join genome_reference_mm10.sequence_transcription_region reg
+        on p1.chromosome_id = reg.chromosome_id
+        and p1.start_end && reg.start_site_1000
+        where reg.id is NULL;
+        '''
+            print(sql)
+            # Set up output dir
+            sample_path = yzer.get_and_create_path(dirpath, curr_name)
+'''
+            # Get data
+            data = dataframe_from_query(sql, engine)
 
-        # Get data
-        data = dataframe_from_query(sql, engine)
-
-        output_file = yzer.get_filename(
-            sample_path, curr_name + '_enhancers.txt')
-        data.to_csv(output_file, sep='\t', header=True, index=False)
+            output_file = yzer.get_filename(
+                sample_path, curr_name + '_enhancers.txt')
+            data.to_csv(output_file, sep='\t', header=True, index=False)
+'''
