@@ -103,11 +103,10 @@ if __name__ == '__main__':
             print(sql)
             # Set up output dir
             sample_path = yzer.get_and_create_path(dirpath, curr_name)
-'''
+
             # Get data
             data = dataframe_from_query(sql, engine)
 
             output_file = yzer.get_filename(
                 sample_path, curr_name + '_enhancers.txt')
             data.to_csv(output_file, sep='\t', header=True, index=False)
-'''
