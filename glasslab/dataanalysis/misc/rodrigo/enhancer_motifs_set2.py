@@ -3,8 +3,8 @@ Created on Sep 27, 2014
 
 @author: karmel
 '''
-from glasslab.dataanalysis.misc.rodrigo.samples import sample_name,\
-    get_threshold, get_breed_sets
+from glasslab.dataanalysis.misc.rodrigo.samples import get_threshold,\
+    get_breed_sets
 from glasslab.dataanalysis.motifs.motif_analyzer import MotifAnalyzer
 if __name__ == '__main__':
     yzer = MotifAnalyzer()
@@ -47,14 +47,29 @@ if __name__ == '__main__':
                                preceding=False,
                                size=200, length=[8, 10, 12], mock=True)
 
-                # Versus prior sample if not naive.
+                # Versus hi/lo sample and prior sample if not naive.
                 if j > 0:
+                    if 'klrghi' in sample_prefix:
+                        other = sample_prefix.replace('hi', 'lo')
+                    elif 'klrglo' in sample_prefix:
+                        other = sample_prefix.replace('lo', 'hi')
                     subdata = data[
-                        data['{}_tag_count'.format(short_names[j - 1])]
-                        < min_thresh]
+                        data['{}_tag_count'.format(other)] < min_thresh]
                     yzer.run_homer(subdata,
                                    'not_in_' +
-                                   short_names[j - 1], sample_dirpath,
+                                   other, sample_dirpath,
+                                   cpus=10, center=True, reverse=False,
+                                   preceding=False,
+                                   size=200, length=[8, 10, 12], mock=True)
+
+                    # One further back in timecourse
+                    other = ('d7' in sample_prefix and short_names[0])\
+                        or short_names[j - 2]  # Previous timepoint, skip hi/lo
+                    subdata = data[
+                        data['{}_tag_count'.format(other)] < min_thresh]
+                    yzer.run_homer(subdata,
+                                   'not_in_' +
+                                   other, sample_dirpath,
                                    cpus=10, center=True, reverse=False,
                                    preceding=False,
                                    size=200, length=[8, 10, 12], mock=True)
