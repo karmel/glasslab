@@ -8,6 +8,7 @@ of the target strain, rather than just the reference. We track through
 the generated genome of the strain in order to get updated coordinates.
 '''
 from __future__ import division
+from __future__ import print_function
 import os
 from glasslab.utils.datatypes.genetics import InbredStrainVariation,\
     InbredStrain
@@ -29,7 +30,7 @@ def main(strain='BALB'):
         #if chr_id < 10: continue
         
         source_file = os.path.join(source_dir, file)
-        print 'Using source file %s.' % source_file
+        print('Using source file %s.' % source_file)
         f = open(source_file)
         nucleotides, header = get_nucleotides_and_header(f)
         
@@ -101,18 +102,18 @@ def main(strain='BALB'):
             if i % 1000 == 0:  
                 execute_query(query_string)
                 query_string = ''
-                print "Processed variant %d with position %d." % (i, start)
+                print("Processed variant %d with position %d." % (i, start))
         
         # Get the last batch
         if query_string:
             execute_query(query_string)
             query_string = ''
-            print "Processed variant %d with position %d." % (i, start)
+            print("Processed variant %d with position %d." % (i, start))
         
 if __name__=='__main__':
     if len(sys.argv) > 1: strain = sys.argv[1]
     else: strain = 'BALB'
-    print 'Updating genomic coordinates for variants for %s.' % strain
+    print('Updating genomic coordinates for variants for %s.' % strain)
     main(strain)
         
                 

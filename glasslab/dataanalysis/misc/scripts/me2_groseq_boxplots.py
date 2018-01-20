@@ -6,6 +6,7 @@ Created on Apr 3, 2012
 
 '''
 from __future__ import division
+from __future__ import print_function
 import os
 from glasslab.dataanalysis.graphing.seq_grapher import SeqGrapher
 
@@ -64,7 +65,7 @@ if __name__ == '__main__':
     
     
     for group in (me2_only, ctcf_only, k27_only, ctcf_me2, k27_me2, nothing):
-        print len(group), len(group)/len(data)
+        print(len(group), len(group)/len(data))
         
         
     if True:

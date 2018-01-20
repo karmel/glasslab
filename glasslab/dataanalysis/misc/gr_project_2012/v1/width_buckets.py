@@ -4,6 +4,7 @@ Created on Jul 2, 2012
 @author: karmel
 '''
 from __future__ import division
+from __future__ import print_function
 from glasslab.dataanalysis.misc.gr_project_2012.v1.elongation import draw_elongation_profile,\
     get_rep_string, set_up_sequencing_run_ids, total_tags_per_run
 from glasslab.dataanalysis.graphing.basepair_counter import BasepairCounter
@@ -123,7 +124,7 @@ def get_tag_proportions(data, label):
     
     
     total_trans = len(set(data['glass_transcript_id']))
-    print '\n\n\nTotal transcripts in {0}:\t{1}'.format(label, total_trans)
+    print('\n\n\nTotal transcripts in {0}:\t{1}'.format(label, total_trans))
     
     states = (('KLA','kla_{0}state'), ('KLA+Dex','kla_dex_{0}state'),
               ('KLA+Dex over KLA','dex_over_kla_{0}state'),)
@@ -143,8 +144,8 @@ def get_tag_proportions(data, label):
                         ('Down in {0} {1}'.format(desc, replicate_id), data[data[state_str] == -1]),]
             for name, dataset in datasets:
                 dataset_trans = len(set(dataset['glass_transcript_id']))
-                print 'Total transcripts in {0}:\t{1}'.format(name, dataset_trans)
-                print 'Percent of transcripts in {0}:\t{1}'.format(name, dataset_trans/total_trans)
+                print('Total transcripts in {0}:\t{1}'.format(name, dataset_trans))
+                print('Percent of transcripts in {0}:\t{1}'.format(name, dataset_trans/total_trans))
         
         
 if __name__ == '__main__':

@@ -12,6 +12,7 @@ different builds of Vespucci, and plot.
 Note: Made font.weight = bold and axes.titlesize = 24  and axes.labelweight=bold in matplotlibrc
 '''
 from __future__ import division
+from __future__ import print_function
 from glasslab.dataanalysis.graphing.seq_grapher import SeqGrapher
 from collections import OrderedDict
 import pandas
@@ -33,12 +34,12 @@ if __name__ == '__main__':
     
     success_rates = []
     for e, data in datasets.iteritems():
-        print 'Stats for MAX_EDGE = {}'.format(e)
+        print('Stats for MAX_EDGE = {}'.format(e))
         exactly_1 = sum(data['count'] == 1)
         greater_than_1 = sum(data['count'] > 1)
         success_rate = (exactly_1 - greater_than_1)/len(data)
         success_rates.append(success_rate)
-        print success_rate
+        print(success_rate)
     
     ax = yzer.set_up_plot()
     title = 'Transcript initiation recapture versus MAX_EDGE'

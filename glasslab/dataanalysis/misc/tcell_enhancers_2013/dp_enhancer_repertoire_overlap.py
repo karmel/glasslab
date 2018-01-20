@@ -4,6 +4,7 @@ Created on Feb 17, 2013
 @author: karmel
 '''
 from __future__ import division
+from __future__ import print_function
 from glasslab.dataanalysis.motifs.motif_analyzer import MotifAnalyzer
 
 if __name__ == '__main__':
@@ -30,7 +31,7 @@ if __name__ == '__main__':
     datasets = [dp_only, naive_only, shared]
     main_peak = ['dp','naive','naive']
     names = ['dp_only_vs_naive','naive_only_vs_dp','shared_dp_naive',]
-    print [len(d) for d in datasets]
+    print([len(d) for d in datasets])
     
     
     for i, subset in enumerate(datasets):

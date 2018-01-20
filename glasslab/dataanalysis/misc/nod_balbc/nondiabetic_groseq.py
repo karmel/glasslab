@@ -4,6 +4,7 @@ Created on Mar 23, 2012
 @author: karmel
 '''
 from __future__ import division
+from __future__ import print_function
 from glasslab.dataanalysis.graphing.seq_grapher import SeqGrapher
 from glasslab.utils.functions import nonzero
 
@@ -122,7 +123,7 @@ if __name__ == '__main__':
         for i, genes in gene_groups.items():
             for gene in genes[:]:
                 if not gene in refseq['gene_names'].values: 
-                    print gene
+                    print(gene)
                     genes.remove(gene)
             indices = [refseq[refseq['gene_names'] == gene].index[0] for gene in genes]
             

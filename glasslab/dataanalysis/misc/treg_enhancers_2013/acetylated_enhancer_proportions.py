@@ -4,6 +4,7 @@ Created on Feb 12, 2013
 @author: karmel
 '''
 from __future__ import division
+from __future__ import print_function
 from glasslab.dataanalysis.motifs.motif_analyzer import MotifAnalyzer
 
 
@@ -78,7 +79,7 @@ if __name__ == '__main__':
                        acetylated_naive, (acetylated_naive/total)*100,
                        acetylated_both, (acetylated_both/total)*100,
                        k=k)
-            print summary
+            print(summary)
         
         if False:
             for k in sorted(data.keys()):    

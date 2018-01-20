@@ -8,6 +8,7 @@ predictive of characteristics of interest, such as pausing ratio
 or transrepression. Worth a stab.
 '''
 from __future__ import division
+from __future__ import print_function
 from glasslab.dataanalysis.misc.gr_project_2012.v1.width_buckets import get_data_with_bucket_score
 from glasslab.dataanalysis.machinelearning.logistic_classifier import LogisticClassifier
 from glasslab.dataanalysis.misc.gr_project_2012.v1.elongation import get_rep_string,\
@@ -118,7 +119,7 @@ if __name__ == '__main__':
                 kla_starts = kla_starts.apply(lambda x: max(x, 1))
                 start_ratio = kla_dex_starts/(kla_starts*norm_factor)
                 mask = start_ratio.apply(lambda x: abs(math.log(x,2))) > .25 # Approx 20% up or down
-                print sum(mask)
+                print(sum(mask))
                 
                 # We want a random subset of the non-trivial cases as our tests
                 test_indices = dataset.ix[mask].index.values
@@ -127,12 +128,12 @@ if __name__ == '__main__':
                 # Now test_indices is a list of indices we want. 
                 test_vectors = dataset.ix[test_indices]
                 test_labels = labels.ix[test_indices]
-                print sum(test_labels)
+                print(sum(test_labels))
                 
                 dataset = dataset[~dataset.index.isin(test_indices)].reset_index()
                 labels = labels[~dataset.index.isin(test_indices)].reset_index()[0]
                 
-            print 'Total positive examples: ', sum(labels)
+            print('Total positive examples: ', sum(labels))
             
             classifier_type='logistic'
             best_err = 1.0
@@ -163,9 +164,9 @@ if __name__ == '__main__':
                     best_mod = mod
                 if force_choice: break
         
-            print "Best number of features: ", len(best_chosen)
-            print "Best features: ", best_chosen
-            print "Best C, MSE: ", best_c, best_err
+            print("Best number of features: ", len(best_chosen))
+            print("Best features: ", best_chosen)
+            print("Best C, MSE: ", best_c, best_err)
             
             if force_choice:
                 #mod = learner.get_model(classifier_type=classifier_type, C=best_c)
@@ -173,8 +174,8 @@ if __name__ == '__main__':
                 test_vectors = test_vectors[best_chosen]
                 predicted_probs = best_mod.predict_proba(test_vectors)
                 err = learner.mse(predicted_probs, test_labels.values)
-                print err
-                print confusion_matrix(test_labels.values, predicted_probs[:,1] > .5)
+                print(err)
+                print(confusion_matrix(test_labels.values, predicted_probs[:,1] > .5))
                  
                 learner.draw_roc(label_sets=[(test_labels.values, predicted_probs)], 
                                  save_path=learner.get_filename(subdir,'check_nontrivial_{0}group'.format(rep_str)))
@@ -213,7 +214,7 @@ if __name__ == '__main__':
             #grouped = grouped[grouped['dmso_{0}tags_rpkm'.format(rep_str)] < .33]
             
             grouped = grouped[grouped['kla_{0}lfc'.format(rep_str)] >= 1]
-            print len(grouped)
+            print(len(grouped))
             
             dataset = grouped
             dataset['rep_{0}pausing_ratio'.format(rep_str)] = dataset['kla_dex_{0}bucket_score'.format(rep_str)] \
@@ -224,13 +225,13 @@ if __name__ == '__main__':
             # And then columns from other replicates
             dataset = dataset.reset_index().filter(regex=r'(({1}pu_1_kla)|{0})'.format('(?!(.*_\d_.*|.*_id))', 
                                                           rep_str and r'.*' + rep_str + r'.*|' or ''))
-            print dataset.columns
+            print(dataset.columns)
             
             labels = targets['dex_over_kla_{0}lfc'.format(rep_str)] <= -.58
             labels_2 = targets['kla_{0}lfc'.format(rep_str)] >= 1
             
             labels = map(lambda x: int(x[0] and x[1]), zip(labels, labels_2))
-            print 'Total examples, positive: ', len(dataset), sum(labels)
+            print('Total examples, positive: ', len(dataset), sum(labels))
             # Nulls should be zeroes. Fill those first.
             dataset = dataset.fillna(0)
             dataset = learner.make_numeric(dataset)
@@ -263,9 +264,9 @@ if __name__ == '__main__':
                     
                 if force_choice: break
         
-            print "Best number of features: ", len(best_chosen)
-            print "Best features: ", best_chosen
-            print "Best C, MSE: ", best_c, best_err
+            print("Best number of features: ", len(best_chosen))
+            print("Best features: ", best_chosen)
+            print("Best C, MSE: ", best_c, best_err)
 
             
             

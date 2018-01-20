@@ -8,6 +8,12 @@ from glasslab.dataanalysis.graphing.seq_grapher import SeqGrapher
 import numpy
 import os
 
+try:
+    xrange          # Python 2
+except NameError:
+    xrange = range  # Python 3
+
+
 if __name__ == '__main__':
     raw_data = '''2012_04_02
 96,86,142,54
@@ -45,21 +51,20 @@ if __name__ == '__main__':
 2012_06_03
 563,449,491,118
 359,108,148,169'''
-    
+
     raw_data = raw_data.split('\n')
     dates = [datetime.strptime(raw_data[x],'%Y_%m_%d') for x in xrange(0,len(raw_data),3)]
     set1 = numpy.array([map(int,raw_data[x].split(',')) for x in xrange(1,len(raw_data),3)]).T
     set2 = numpy.array([map(int,raw_data[x].split(',')) for x in xrange(2,len(raw_data),3)]).T
-    
+
     grapher = SeqGrapher()
     ax = grapher.timeseries(dates, [set1, set2],
                    show_median=True, colors=['blue','red'], labels=['Control','TDB treated'],
-                   title='Blood glucose values in NOD mice after TDB treatment', 
-                   xlabel='Date', 
+                   title='Blood glucose values in NOD mice after TDB treatment',
+                   xlabel='Date',
                    ylabel='Blood glucose (mg/dL, via Aviva AccuChek meter)',
                    show_plot=False,show_legend=True)
     dirpath = '/Users/karmel/Desktop/Projects/GlassLab/Notes_and_Reports/NOD_BALBc/TDB in vitro/'
-    
+
     grapher.save_plot(os.path.join(dirpath, 'blood_glucose_values_after_tdb_with_delta_06_04_2012.png'))
     grapher.show_plot()
-    

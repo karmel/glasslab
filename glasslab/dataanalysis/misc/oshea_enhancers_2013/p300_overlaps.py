@@ -4,6 +4,7 @@ Created on Feb 12, 2013
 @author: karmel
 '''
 from __future__ import division
+from __future__ import print_function
 from glasslab.dataanalysis.graphing.seq_grapher import SeqGrapher
 from glasslab.utils.functions import nonzero
 from glasslab.dataanalysis.motifs.motif_analyzer import MotifAnalyzer
@@ -29,7 +30,7 @@ if __name__ == '__main__':
     only_th2 = th2[th2['p2_id'] == 0]
     shared = th1[th1['p2_id'] != 0]
     shared_check = th2[th2['p2_id'] != 0]
-    print len(only_th1), len(only_th2), len(shared), len(shared_check)
+    print(len(only_th1), len(only_th2), len(shared), len(shared_check))
     
     only_th1['th1_tag_count'] = nonzero(only_th1['tag_count'])
     only_th1['th2_tag_count'] = nonzero(only_th1['p2_tag_count'])

@@ -3,6 +3,7 @@ Created on Apr 27, 2012
 
 @author: karmel
 '''
+from __future__ import print_function
 bmdc_up = set(['Pdlim4', 'Nrcam', 'Tmem26', 'Msl3l2', 'Pde5a', 'Mid1', 'Mfsd7c', 'Ctso', 'H2-M2', 'Mtap1b', 'Tspan32', 'Slc39a2', 'Msx3', 'Cyr61', 'Gja1', 'Dpys', 'Slc16a14', 'Fggy', 'Mertk', 'Cav1', 'Mrvi1', 'Plcb4', 'Cebpe', 'Arhgef18', 'Ifi204', 'Pard3b', 'Cxcl14', 'Col27a1,Mir455', 'E330020D12Rik', 'Cd97', '1600014C10Rik', 'Masp1', 'Pde3b', 'Fam110c', 'Trim6', 'Adra1a', 'Tmeff1', 'Iqgap2', 'Gpr98', 'Gata6', 'Tgm2', 'Ckb', 'Mett11d1', 'Abca5', 'Fblim1', 'Ica1', 'A930005I04Rik', 'Lrrc63', '1810010D01Rik', 'Zdhhc14', 'Dut', 'Tjp2', 'Hspa2', 'Tjp1', 'Bnc2', 'Nlrp10', 'Kalrn', 'Acp5', 'St3gal5', '9030425E11Rik', 'Gde1', 'Ms4a7', 'Gm4951', 'F3', 'Slc4a4', 'Fabp4', 'Isg15', 'Rab15', 'Fbp1', 'Slc24a5', 'Mpp7', 'Id3', 'Ctnnd2', 'Arid4a', 'Npl', 'Shroom4', 'Myo16', 'Havcr2', 'Siglec1', 'Col6a6', 'Fam59a', '2900041M22Rik', 'D630042F21Rik', 'Myo1d', 'Chrm3', 'Spns1', 'Adamts14', 'Prox2'])
 
 bmdc_down = set(['Clec10a', 'Lyl1', '2310061I04Rik', 'Psap', 'Adora2b', 'BC049349', 'Tnfrsf9', 'Chek2', '1600029D21Rik', 'Ctsk', 'Ctsl', 'Cd244', 'Ccdc88c,Mir1190', 'Cd247', 'A730008H23Rik,Hjurp', 'Lrrc57', 'Gpr171', 'Nov', 'Ctss', 'Fam40b', 'Arhgap9', 'Csf3r', 'Tpp1', 'Tcfe3', 'Thbs1', 'Tiam2', 'Myadm', 'Igsf8', 'Slc26a11', 'Cdipt', 'Dock8', 'B930041F14Rik', 'Auts2', 'Gpr141', 'Cd22', 'Arg2', 'Zfp36l1', 'AA467197,Mir147', 'C230096C10Rik', 'Fn1', 'Dhrs9', 'Tyrobp', 'Il12rb2', 'Mylk', 'Runx3', 'Psmb8', 'Gpr52,Rabgap1l', 'Speg', 'Lgals1', 'Fkbp8', 'Gprc5a', 'H2-T23', 'Acap1', 'Lyz2', 'Tarm1', 'Xrcc1', 'Mmd', 'Syn3', 'Adcy6', 'Stat4', 'Fam65b', '1700029J11Rik', 'Fam20a', 'Cd83', 'Samd4', 'Tmem180', '5830416P10Rik', 'Stxbp6', 'Limd2', 'F10', 'Il1r2', 'Fam49a', 'Rasgrp4', 'Commd3', 'Egr1', 'Plcl1', 'Rcsd1', 'Stc2', 'Nos1ap', 'Ifitm3', 'Tox', '2410001C21Rik', 'Gbp1', 'Srgap3', 'Coro1a', 'Gfra2', 'Mmp25', 'Serpinb2', 'Traf1', 'Gja5', 'Tifab', 'Ltb4r1', 'Atp6ap1', 'Reep4', 'Sh3bp4', 'Slc22a23', 'Gpr132', 'Cd200', 'Miip', 'Fscn1', 'Ccbe1,Mir694', 'Igsf9b', 'Syne1', 'Tspan13', 'H2-Aa', 'Dpp4', 'Pid1', 'Taf10', 'Ccr5', 'Ccr7', 'Batf3', 'Gdpd3,Mapk3', 'Crip1', 'Abcb1b', 'Tmem123', 'F7', 'Tmem158', 'Gpr183', 'Vcan', 'Cd69', 'Fhl3', 'Adam23', 'Nrg1', 'Ikzf4', 'Ccl22', 'Slc4a8', 'Clec12a', 'Ccdc109b', 'Fstl1', 'Sgsh', '4930420K17Rik', 'Mavs', 'Cd52', 'H2-K2', 'Icosl', 'Cacnb3', 'H2-Ea-ps', 'P2ry10', 'Treml2', 'Rab3d', 'Adam15', 'Mmp8', 'Armc6', 'Cep70', 'Cdh2', 'Kif3a', 'Lrrc33', 'Glrp1', 'Cass4', 'Wnk2', 'Jmjd8', 'Rassf2', 'Htr7', 'Eps8', 'Hebp2', '5031414D18Rik', 'F630028O10Rik,Mir223', 'Cd200r4', 'Ahrr', 'F2rl2', 'Gpr160', 'Rap1gap2'])
@@ -12,8 +13,8 @@ thio_up = set(['Pdlim4', 'Plekhg1', 'Mir297-1', 'Cyp4f16', 'Cxcl2', 'D330045A20R
 thio_down = set(['Cyp7b1', 'H28', 'Dhrs9', 'Kitl', 'Gbp1', 'Il12rb2', 'Fcgr2b', 'Mylk', 'Akr1e1', 'Sgsh', 'Speg', 'Gprc5a', 'Pppde2', 'Ctsk', 'Gm10345', 'Trim16', 'C230055K05Rik', 'H2-T23', 'Ntn1', 'Man2a2', 'Cd247', 'A730008H23Rik,Hjurp', 'Nr1h4', 'Syne1', 'Ifi44', 'Ccbe1,Mir694', 'Glrp1', 'Arsb', 'Acacb', 'H2-Q6', 'D10Bwg1379e', 'AI118078', 'Ndrg1', 'Tifab', 'Fstl1', 'Hoxa3,Hoxa4,Hoxa5,Hoxa6', 'Abcb1b', 'B930041F14Rik', 'Pcdh15', 'Pcnxl2', 'Arg2', 'Enpp2', 'Pls3', 'Trim68', 'Myo18b', 'Slco2b1', 'A630001G21Rik', 'Kdr', 'Nckap5l'])
 
 
-print ','.join(bmdc_up & thio_up)
-print ','.join(bmdc_down & thio_down)
+print(','.join(bmdc_up & thio_up))
+print(','.join(bmdc_down & thio_down))
 
 
 

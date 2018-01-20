@@ -7,6 +7,7 @@ The goal here is to see if we can tease out which features are
 predictive of characteristics of interest, such as pausing ratio
 or transrepression. Worth a stab.
 '''
+from __future__ import print_function
 from glasslab.dataanalysis.machinelearning.logistic_classifier import LogisticClassifier
 from glasslab.dataanalysis.misc.gr_project_2012.elongation import get_rep_string
 import os
@@ -43,11 +44,11 @@ if __name__ == '__main__':
             # And then columns from other replicates
             dataset = dataset.reset_index().filter(regex=r'(({1}pu_1_kla)|{0})'.format('(?!(.*_\d_.*|.*_id))', 
                                                           rep_str and r'.*' + rep_str + r'.*|' or ''))
-            print dataset.columns
+            print(dataset.columns)
             
             labels = targets['kla_{0}lfc'.format(rep_str)] <= -1
             
-            print 'Total examples, positive: ', len(dataset), sum(labels)
+            print('Total examples, positive: ', len(dataset), sum(labels))
             # Nulls should be zeroes. Fill those first.
             dataset = dataset.fillna(0)
             dataset = learner.make_numeric(dataset)
@@ -79,9 +80,9 @@ if __name__ == '__main__':
                     
                 if force_choice: break
         
-            print "Best number of features: ", len(best_chosen)
-            print "Best features: ", best_chosen
-            print "Best C, MSE: ", best_c, best_err
+            print("Best number of features: ", len(best_chosen))
+            print("Best features: ", best_chosen)
+            print("Best C, MSE: ", best_c, best_err)
 
             
             

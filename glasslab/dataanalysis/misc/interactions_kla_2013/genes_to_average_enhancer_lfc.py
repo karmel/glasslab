@@ -17,6 +17,7 @@ of interactions, and allow for null values when there is a number
 mismatch.
 '''
 from __future__ import division
+from __future__ import print_function
 from glasslab.dataanalysis.graphing.seq_grapher import SeqGrapher
 import numpy
 
@@ -96,6 +97,6 @@ if __name__ == '__main__':
     for i, name in enumerate(keys):
         data = yzer.import_file(yzer.get_filename(img_dirpath, name + '_vectors.cdt'))
         data = data[data['gene_lfc'].abs() > 1]
-        print name, len(data)
-        print data.corr()
+        print(name, len(data))
+        print(data.corr())
         

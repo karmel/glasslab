@@ -4,6 +4,7 @@ Created on Feb 12, 2013
 @author: karmel
 '''
 from __future__ import division
+from __future__ import print_function
 from glasslab.dataanalysis.motifs.motif_analyzer import MotifAnalyzer
 
 
@@ -64,7 +65,7 @@ if __name__ == '__main__':
         
         for k in sorted(data.keys()):
             subset = data[k] 
-            print k, len(subset)
+            print(k, len(subset))
         
         if True:
             for k in sorted(data.keys(), reverse=True):

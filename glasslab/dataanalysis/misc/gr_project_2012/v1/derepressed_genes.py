@@ -7,6 +7,7 @@ The goal here is to see if we can tease out which features are
 predictive of characteristics of interest, such as pausing ratio
 or transrepression. Worth a stab.
 '''
+from __future__ import print_function
 from glasslab.dataanalysis.misc.gr_project_2012.elongation import get_rep_string
 import sys
 from glasslab.dataanalysis.motifs.motif_analyzer import MotifAnalyzer
@@ -50,16 +51,16 @@ if __name__ == '__main__':
             
             trans.append(trans_set)
             
-            print 'Genes with rep {0} KLA LFC <= {1} and Dex over KLA LFC >= {2}:'.format(
-                                    rep_str, min_ratio, secondary_min_ratio), len(trans_set)
+            print('Genes with rep {0} KLA LFC <= {1} and Dex over KLA LFC >= {2}:'.format(
+                                    rep_str, min_ratio, secondary_min_ratio), len(trans_set))
             
             
         
         
-        print 'Derepressed in at least 4 reps:', sum(grouped['relevant_sets'] >= 4)
-        print 'Derepressed in at least 3 reps:', sum(grouped['relevant_sets'] >= 3)
-        print 'Derepressed in at least 2 reps:', sum(grouped['relevant_sets'] >= 2)
-        print 'Derepressed in at least 1 reps:', sum(grouped['relevant_sets'] >= 1)
+        print('Derepressed in at least 4 reps:', sum(grouped['relevant_sets'] >= 4))
+        print('Derepressed in at least 3 reps:', sum(grouped['relevant_sets'] >= 3))
+        print('Derepressed in at least 2 reps:', sum(grouped['relevant_sets'] >= 2))
+        print('Derepressed in at least 1 reps:', sum(grouped['relevant_sets'] >= 1))
         
         
         # For motif finding

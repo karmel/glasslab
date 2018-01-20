@@ -6,6 +6,7 @@ Created on May 2, 2013
 Note: Made font.weight = normal and axes.titlesize = 24 in matplotlibrc
 '''
 from __future__ import division
+from __future__ import print_function
 from glasslab.dataanalysis.graphing.seq_grapher import SeqGrapher
 from glasslab.dataanalysis.misc.demoatlas.rpkm_to_score import PrettyAxisGrapher
 
@@ -22,8 +23,8 @@ if __name__ == '__main__':
     refseq_with_runoff = refseq[refseq['id'].isin(data['gene_id'])]
     refseq_no_runoff = refseq[~refseq['id'].isin(data['gene_id'])]
     if False:
-        print len(refseq_no_runoff)
-        print refseq_no_runoff.tail(100).to_string()
+        print(len(refseq_no_runoff))
+        print(refseq_no_runoff.tail(100).to_string())
     
     # Calculate length of runoff
     data['length'] = data['transcription_end'] - data['transcription_start'] + 1
@@ -46,10 +47,10 @@ if __name__ == '__main__':
         for subset in (refseq_no_runoff, refseq_with_runoff):
             subset['percent_covered'] = (subset['transcription_end'] - subset['transcription_start'] + 1)\
                         /(subset['transcription_end(2)'] - subset['transcription_start(2)'] + 1)
-            print 'Total: ', len(subset)
-            print 'Percentage: ', len(subset)/len(refseq)
-            print 'mRNA: ', sum(subset['type'] == 'mRNA'), sum(subset['type'] == 'mRNA')/len(subset)
-            print 'rRNA: ', sum(subset['type'] != 'mRNA'), sum(subset['type'] != 'mRNA')/len(subset)
+            print('Total: ', len(subset))
+            print('Percentage: ', len(subset)/len(refseq))
+            print('mRNA: ', sum(subset['type'] == 'mRNA'), sum(subset['type'] == 'mRNA')/len(subset))
+            print('rRNA: ', sum(subset['type'] != 'mRNA'), sum(subset['type'] != 'mRNA')/len(subset))
         # Note that some transcripts encompass two very close refseq genes; we're filtering those out for now.
         mrna_with_runoff = refseq_with_runoff[(refseq_with_runoff['type'] == 'mRNA')
                                               & (refseq_with_runoff['refseq'] == 't')
@@ -88,21 +89,21 @@ if __name__ == '__main__':
                                             & (mrna_with_runoff['score'] >= min_score)]
         reaches_end_none = mrna_no_runoff[(mrna_no_runoff['distance'] <= 10)
                                           & (mrna_no_runoff['score'] >= min_score)]
-        print len(reaches_end_with), len(reaches_end_none)
-        print len(reaches_end_with)+len(reaches_end_none)
-        print (len(reaches_end_with)+len(reaches_end_none))/(len(mrna_with_runoff)+len(mrna_no_runoff))
+        print(len(reaches_end_with), len(reaches_end_none))
+        print(len(reaches_end_with)+len(reaches_end_none))
+        print((len(reaches_end_with)+len(reaches_end_none))/(len(mrna_with_runoff)+len(mrna_no_runoff)))
         print (len(mrna_with_runoff)+len(mrna_no_runoff))
-        print len(reaches_end_with)/(len(reaches_end_with)+len(reaches_end_none))
+        print(len(reaches_end_with)/(len(reaches_end_with)+len(reaches_end_none)))
         
     if False:
         min_score = 2       
         high_exp_with = mrna_with_runoff[mrna_with_runoff['score'] >= min_score] 
         high_exp_none = mrna_no_runoff[mrna_no_runoff['score'] >= min_score] 
         
-        print len(high_exp_with), len(high_exp_none)
-        print len(high_exp_with)+len(high_exp_none)
-        print (len(high_exp_with)+len(high_exp_none))/len(refseq)
-        print len(high_exp_with)/(len(high_exp_with)+len(high_exp_none))
+        print(len(high_exp_with), len(high_exp_none))
+        print(len(high_exp_with)+len(high_exp_none))
+        print((len(high_exp_with)+len(high_exp_none))/len(refseq))
+        print(len(high_exp_with)/(len(high_exp_with)+len(high_exp_none)))
         
     if True:
         # Cleaned up for figures.

@@ -5,6 +5,7 @@ Created on Jul 4, 2012
 
 '''
 from __future__ import division
+from __future__ import print_function
 from glasslab.dataanalysis.misc.gr_project_2012.elongation import get_rep_string
 import sys
 from glasslab.dataanalysis.motifs.motif_analyzer import MotifAnalyzer
@@ -42,16 +43,16 @@ if __name__ == '__main__':
             
             repressed.append(repressed_set)
             
-            print 'Genes with rep {0} KLA LFC <= {1}:'.format(
-                                    rep_str, min_ratio), len(repressed_set)
+            print('Genes with rep {0} KLA LFC <= {1}:'.format(
+                                    rep_str, min_ratio), len(repressed_set))
             
             
         
         
-        print 'Repressed in at least 4 reps:', sum(grouped['relevant_sets'] >= 4)
-        print 'Repressed in at least 3 reps:', sum(grouped['relevant_sets'] >= 3)
-        print 'Repressed in at least 2 reps:', sum(grouped['relevant_sets'] >= 2)
-        print 'Repressed in at least 1 reps:', sum(grouped['relevant_sets'] >= 1)
+        print('Repressed in at least 4 reps:', sum(grouped['relevant_sets'] >= 4))
+        print('Repressed in at least 3 reps:', sum(grouped['relevant_sets'] >= 3))
+        print('Repressed in at least 2 reps:', sum(grouped['relevant_sets'] >= 2))
+        print('Repressed in at least 1 reps:', sum(grouped['relevant_sets'] >= 1))
         
         
         # For motif finding
@@ -75,9 +76,9 @@ if __name__ == '__main__':
             repr_utrs = utrs[utrs['glass_transcript_id'].isin(repr_data['PositionID'])]
             all_utrs = utrs[utrs['glass_transcript_id'].isin(all_data['PositionID'])]
             
-            print 'Total transcripts:', len(grouped) 
-            print 'Fraction with YY1 in {0} in total transcripts:'.format(search_space), len(all_data)/len(grouped) 
-            print 'Fraction with YY1 in {0} in repressed transcripts:'.format(search_space), len(repr_data)/len(ids) 
+            print('Total transcripts:', len(grouped)) 
+            print('Fraction with YY1 in {0} in total transcripts:'.format(search_space), len(all_data)/len(grouped)) 
+            print('Fraction with YY1 in {0} in repressed transcripts:'.format(search_space), len(repr_data)/len(ids)) 
             
             if True:
                 grapher = SeqGrapher()

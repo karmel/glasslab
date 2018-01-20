@@ -3,6 +3,7 @@ Created on Sep 27, 2014
 
 @author: karmel
 '''
+from __future__ import print_function
 from glasslab.dataanalysis.misc.rodrigo.samples import sample_name,\
     get_threshold
 from glasslab.dataanalysis.motifs.motif_analyzer import MotifAnalyzer
@@ -34,7 +35,7 @@ if __name__ == '__main__':
                        'ko_new', sample_dirpath,
                        cpus=10, center=True, reverse=False, preceding=False,
                        size=200, length=[8, 10, 12], mock=True)
-        print('ko_new', len(ko_new))
+        print(('ko_new', len(ko_new)))
 
         # ATAC peaks exist, but are less than half as big
         ko_grows = data[
@@ -44,7 +45,7 @@ if __name__ == '__main__':
                        'ko_grows', sample_dirpath,
                        cpus=10, center=True, reverse=False, preceding=False,
                        size=200, length=[8, 10, 12], mock=True)
-        print('ko_grows', len(ko_grows))
+        print(('ko_grows', len(ko_grows)))
 
         # The sum of new and bigger
         ko_dependent = data[
@@ -53,4 +54,4 @@ if __name__ == '__main__':
                        'ko_dependent', sample_dirpath,
                        cpus=10, center=True, reverse=False, preceding=False,
                        size=200, length=[8, 10, 12], mock=True)
-        print('ko_dependent', len(ko_dependent))
+        print(('ko_dependent', len(ko_dependent)))

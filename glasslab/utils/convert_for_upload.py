@@ -1,3 +1,4 @@
+from __future__ import print_function
 import sys
 import subprocess
 
@@ -105,7 +106,7 @@ class TagFileConverter(object):
 		for line in f:
 			fields = line.split('\t')
 			if len(fields) < 6: 
-				print 'Skipping line:\n%s' % line
+				print('Skipping line:\n%s' % line)
 				continue
 			self.write_line(fields[1:5], o1)
 			
@@ -122,4 +123,4 @@ if __name__ == '__main__':
 	converter = TagFileConverter()
 	output_file = converter.guess_file_type(file_name)
 
-	print 'Converted {0} as best as possible.'.format(output_file)
+	print('Converted {0} as best as possible.'.format(output_file))

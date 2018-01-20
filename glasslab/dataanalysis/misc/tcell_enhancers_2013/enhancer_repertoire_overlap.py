@@ -4,6 +4,7 @@ Created on Feb 17, 2013
 @author: karmel
 '''
 from __future__ import division
+from __future__ import print_function
 from glasslab.dataanalysis.motifs.motif_analyzer import MotifAnalyzer
 
 if __name__ == '__main__':
@@ -29,7 +30,7 @@ if __name__ == '__main__':
     only_th2 = th2[th2['th1_id'] == 0]
     shared = th1[th1['th2_id'] > 0]
     shared_check = th2[th2['th2_id'] > 0]
-    print len(only_th1), len(only_th2), len(shared), len(shared_check)
+    print(len(only_th1), len(only_th2), len(shared), len(shared_check))
     
     # Now factor in me2
     only_th1_no_me2 = only_th1[only_th1['naive_id'] == 0]
@@ -45,7 +46,7 @@ if __name__ == '__main__':
     main_peak = ['th1','th1','th2','th2','th1','th1','naive']
     names = ['only_th1_no_me2','only_th1_with_me2','only_th2_no_me2','only_th2_with_me2',
                 'shared_no_me2','shared_with_me2', 'naive_only']
-    print [len(d) for d in datasets]
+    print([len(d) for d in datasets])
     
     
     for i, subset in enumerate(datasets):

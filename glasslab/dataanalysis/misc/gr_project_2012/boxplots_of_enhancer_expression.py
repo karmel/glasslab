@@ -3,6 +3,7 @@ Created on Oct 26, 2012
 
 @author: karmel
 '''
+from __future__ import print_function
 from glasslab.dataanalysis.graphing.seq_grapher import SeqGrapher
 from matplotlib import pyplot
 from glasslab.utils.functions import nonzero
@@ -73,7 +74,7 @@ if __name__ == '__main__':
                  ('{0}Up in KLA Genes'.format(not suffix and 'Near ' or ''), up_in_kla),
                  ('{0}Transrepressed Genes'.format(not suffix and 'Near ' or ''),transrepressed))
         
-        print len(up_in_kla), len(transrepressed), len(not_trans)
+        print(len(up_in_kla), len(transrepressed), len(not_trans))
         labels = zip(*supersets)[0]
         xlabel = 'Subgroup'
     

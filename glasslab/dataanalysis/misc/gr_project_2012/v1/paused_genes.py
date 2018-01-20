@@ -7,6 +7,7 @@ The goal here is to see if we can tease out which features are
 predictive of characteristics of interest, such as pausing ratio
 or transrepression. Worth a stab.
 '''
+from __future__ import print_function
 from glasslab.dataanalysis.misc.gr_project_2012.elongation import get_rep_string
 import sys
 from glasslab.dataanalysis.motifs.motif_analyzer import MotifAnalyzer
@@ -52,27 +53,27 @@ if __name__ == '__main__':
             paused_set = grouped.ix[primary_min & trans_2]['glass_transcript_id'].values.tolist()
             paused.append(paused_set)
             
-            print 'Genes with rep_{0}pausing_ratio_ratio >= {1}:'.format(rep_str, min_ratio), len(paused_set)
+            print('Genes with rep_{0}pausing_ratio_ratio >= {1}:'.format(rep_str, min_ratio), len(paused_set))
             
             grouped['relevant_sets_primary'] += (primary_min & trans_2).apply(int)
             grouped['relevant_sets_secondary'] += secondary_min.apply(int)
             
         
         
-        print 'Assuming pausing_ratio_ratio is at least {0}...'.format(secondary_min_ratio)
+        print('Assuming pausing_ratio_ratio is at least {0}...'.format(secondary_min_ratio))
         
         grouped = grouped[grouped['relevant_sets_secondary'] == 4]
-        print 'Genes that have a pausing_ratio_ratio of at least {0} in all 4 reps:'.format(
-                            secondary_min_ratio), len(grouped)
+        print('Genes that have a pausing_ratio_ratio of at least {0} in all 4 reps:'.format(
+                            secondary_min_ratio), len(grouped))
         
-        print 'Paused in at least 4 reps:', sum(grouped['relevant_sets_primary'] >= 4)
-        print 'Paused in at least 3 reps:', sum(grouped['relevant_sets_primary'] >= 3)
-        print 'Paused in at least 2 reps:', sum(grouped['relevant_sets_primary'] >= 2)
-        print 'Paused in at least 1 reps:', sum(grouped['relevant_sets_primary'] >= 1)
+        print('Paused in at least 4 reps:', sum(grouped['relevant_sets_primary'] >= 4))
+        print('Paused in at least 3 reps:', sum(grouped['relevant_sets_primary'] >= 3))
+        print('Paused in at least 2 reps:', sum(grouped['relevant_sets_primary'] >= 2))
+        print('Paused in at least 1 reps:', sum(grouped['relevant_sets_primary'] >= 1))
         
         means = grouped[['rep_1_pausing_ratio_ratio','rep_2_pausing_ratio_ratio',
                        'rep_3_pausing_ratio_ratio','rep_4_pausing_ratio_ratio']].mean(axis=1)
-        print 'Paused in the average of all reps:', sum(means >= min_ratio)
+        print('Paused in the average of all reps:', sum(means >= min_ratio))
         
         # For motif finding
         peak_type = 'p65_kla_dex'

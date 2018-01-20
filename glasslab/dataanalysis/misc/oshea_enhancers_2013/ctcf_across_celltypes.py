@@ -4,6 +4,7 @@ Created on Feb 14, 2013
 @author: karmel
 '''
 from __future__ import division
+from __future__ import print_function
 from glasslab.dataanalysis.graphing.seq_grapher import SeqGrapher
 from glasslab.utils.functions import nonzero
 from glasslab.dataanalysis.motifs.motif_analyzer import MotifAnalyzer
@@ -23,7 +24,7 @@ if __name__ == '__main__':
     only_thio = thio[thio['dp_ctcf_tag_count'] == 0]
     shared = dp[dp['thiomac_ctcf_tag_count'] != 0]
     shared_check = thio[thio['dp_ctcf_tag_count'] != 0]
-    print len(only_dp), len(only_thio), len(shared), len(shared_check)
+    print(len(only_dp), len(only_thio), len(shared), len(shared_check))
     
     data = shared.append(only_dp, ignore_index=True)
     data = data.append(only_thio, ignore_index=True)

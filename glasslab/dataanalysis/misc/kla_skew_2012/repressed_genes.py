@@ -4,6 +4,7 @@ Created on Jul 4, 2012
 @author: karmel
 
 '''
+from __future__ import print_function
 from glasslab.dataanalysis.misc.gr_project_2012.elongation import get_rep_string
 import sys
 from glasslab.dataanalysis.motifs.motif_analyzer import MotifAnalyzer
@@ -41,16 +42,16 @@ if __name__ == '__main__':
             
             repressed.append(repressed_set)
             
-            print 'Genes with rep {0} KLA LFC <= {1}:'.format(
-                                    rep_str, min_ratio), len(repressed_set)
+            print('Genes with rep {0} KLA LFC <= {1}:'.format(
+                                    rep_str, min_ratio), len(repressed_set))
             
             
         
         
-        print 'Repressed in at least 4 reps:', sum(grouped['relevant_sets'] >= 4)
-        print 'Repressed in at least 3 reps:', sum(grouped['relevant_sets'] >= 3)
-        print 'Repressed in at least 2 reps:', sum(grouped['relevant_sets'] >= 2)
-        print 'Repressed in at least 1 reps:', sum(grouped['relevant_sets'] >= 1)
+        print('Repressed in at least 4 reps:', sum(grouped['relevant_sets'] >= 4))
+        print('Repressed in at least 3 reps:', sum(grouped['relevant_sets'] >= 3))
+        print('Repressed in at least 2 reps:', sum(grouped['relevant_sets'] >= 2))
+        print('Repressed in at least 1 reps:', sum(grouped['relevant_sets'] >= 1))
         
         
         # For motif finding

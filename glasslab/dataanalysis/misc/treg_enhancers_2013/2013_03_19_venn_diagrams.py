@@ -3,6 +3,7 @@ Created on Feb 12, 2013
 
 @author: karmel
 '''
+from __future__ import print_function
 from glasslab.dataanalysis.motifs.motif_analyzer import MotifAnalyzer
 
 
@@ -63,7 +64,7 @@ if __name__ == '__main__':
         
         for k in sorted(data.keys()):
             subset = data[k] 
-            print k, len(subset)
+            print(k, len(subset))
             
             if k in celltypes or len(subset) < 1000: continue
             first_peak = k=='all' and 'naive' or k.split('_')[0]

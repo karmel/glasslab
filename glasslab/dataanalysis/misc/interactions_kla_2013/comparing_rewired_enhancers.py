@@ -4,6 +4,7 @@ Created on Jan 30, 2013
 @author: karmel
 '''
 from __future__ import division
+from __future__ import print_function
 from glasslab.dataanalysis.graphing.seq_grapher import SeqGrapher
 from collections import OrderedDict
 
@@ -31,27 +32,27 @@ if __name__ == '__main__':
         # Correlations
         
         for key, val in sets.iteritems(): 
-            print key, len(val)
-            print val.corr()
+            print(key, len(val))
+            print(val.corr())
         
         notx_only = yzer.import_file(yzer.get_filename(data_dirpath,'notx_only_vectors.cdt'))
         kla_only = yzer.import_file(yzer.get_filename(data_dirpath,'kla_only_vectors.cdt'))
-        print len(notx_only), len(kla_only)
-        print sum(notx_only['enhancer_lfc'] < -1), sum(kla_only['enhancer_lfc'] < -1)
-        print sum(notx_only['enhancer_lfc'] > 1), sum(kla_only['enhancer_lfc'] > 1)
+        print(len(notx_only), len(kla_only))
+        print(sum(notx_only['enhancer_lfc'] < -1), sum(kla_only['enhancer_lfc'] < -1))
+        print(sum(notx_only['enhancer_lfc'] > 1), sum(kla_only['enhancer_lfc'] > 1))
         
-        print sum(notx_only['notx_gene_lfc'] < -1), sum(kla_only['notx_gene_lfc'] < -1)
-        print sum(notx_only['notx_gene_lfc'] > 1), sum(kla_only['notx_gene_lfc'] > 1)
-        print sum(notx_only['kla_4h_gene_lfc'] < -1), sum(kla_only['kla_4h_gene_lfc'] < -1)
-        print sum(notx_only['kla_4h_gene_lfc'] > 1), sum(kla_only['kla_4h_gene_lfc'] > 1)
+        print(sum(notx_only['notx_gene_lfc'] < -1), sum(kla_only['notx_gene_lfc'] < -1))
+        print(sum(notx_only['notx_gene_lfc'] > 1), sum(kla_only['notx_gene_lfc'] > 1))
+        print(sum(notx_only['kla_4h_gene_lfc'] < -1), sum(kla_only['kla_4h_gene_lfc'] < -1))
+        print(sum(notx_only['kla_4h_gene_lfc'] > 1), sum(kla_only['kla_4h_gene_lfc'] > 1))
     
     if True:
         # p65 occupancy
         for key, val in sets.iteritems(): 
             data = val.merge(transcripts, how='left', on='id')
             data = data.fillna(0)
-            print key
-            print data['h3k4me2_tag_count'].describe()
+            print(key)
+            print(data['h3k4me2_tag_count'].describe())
     
     
 

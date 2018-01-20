@@ -3,6 +3,7 @@ Created on Jul 5, 2012
 
 @author: karmel
 '''
+from __future__ import print_function
 from glasslab.dataanalysis.motifs.motif_analyzer import MotifAnalyzer
 from glasslab.dataanalysis.misc.gr_project_2012.elongation import get_rep_string
 import sys
@@ -34,7 +35,7 @@ if __name__ == '__main__':
         pausing_ids = pausing_data[pausing_data[key] >= min_ratio]['glass_transcript_id']
         dataset = data[data['id'].isin(pausing_ids)]
         
-        print len(dataset)
+        print(len(dataset))
         
         if False:
             yzer.prep_files_for_homer(dataset, 'paused_{0}_{1}preceding_200'.format(min_ratio, rep_str), 

@@ -3,6 +3,7 @@ Created on Jun 27, 2014
 
 @author: karmel
 '''
+from __future__ import print_function
 from glasslab.dataanalysis.motifs.motif_analyzer import MotifAnalyzer
 
 

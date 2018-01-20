@@ -7,6 +7,7 @@ Used to get counts for enhancer types over triplicate motifs
 for modeling rotation in Hoffmann lab.
 '''
 from __future__ import division
+from __future__ import print_function
 from glasslab.dataanalysis.base.datatypes import TranscriptAnalyzer
 import os
 
@@ -38,7 +39,7 @@ if __name__ == '__main__':
                                                    (getattr(data['trans'], trans)(0))])
                                     code = ''.join([x == '__gt__' and '2' or '0' for x in (pu_1, cebpa, p65, ctcf)])
                                     code2 = ''.join([x == '__gt__' and '1' or '0' for x in (me2, k27, trans)])
-                                    print '\t'.join([code + code2, str(c), str(c/len(data))])
+                                    print('\t'.join([code + code2, str(c), str(c/len(data))]))
     
-    print len(data)
+    print(len(data))
     

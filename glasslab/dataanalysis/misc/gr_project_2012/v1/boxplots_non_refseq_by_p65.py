@@ -4,6 +4,7 @@ Created on Oct 1, 2012
 @author: karmel
 '''
 from __future__ import division
+from __future__ import print_function
 from glasslab.dataanalysis.graphing.seq_grapher import SeqGrapher
 from glasslab.utils.functions import nonzero
 from glasslab.dataanalysis.misc.gr_project_2012.v1.enhancer_subsets_for_supershift import ucsc_link_cleanup
@@ -30,7 +31,7 @@ if __name__ == '__main__':
             data = data[data['kla_1_lfc'] >= 1]
             data = data[data['gr_kla_dex_tag_count'] > 0]
             data = data[data['gr_fa_kla_dex_tag_count'] == 0]
-            print len(data)
+            print(len(data))
             if pu_1: data = data[data['pu_1_kla_tag_count']  + data['pu_1_kla_tag_count'] > 0]
             
             
@@ -54,8 +55,8 @@ if __name__ == '__main__':
             data['{0}_kla_to_kla_dex_ratio'.format(peak_type)] = data['{0}_kla_tag_count'.format(peak_type)]\
                                                                     /data['{0}_kla_dex_nearby_tag_count'.format(peak_type)]
             
-            print sum(kla_gt)
-            print sum(kla_dex_gt)
+            print(sum(kla_gt))
+            print(sum(kla_dex_gt))
             data[kla_gt].to_csv(yzer.get_filename(img_dirpath, 'enhancer_like_lose_{0}_{1}x_change_dsg_only.txt'.format(
                                                                                             peak_type, ratio)), 
                                           sep='\t', header=True, index=False)

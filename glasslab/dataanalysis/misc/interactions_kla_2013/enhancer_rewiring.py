@@ -4,6 +4,7 @@ Created on Jan 30, 2013
 @author: karmel
 '''
 from __future__ import division
+from __future__ import print_function
 from glasslab.dataanalysis.graphing.seq_grapher import SeqGrapher
 from collections import OrderedDict
 
@@ -45,8 +46,8 @@ if __name__ == '__main__':
                           )) 
     
     for key, sub in subsets.iteritems():
-        print '\nCounts for ' + key
-        print '============================='
+        print('\nCounts for ' + key)
+        print('=============================')
         pairs = {}
         pairs['notx'] = sub[sub['sequencing_run_id'] == 765]
         pairs['kla_30m'] = sub[sub['sequencing_run_id'] == 766]
@@ -66,12 +67,12 @@ if __name__ == '__main__':
         pairs['shared_kla_4h'] = pairs['kla_4h'][(pairs['kla_4h']['hash'].isin(pairs['notx']['hash']))]
     
         for t in timepoints:
-            print '\n........................\nCounts for ' + t
-            print 'Number of interactions (total, unique, shared):'
-            print len(pairs[t]), len(pairs['only_' + t]), len(pairs['shared_' + t])
+            print('\n........................\nCounts for ' + t)
+            print('Number of interactions (total, unique, shared):')
+            print(len(pairs[t]), len(pairs['only_' + t]), len(pairs['shared_' + t]))
             
-            print 'Number of implicated genes (total, unique, shared):'
-            print len(pairs[t]['id'].unique()), len(pairs['only_' + t]['id'].unique()), len(pairs['shared_' + t]['id'].unique())
+            print('Number of implicated genes (total, unique, shared):')
+            print(len(pairs[t]['id'].unique()), len(pairs['only_' + t]['id'].unique()), len(pairs['shared_' + t]['id'].unique()))
             
             
             

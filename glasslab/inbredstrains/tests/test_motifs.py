@@ -13,6 +13,7 @@ not run more than instance well due to the way in which
 Homer creates and removes temp files.
 '''
 from __future__ import division
+from __future__ import print_function
 import os
 import sys
 from glasslab.genomereference.datatypes import Chromosome
@@ -43,7 +44,7 @@ def main(strain='BALB'):
         
         tmp_file = os.path.join(motif_dir, '%s_test_motifs_%d.fa' % (strain, chr.id))
         
-        print 'Using source file %s.' % source_file
+        print('Using source file %s.' % source_file)
         ref_n, header = get_nucleotides_and_header(ref_f)
         nucleotides, header = get_nucleotides_and_header(f)
         
@@ -89,8 +90,8 @@ def main(strain='BALB'):
             
             if output.count('\t%s\t' % region[:-1]) < expect_to_find \
                 or output.count(site.description) < expect_to_find:
-                    print 'Could not find expected motif at %d on %s.\nExpected: %s: %s\nFound:\n%s.' \
-                        % (site.start, chr.name, site.description, region[:-1], output)
+                    print('Could not find expected motif at %d on %s.\nExpected: %s: %s\nFound:\n%s.' \
+                        % (site.start, chr.name, site.description, region[:-1], output))
                     discrepancies += 1
             else:
                 matches += 1
@@ -98,7 +99,7 @@ def main(strain='BALB'):
         os.remove(tmp_file)
         f.close()
     
-        print 'Found %d matches and %d discrepancies in %s.' % (matches, discrepancies, chr.name)
+        print('Found %d matches and %d discrepancies in %s.' % (matches, discrepancies, chr.name))
     Motif._meta.db_table = motif_db_table
     BindingSite._meta.db_table = binding_site_db_table
         
@@ -106,5 +107,5 @@ def main(strain='BALB'):
 if __name__=='__main__':
     if len(sys.argv) > 1: strain = sys.argv[1]
     else: strain = 'DBA'
-    print 'Testing motif locations for %s.' % strain
+    print('Testing motif locations for %s.' % strain)
     main(strain)

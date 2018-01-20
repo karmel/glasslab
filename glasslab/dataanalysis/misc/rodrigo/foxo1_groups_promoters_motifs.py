@@ -3,6 +3,7 @@ Created on Sep 27, 2014
 
 @author: karmel
 '''
+from __future__ import print_function
 from glasslab.dataanalysis.misc.rodrigo.samples import sample_name,\
     get_threshold
 from glasslab.dataanalysis.motifs.motif_analyzer import MotifAnalyzer
@@ -34,7 +35,7 @@ if __name__ == '__main__':
                        'foxo1_critical', sample_dirpath,
                        cpus=10, center=True, reverse=False, preceding=False,
                        size=200, length=[8, 10, 12], mock=True)
-        print('foxo1_critical', len(foxo1_critical))
+        print(('foxo1_critical', len(foxo1_critical)))
 
         # ATAC peaks that don't change with KO of Foxo1
         foxo1_independent = data[
@@ -44,7 +45,7 @@ if __name__ == '__main__':
                        'foxo1_independent', sample_dirpath,
                        cpus=10, center=True, reverse=False, preceding=False,
                        size=200, length=[8, 10, 12], mock=True)
-        print('foxo1_independent', len(foxo1_independent))
+        print(('foxo1_independent', len(foxo1_independent)))
 
     # With the KO now
     cond, seq, breed = ('naive', 'atac', 'foxo1_ko_')
@@ -68,4 +69,4 @@ if __name__ == '__main__':
                        'ko_new', sample_dirpath,
                        cpus=10, center=True, reverse=False, preceding=False,
                        size=200, length=[8, 10, 12], mock=True)
-        print('ko_new', len(ko_new))
+        print(('ko_new', len(ko_new)))

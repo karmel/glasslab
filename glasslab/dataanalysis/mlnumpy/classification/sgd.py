@@ -4,6 +4,7 @@ Created on Jun 7, 2011
 @author: karmel
 '''
 from __future__ import division
+from __future__ import print_function
 from glasslab.dataanalysis.mlnumpy.base import BaseClassifier, MLSetup
 from scikits.learn.linear_model.stochastic_gradient import SGDClassifier
 import numpy
@@ -45,7 +46,7 @@ if __name__ == '__main__':
     indices_to_use = ordered_indices[:optimal_count]#min(optimal_count,10)]
     indices = [indices[x] for x in indices_to_use]
     fields_used = [fields[x] for x in indices]
-    print 'Using fields: %s' % str(fields_used)
+    print('Using fields: %s' % str(fields_used))
     
     orig_data = classifier.data[:]
     classifier.data = classifier.data[:,0:optimal_count]

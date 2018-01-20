@@ -4,6 +4,7 @@ Created on Apr 18, 2013
 @author: karmel
 '''
 from __future__ import division
+from __future__ import print_function
 from glasslab.dataanalysis.motifs.motif_analyzer import MotifAnalyzer
 from glasslab.dataanalysis.graphing.seq_grapher import SeqGrapher
 
@@ -20,18 +21,18 @@ if __name__ == '__main__':
     stat1 = yzer.import_file(yzer.get_filename(dirpath, 
                             'stat1_with_foxp3.txt')).fillna(0)
                             
-    print len(foxp3), len(stat1)
-    print sum(foxp3['stat1_id'] > 0)
-    print sum(foxp3['stat1_id'] > 0)/len(foxp3)
-    print sum(stat1['foxp3_id'] > 0)
-    print sum(stat1['foxp3_id'] > 0)/len(stat1)
+    print(len(foxp3), len(stat1))
+    print(sum(foxp3['stat1_id'] > 0))
+    print(sum(foxp3['stat1_id'] > 0)/len(foxp3))
+    print(sum(stat1['foxp3_id'] > 0))
+    print(sum(stat1['foxp3_id'] > 0)/len(stat1))
     
     foxp3_enh = foxp3[(foxp3['tss_me2_id'] == 0) & (foxp3['tss_id'] == 0)]
     foxp3_tss = foxp3[(foxp3['tss_me2_id'] > 0) | (foxp3['tss_id'] > 0)]
-    print len(foxp3_enh)
-    print sum(foxp3_enh['stat1_id'] > 0)/len(foxp3_enh)
-    print len(foxp3_tss)
-    print sum(foxp3_tss['stat1_id'] > 0)/len(foxp3_tss)
+    print(len(foxp3_enh))
+    print(sum(foxp3_enh['stat1_id'] > 0)/len(foxp3_enh))
+    print(len(foxp3_tss))
+    print(sum(foxp3_tss['stat1_id'] > 0)/len(foxp3_tss))
     
     foxp3_with_stat = foxp3[foxp3['stat1_id'] > 0]
     if False:

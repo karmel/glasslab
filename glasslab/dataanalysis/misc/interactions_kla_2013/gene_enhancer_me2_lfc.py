@@ -5,6 +5,7 @@ Created on Jan 3, 2013
 
 Plot gen-enhancer me2 LFC; do we see correlation?
 '''
+from __future__ import print_function
 from glasslab.dataanalysis.graphing.seq_grapher import SeqGrapher
 from glasslab.utils.functions import nonzero
 import numpy
@@ -50,8 +51,8 @@ if __name__ == '__main__':
         for key, val_set  in pairs.iteritems():
             
             val_set = val_set[(val_set[me2_col + '_2'].abs() >= .58)]
-            print key, len(val_set)
-            print val_set.corr()
+            print(key, len(val_set))
+            print(val_set.corr())
             
             if True:
                 val_set = val_set.sort(columns=me2_col + '_2', ascending=True)

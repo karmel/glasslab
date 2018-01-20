@@ -3,6 +3,7 @@ Created on Oct 5, 2014
 
 @author: karmel
 '''
+from __future__ import print_function
 from glasslab.dataanalysis.misc.rodrigo.samples import get_threshold,\
     get_breed_sets
 from glasslab.dataanalysis.motifs.motif_analyzer import MotifAnalyzer
@@ -38,5 +39,5 @@ if __name__ == '__main__':
     # Now set up case-specific counts.
 
     # First, how many naive?
-    print('Naive total:', len(datasets['d0']))
-    print('Naive not d7:', sum(datasets['d0']['klrghi_d7']))
+    print(('Naive total:', len(datasets['d0'])))
+    print(('Naive not d7:', sum(datasets['d0']['klrghi_d7'])))

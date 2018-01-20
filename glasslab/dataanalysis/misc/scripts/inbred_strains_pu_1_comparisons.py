@@ -4,6 +4,7 @@ Created on Mar 23, 2012
 @author: karmel
 '''
 from __future__ import division
+from __future__ import print_function
 from glasslab.dataanalysis.graphing.seq_grapher import SeqGrapher
 import os
 from scipy.stats.stats import ttest_ind
@@ -71,7 +72,7 @@ if __name__ == '__main__':
         grapher.save_plot(os.path.join(dirpath, 'peak_boxplots_no_balb_motif_filter_low_peaks.png'))
         grapher.show_plot()
         
-    print 'p-val that BALBc is different than C57Bl6: %g' % ttest_ind(data['wt_pu_1_tag_count'],data['balb_pu_1_tag_count_norm'])[1]
-    print 'p-val that NOD (all) is different than C57Bl6: %g' % ttest_ind(data['wt_pu_1_tag_count'],data['nod_pu_1_tag_count_norm'])[1]
-    print 'p-val that NOD == C57Bl6 is different than C57Bl6: %g' % ttest_ind(data['wt_pu_1_tag_count'],nod_with_bl6['nod_pu_1_tag_count_norm'])[1]
-    print 'p-val that NOD == BALBc is different than C57Bl6: %g' % ttest_ind(data['wt_pu_1_tag_count'],nod_with_balb['nod_pu_1_tag_count_norm'])[1]
+    print('p-val that BALBc is different than C57Bl6: %g' % ttest_ind(data['wt_pu_1_tag_count'],data['balb_pu_1_tag_count_norm'])[1])
+    print('p-val that NOD (all) is different than C57Bl6: %g' % ttest_ind(data['wt_pu_1_tag_count'],data['nod_pu_1_tag_count_norm'])[1])
+    print('p-val that NOD == C57Bl6 is different than C57Bl6: %g' % ttest_ind(data['wt_pu_1_tag_count'],nod_with_bl6['nod_pu_1_tag_count_norm'])[1])
+    print('p-val that NOD == BALBc is different than C57Bl6: %g' % ttest_ind(data['wt_pu_1_tag_count'],nod_with_balb['nod_pu_1_tag_count_norm'])[1])

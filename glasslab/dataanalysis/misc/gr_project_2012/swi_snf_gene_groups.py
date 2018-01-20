@@ -6,6 +6,7 @@ Created on Nov 26, 2012
 Do the gene groups outlined in Ramirez-Carrozzi 2006 and 2009 correlate
 with expression changes in Dex+KLA?
 '''
+from __future__ import print_function
 from glasslab.dataanalysis.graphing.seq_grapher import SeqGrapher
 
 
@@ -52,7 +53,7 @@ if __name__ == '__main__':
                        ('Has CpG Island', 'No CpG Island'))
         title_groups = ('Ramirez-Carrozzi 2006', 'Ramirez-Carrozzi 2009', 'CpG Islands')
         for labels, sets, group in zip(superlabels, supersets, title_groups)[-1:]:
-            for d in sets: print len(d)
+            for d in sets: print(len(d))
             vals = [d['dex_over_kla_{0}_lfc'.format(rep)] for d in sets]
             
             title = 'Dex Transrepression for Transrepressed Transcript Groups defined by {0}'.format(group)

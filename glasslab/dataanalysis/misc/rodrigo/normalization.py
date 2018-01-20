@@ -11,6 +11,7 @@ tags-in-peaks that the overlapping naive peaks represent,
 and then scale the LCMV peaks such that both samples have comparable numbers of
 tags-in-peaks relative to how many peaks there are.
 '''
+from __future__ import print_function
 from glasslab.dataanalysis.graphing.seq_grapher import SeqGrapher
 
 

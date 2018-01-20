@@ -3,6 +3,7 @@ Created on Mar 28, 2013
 
 @author: karmel
 '''
+from __future__ import print_function
 from glasslab.dataanalysis.motifs.motif_analyzer import MotifAnalyzer
 
 
@@ -27,7 +28,7 @@ if __name__ == '__main__':
         only_treg = treg[treg['naive_id'] == 0]
         only_naive = naive[naive['treg_id'] == 0]
         shared = treg[treg['naive_id'] > 0]
-        print len(only_treg), len(only_naive), len(shared)
+        print(len(only_treg), len(only_naive), len(shared))
         
         datasets = [treg, naive, only_treg, only_naive, shared]
         main_peak = ['treg','naive','treg','naive','treg']

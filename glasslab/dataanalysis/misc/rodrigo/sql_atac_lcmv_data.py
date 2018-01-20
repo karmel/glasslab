@@ -11,6 +11,7 @@ sudo ln -s /Library/PostgreSQL/9.2/lib/libssl.1.0.0.dylib /usr/lib
 sudo ln -s /Library/PostgreSQL/9.2/lib/libcrypto.1.0.0.dylib /usr/lib
 
 '''
+from __future__ import print_function
 from glasslab.dataanalysis.misc.rodrigo.samples import get_breed_sets
 from glasslab.dataanalysis.motifs.motif_analyzer import MotifAnalyzer
 from glasslab.utils.database import get_engine, dataframe_from_query

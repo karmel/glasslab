@@ -3,6 +3,7 @@ Created on Mar 23, 2012
 
 @author: karmel
 '''
+from __future__ import print_function
 from glasslab.dataanalysis.graphing.seq_grapher import SeqGrapher
 import os
 
@@ -47,7 +48,7 @@ if __name__ == '__main__':
     if False:
         #print set(grapher.get_gene_list(refseq_up_nond)) & set(grapher.get_gene_list(refseq_up_d))
         #print set(grapher.get_gene_list(refseq_down_nond)) & set(grapher.get_gene_list(refseq_down_d))
-        print grapher.get_gene_names(refseq_up_nond)
+        print(grapher.get_gene_names(refseq_up_nond))
     
     if True:
         # non-d

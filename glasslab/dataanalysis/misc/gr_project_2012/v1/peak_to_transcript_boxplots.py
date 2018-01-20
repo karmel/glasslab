@@ -4,6 +4,7 @@ Created on Sep 7, 2012
 @author: karmel
 '''
 from __future__ import division
+from __future__ import print_function
 from glasslab.dataanalysis.graphing.seq_grapher import SeqGrapher
 
 
@@ -41,7 +42,7 @@ if __name__ == '__main__':
         grapher.save_plot(grapher.get_filename(base_dirpath, 'boxplots', 'dex',
                                title.replace(' ','_')))
         grapher.show_plot()
-        for sub in datasets: print sub.mean()
+        for sub in datasets: print(sub.mean())
     
     # Boxplots for gr_kla_dex peaks by lfc in Dex
     if False:
@@ -66,7 +67,7 @@ if __name__ == '__main__':
         grapher.save_plot(grapher.get_filename(base_dirpath, 'boxplots', 'kla_dex',
                                title.replace(' ','_')))
         grapher.show_plot()
-        for sub in datasets: print sub.mean()
+        for sub in datasets: print(sub.mean())
         
     if True:
         #data = data[data['has_refseq'] == 1]

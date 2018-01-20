@@ -3,6 +3,7 @@ Created on Sep 27, 2014
 
 @author: karmel
 '''
+from __future__ import print_function
 from glasslab.dataanalysis.misc.rodrigo.samples import sample_name,\
     get_threshold
 from glasslab.dataanalysis.motifs.motif_analyzer import MotifAnalyzer
@@ -33,7 +34,7 @@ if __name__ == '__main__':
                        'naive_only', sample_dirpath,
                        cpus=10, center=True, reverse=False, preceding=False,
                        size=200, length=[8, 10, 12], mock=True)
-        print('naive_only', len(naive_only))
+        print(('naive_only', len(naive_only)))
 
         shared = data[
             (data['tag_count'] * fold >= data['lcmv_d12_foxo1_tag_count']) &
@@ -42,7 +43,7 @@ if __name__ == '__main__':
                        'shared', sample_dirpath,
                        cpus=10, center=True, reverse=False, preceding=False,
                        size=200, length=[8, 10, 12], mock=True)
-        print('shared', len(shared))
+        print(('shared', len(shared)))
 
     cond, seq, breed = ('lcmv_d12', 'foxo1', '')
     sample_prefix = sample_name(cond, seq, breed)
@@ -64,4 +65,4 @@ if __name__ == '__main__':
                        'lcmv_d12_only', sample_dirpath,
                        cpus=10, center=True, reverse=False, preceding=False,
                        size=200, length=[8, 10, 12], mock=True)
-        print('lcmv_d12_only', len(lcmv_d12_only))
+        print(('lcmv_d12_only', len(lcmv_d12_only)))

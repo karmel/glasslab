@@ -3,6 +3,7 @@ Created on Jan 26, 2011
 
 @author: karmel
 '''
+from __future__ import print_function
 
 import sys
 
@@ -25,7 +26,7 @@ def convert_eland_export_to_fastq(input_file, output_file):
             out_file.write('+' + ident + '\n')
             out_file.write(parts[9] + '\n')
         except Exception: 
-            print 'FAILED on line %d: %s' % (i, line)
+            print('FAILED on line %d: %s' % (i, line))
             raise
     
 if __name__ == '__main__':

@@ -4,6 +4,7 @@ Created on Mar 1, 2014
 @author: karmel
 '''
 from __future__ import division
+from __future__ import print_function
 from glasslab.dataanalysis.motifs.motif_analyzer import MotifAnalyzer
 
 
@@ -37,26 +38,26 @@ if __name__ == '__main__':
                            (data['tag_count(3)'] > min_thresh)
                            ]
             print('All three ' + ab)
-            print(len(subdata), len(subdata)/len(data))
+            print((len(subdata), len(subdata)/len(data)))
             
             subdata = data[(data['tag_count(2)'] > min_thresh) &
                            (data['tag_count(3)'] <= min_thresh)
                            ]
             print('{} and p2 {}'.format(condition,ab))
-            print(len(subdata), len(subdata)/len(data))
+            print((len(subdata), len(subdata)/len(data)))
             
             subdata = data[(data['tag_count(2)'] <= min_thresh) &
                            (data['tag_count(3)'] > min_thresh)
                            ]
             print('{} and p3 {}'.format(condition,ab))
-            print(len(subdata), len(subdata)/len(data))
+            print((len(subdata), len(subdata)/len(data)))
             
             
             subdata = data[(data['tag_count(2)'] <= min_thresh) &
                            (data['tag_count(3)'] <= min_thresh)
                            ]
             print('{} only {}'.format(condition,ab))
-            print(len(subdata), len(subdata)/len(data))
+            print((len(subdata), len(subdata)/len(data)))
             
             
             

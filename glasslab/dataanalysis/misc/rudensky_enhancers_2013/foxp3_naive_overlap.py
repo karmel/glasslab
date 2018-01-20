@@ -4,6 +4,7 @@ Created on Feb 20, 2013
 @author: karmel
 '''
 from __future__ import division
+from __future__ import print_function
 from glasslab.dataanalysis.motifs.motif_analyzer import MotifAnalyzer
 
 if __name__ == '__main__':
@@ -26,7 +27,7 @@ if __name__ == '__main__':
     only_foxp3 = foxp3[foxp3['naive_id'] == 0]
     only_naive = naive[naive['foxp3_1_id'] == 0]
     shared = foxp3[foxp3['naive_id'] > 0]
-    print len(only_foxp3), len(only_naive), len(shared)
+    print(len(only_foxp3), len(only_naive), len(shared))
     
     # Now factor in foxo1
     foxp3_no_foxo1 = foxp3[foxp3['foxo1_id'] == 0]
@@ -41,7 +42,7 @@ if __name__ == '__main__':
     main_peak = ['foxp3_1']*len(datasets)
     names = ['all_foxp3','only_foxp3_no_foxo1','only_foxp3_with_foxo1','shared_no_foxo1','shared_with_foxo1',
              'foxp3_no_foxo1','foxp3_with_foxo1']
-    print [len(d) for d in datasets]
+    print([len(d) for d in datasets])
     
     
     for i, subset in enumerate(datasets):

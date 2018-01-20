@@ -7,6 +7,7 @@ We have generated derivative genomes from SNPs, but now should be able to spot-c
 to make sure it looks decent...
 '''
 from __future__ import division
+from __future__ import print_function
 import os
 from glasslab.utils.datatypes.genetics import InbredStrainVariation,\
     InbredStrain
@@ -30,7 +31,7 @@ def main(strain='BALB'):
         ref_f = open(ref_file)
         f = open(source_file)
         
-        print 'Using source file %s.' % source_file
+        print('Using source file %s.' % source_file)
         ref_n, ref_header = get_nucleotides_and_header(ref_f)
         nucleotides, header = get_nucleotides_and_header(f)
         
@@ -62,18 +63,18 @@ def main(strain='BALB'):
             if expected_match == nucleotides[var.strain_start:var.strain_end + 1]:
                 matches += 1
             else: 
-                print 'Found discrepancy for variation at reference position %d on %s: found %s vs. expected %s.' \
-                    % (var.ref_start, chr.name, nucleotides[var.strain_start:var.strain_end+1], expected_match)
+                print('Found discrepancy for variation at reference position %d on %s: found %s vs. expected %s.' \
+                    % (var.ref_start, chr.name, nucleotides[var.strain_start:var.strain_end+1], expected_match))
                 discrepancies += 1
         
         f.close()
     
-        print 'Found %d matches and %d discrepancies in %s.' % (matches, discrepancies, chr.name)
+        print('Found %d matches and %d discrepancies in %s.' % (matches, discrepancies, chr.name))
     
         
         
 if __name__=='__main__':
     if len(sys.argv) > 1: strain = sys.argv[1]
     else: strain = 'BALB'
-    print 'Testing genome for %s.' % strain
+    print('Testing genome for %s.' % strain)
     main(strain)

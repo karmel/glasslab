@@ -8,6 +8,7 @@ but he seems to use set 2 in the paper (?). Here we use
 summed tags and peaks found in that.
 '''
 from __future__ import division
+from __future__ import print_function
 from glasslab.dataanalysis.motifs.motif_analyzer import MotifAnalyzer
 from glasslab.dataanalysis.graphing.seq_grapher import SeqGrapher
 
@@ -90,7 +91,7 @@ if __name__ == '__main__':
                        foxp3, (foxp3/total)*100,
                        both, (both/total)*100,
                        k=k)
-            print summary
+            print(summary)
         
             # Draw pie for each group, showing % with foxp3, % with ac, and % with both
             relevant_cells = ', '.join([s.title() for s in k.split('_')])

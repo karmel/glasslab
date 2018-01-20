@@ -3,6 +3,7 @@ Created on Sep 20, 2014
 
 @author: karmel
 '''
+from __future__ import print_function
 from glasslab.dataanalysis.graphing.seq_grapher import SeqGrapher
 from glasslab.dataanalysis.misc.rodrigo.samples import get_threshold
 
@@ -37,10 +38,10 @@ if __name__ == '__main__':
         me2_only = me2[(me2['naive_atac_tag_count'] < atac_thresh)]
         me2_atac = me2[(me2['naive_atac_tag_count'] >= atac_thresh)]
 
-        print('ATAC only: ', len(atac_only))
-        print('ATAC with H3K4me2: ', len(atac_me2))
-        print('H3K4me2 only: ', len(me2_only))
-        print('H3K4me2 with ATAC: ', len(me2_atac))
+        print(('ATAC only: ', len(atac_only)))
+        print(('ATAC with H3K4me2: ', len(atac_me2)))
+        print(('H3K4me2 only: ', len(me2_only)))
+        print(('H3K4me2 with ATAC: ', len(me2_atac)))
 
         save_path = yzer.get_and_create_path(
             dirpath, 'Figures', 'me2_atac_overlaps')

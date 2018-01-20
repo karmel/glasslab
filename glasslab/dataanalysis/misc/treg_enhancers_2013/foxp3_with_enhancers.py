@@ -8,6 +8,7 @@ but he seems to use set 2 in the paper (?). Here we use
 summed tags and peaks found in that.
 '''
 from __future__ import division
+from __future__ import print_function
 from glasslab.dataanalysis.motifs.motif_analyzer import MotifAnalyzer
 from collections import OrderedDict
 
@@ -47,13 +48,13 @@ if __name__ == '__main__':
                                       & (data['th1_id'] > 0))
     
     
-    print 'Set\tCount\t% of Total\t% of Enh'
+    print('Set\tCount\t% of Total\t% of Enh')
     for k, count in stats.iteritems():
-        print '{}\t{}\t{:.2f}\t{:.2f}'.format(k,
+        print('{}\t{}\t{:.2f}\t{:.2f}'.format(k,
                                        count,
                                        count/stats['all']*100,
                                        count/stats['enhancers']*100,
-                                       )
+                                       ))
     
     subsets = {}
     if True:

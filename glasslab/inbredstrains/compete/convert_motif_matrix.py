@@ -33,7 +33,7 @@ if __name__ == '__main__':
     nucleotides = 'ACGT'
     for filename in os.listdir(homer_dir):
         f = file(os.path.join(homer_dir, filename),'r')
-        first_line = f.next()
+        first_line = next(f)
         matrix = pandas.read_table(f, sep='\t', header=0, names=nucleotides)
         
         motif_name = filename.split('.')[0]

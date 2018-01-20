@@ -3,6 +3,7 @@ Created on Mar 22, 2012
 
 @author: karmel
 '''
+from __future__ import print_function
 from glasslab.dataanalysis.base.datatypes import TranscriptAnalyzer
 import os
 import subprocess

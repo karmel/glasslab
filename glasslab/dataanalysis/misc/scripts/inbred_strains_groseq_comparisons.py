@@ -4,6 +4,7 @@ Created on Mar 23, 2012
 @author: karmel
 '''
 from __future__ import division
+from __future__ import print_function
 from glasslab.dataanalysis.graphing.seq_grapher import SeqGrapher
 import os
 from scipy.stats.stats import ttest_ind
@@ -25,7 +26,7 @@ if __name__ == '__main__':
     data = grapher.normalize(data, 'nod_tag_count', balb_norm)
     
     
-    print len(data)
+    print(len(data))
     
     data['nod_with_bl6'] = data['nod_sv_id'] <= .1
     
@@ -36,7 +37,7 @@ if __name__ == '__main__':
     nod_with_balb = grapher.collapse_strands(nod_with_balb)
     nod_with_bl6 = nod_with_bl6[nod_with_bl6['wt_peak_tag_count'] > 2*nod_with_bl6['balb_peak_tag_count']]
     nod_with_balb = nod_with_balb[nod_with_balb['wt_peak_tag_count'] > 2*nod_with_balb['balb_peak_tag_count']]
-    print len(nod_with_bl6), len(nod_with_balb)
+    print(len(nod_with_bl6), len(nod_with_balb))
     if False:
         ax = grapher.scatterplot(nod_with_bl6, 'balb_tag_count', 'nod_tag_count_norm',
                             subplot=121, log=True, color='blue', 
@@ -76,11 +77,11 @@ if __name__ == '__main__':
     
     
     if True:
-        print 'p-val that BALBc is different than C57Bl6: %g' % ttest_ind(data['wt_tag_count'],data['balb_tag_count_norm'])[1]
-        print 'p-val that NOD (all) is different than C57Bl6: %g' % ttest_ind(data['wt_tag_count'],data['nod_tag_count_norm'])[1]
-        print 'p-val that NOD == C57Bl6 is different than C57Bl6: %g' % ttest_ind(data['wt_tag_count'],nod_with_bl6['nod_tag_count_norm'])[1]
-        print 'p-val that NOD == BALBc is different than C57Bl6: %g' % ttest_ind(data['wt_tag_count'],nod_with_balb['nod_tag_count_norm'])[1]
+        print('p-val that BALBc is different than C57Bl6: %g' % ttest_ind(data['wt_tag_count'],data['balb_tag_count_norm'])[1])
+        print('p-val that NOD (all) is different than C57Bl6: %g' % ttest_ind(data['wt_tag_count'],data['nod_tag_count_norm'])[1])
+        print('p-val that NOD == C57Bl6 is different than C57Bl6: %g' % ttest_ind(data['wt_tag_count'],nod_with_bl6['nod_tag_count_norm'])[1])
+        print('p-val that NOD == BALBc is different than C57Bl6: %g' % ttest_ind(data['wt_tag_count'],nod_with_balb['nod_tag_count_norm'])[1])
         
-        print 'p-val that NOD (all) is different than BALBc: %g' % ttest_ind(data['balb_tag_count_norm'],data['nod_tag_count_norm'])[1]
-        print 'p-val that NOD == C57Bl6 is different than BALBc: %g' % ttest_ind(data['balb_tag_count_norm'],nod_with_bl6['nod_tag_count_norm'])[1]
-        print 'p-val that NOD == BALBc is different than BALBc: %g' % ttest_ind(data['balb_tag_count_norm'],nod_with_balb['nod_tag_count_norm'])[1]
+        print('p-val that NOD (all) is different than BALBc: %g' % ttest_ind(data['balb_tag_count_norm'],data['nod_tag_count_norm'])[1])
+        print('p-val that NOD == C57Bl6 is different than BALBc: %g' % ttest_ind(data['balb_tag_count_norm'],nod_with_bl6['nod_tag_count_norm'])[1])
+        print('p-val that NOD == BALBc is different than BALBc: %g' % ttest_ind(data['balb_tag_count_norm'],nod_with_balb['nod_tag_count_norm'])[1])

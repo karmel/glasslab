@@ -12,6 +12,7 @@ different builds of Vespucci, and plot.
 Note: Made font.weight = bold and axes.titlesize = 24  and axes.labelweight=bold in matplotlibrc
 '''
 from __future__ import division
+from __future__ import print_function
 from glasslab.dataanalysis.graphing.seq_grapher import SeqGrapher
 from collections import OrderedDict
 import pandas
@@ -32,11 +33,11 @@ if __name__ == '__main__':
     
     success_rates = []
     for suffix, data in datasets.iteritems():
-        print 'Stats for {}'.format(suffix)
+        print('Stats for {}'.format(suffix))
         exactly_1 = sum(data['count'] == 1)
         greater_than_1 = sum(data['count'] > 1)
         success_rate = (exactly_1 - greater_than_1)/len(data)
         success_rates.append(success_rate)
-        print success_rate
+        print(success_rate)
     
     

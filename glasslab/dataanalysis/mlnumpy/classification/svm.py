@@ -4,6 +4,7 @@ Created on Jun 2, 2011
 @author: karmel
 '''
 from __future__ import division
+from __future__ import print_function
 import numpy
 from scikits.learn import svm
 from scikits.learn.feature_selection import RFECV
@@ -26,7 +27,7 @@ class GlassSVMClassifier(BaseClassifier):
         
         optimal_number = rfecv.support_.sum()
         
-        print 'Optimal number of features: %d' % optimal_number
+        print('Optimal number of features: %d' % optimal_number)
         
         if draw:
             pl.figure()
@@ -71,7 +72,7 @@ if __name__ == '__main__':
     indices_to_use = ordered_indices[:optimal_count]#min(optimal_count,10)]
     indices = [indices[x] for x in indices_to_use]
     fields_used = [fields[x] for x in indices]
-    print 'Using fields: %s' % str(fields_used)
+    print('Using fields: %s' % str(fields_used))
     
     orig_data = classifier.data[:]
     classifier.data = classifier.data[:,0:optimal_count]

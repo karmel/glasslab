@@ -3,6 +3,7 @@ Created on Oct 6, 2014
 
 @author: karmel
 '''
+from __future__ import print_function
 from glasslab.dataanalysis.misc.rodrigo.samples import get_threshold,\
     get_breed_sets
 from glasslab.dataanalysis.motifs.motif_analyzer import MotifAnalyzer
@@ -52,6 +53,6 @@ if __name__ == '__main__':
         d35_no_naive = sum(d35_no_d7['d0_tag_count'] < min_thresh)
 
         print(naive_ct)
-        print(d7_with_naive, d7_no_naive)
-        print(d12_with_d7, d12_naive, d12_no_naive)
-        print(d35_with_d7, d35_naive, d35_no_naive)
+        print((d7_with_naive, d7_no_naive))
+        print((d12_with_d7, d12_naive, d12_no_naive))
+        print((d35_with_d7, d35_naive, d35_no_naive))

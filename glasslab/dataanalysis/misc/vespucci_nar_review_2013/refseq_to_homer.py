@@ -6,6 +6,7 @@ Created on Mar 11, 2013
 Note: Made font.weight = bold and axes.titlesize = 24, font.size = 16 in matplotlibrc
 '''
 from __future__ import division
+from __future__ import print_function
 from glasslab.dataanalysis.graphing.seq_grapher import SeqGrapher
 from glasslab.utils.functions import nonzero
 
@@ -39,5 +40,5 @@ if __name__ == '__main__':
 
     merged['ratio'] = merged['sum']/merged['homer_tag_count']
     merged = merged.sort('ratio')
-    print merged.head(10)
-    print merged.tail(20)
+    print(merged.head(10))
+    print(merged.tail(20))

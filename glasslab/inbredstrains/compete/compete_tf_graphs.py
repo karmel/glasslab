@@ -14,6 +14,7 @@ region::
 We want to graph those probabilities.
 '''
 from __future__ import division
+from __future__ import print_function
 from glasslab.dataanalysis.graphing.seq_grapher import SeqGrapher
 import pandas
 from matplotlib import pyplot
@@ -205,11 +206,11 @@ class CompeteGrapher(SeqGrapher):
         alt_fa = file(os.path.join(fasta_dir_alt,chr_name + '.fa'))
         ref_fa = ''.join(map(lambda x: x[:-1], list(ref_fa.readlines())[1:]))
         alt_fa = ''.join(map(lambda x: x[:-1], list(alt_fa.readlines())[1:]))
-        if ref_fa == alt_fa: print 'Same sequence at {0}: {1} - {2}'.format(chr_name, pos_start, pos_end)
-        print 'Ref seq:'
-        print ref_fa[pos_start:pos_start+50]
-        print 'Alt seq:'
-        print alt_fa[alt_start:alt_start+50]
+        if ref_fa == alt_fa: print('Same sequence at {0}: {1} - {2}'.format(chr_name, pos_start, pos_end))
+        print('Ref seq:')
+        print(ref_fa[pos_start:pos_start+50])
+        print('Alt seq:')
+        print(alt_fa[alt_start:alt_start+50])
         
         
 if __name__ == '__main__':
